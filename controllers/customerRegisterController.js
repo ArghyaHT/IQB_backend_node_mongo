@@ -1,13 +1,14 @@
 
+const { validateSignUp } = require("../middlewares/registerValidator");
 const customerService = require("../services/customerRegisterService")
-// const {sendPasswordResetEmail} = require("../utils/emailSender.js")
-
 
 
 // Create a new customer
 const signUp = async (req, res) => {
 try{
   const customerData = req.body;
+
+  validateSignUp[req]
 
   const result = await customerService.createCustomer(customerData);
 
@@ -18,7 +19,6 @@ try{
     VerificationCode: result.VerificationCode
   });
 
-  console.log(result.response)
 }
 catch (error) {
   console.error(error);
@@ -28,10 +28,6 @@ catch (error) {
   });
 }
 };
-
-
-
-
 
 
 //-----------SignIn Customer-------------//
@@ -59,9 +55,9 @@ const signIn = async (req, res) => {
 
 const forgetPassword = async(req, res) =>{
   try{
-    const {Email} = req.body;
+    const {email} = req.body;
     
-    const result = await customerService.enterEmail(Email);
+    const result = await customerService.enterEmail(email);
 
     res.status(result.status).json({
       status:result.status,
@@ -101,14 +97,73 @@ const resetpassword = async (req, res) => {
 
 
 
+const allCustomers = async(req, res) => {
+  try{
+      const result = await customerService.getAllCustomers()
+
+      res.status(result.status).json({
+
+          status: result.status,
+          response: result.response,
+      });
+  }
+  catch (error) {
+      console.error(error);
+      res.status(500).json({
+          status: 500,
+          message: 'Failed to Show Admins'
+      });
+  }
+}
+
+const deleteSingleCustomer = async(req, res) =>{
+  const {email} = req.body;
+  try{
+      const result = await customerService.deleteCustomer(email)
+      res.status(result.status).json({
+
+          status: result.status,
+          response: result.response,
+      });
+  }
+  
+  catch (error) {
+      console.error(error);
+      res.status(500).json({
+          status: 500,
+          message: 'Failed to Delete Customer'
+      });
+  }
+}
+
+const updateCustomer = async(req, res) =>{
+  const customerData = req.body;
+  validateSignUp[req]
+  try {
+      const result = await customerService.updateCustomer(customerData);
+      res.status(result.status).json({
+
+          status: result.status,
+          response: result.response,
+      });
+  }
+  catch (error) {
+      console.error(error);
+      res.status(500).json({
+          status: 500,
+          message: 'Failed to update Customer'
+      });
+  }
+}
 
 
- 
-
-  module.exports ={
+  module.exports = {
   signUp,
   signIn,
   forgetPassword,
-  resetpassword
+  resetpassword,
+  allCustomers,
+  deleteSingleCustomer,
+  updateCustomer
   
   }
