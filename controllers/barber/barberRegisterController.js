@@ -1,6 +1,6 @@
-const barberService = require("../services/barberRegisterService.js")
+const barberService = require("../../services/barber/barberRegisterService.js")
 
-const {barberValidateSignUp} = require("../middlewares/barberRegisterValidate.js")
+const {barberValidateSignUp} = require("../../middlewares/barberRegisterValidate.js")
 
 
 const registerBarber = async(req, res) => {

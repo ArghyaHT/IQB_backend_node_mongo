@@ -1,6 +1,6 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, resetpassword, allCustomers, deleteSingleCustomer, updateCustomer,  } = require("../controllers/customerRegisterController")
-const { validateSignUp, validate } = require("../middlewares/registerValidator")
+const { signUp, signIn, forgetPassword, resetpassword, allCustomers, deleteSingleCustomer, updateCustomer,  } = require("../../controllers/customer/customerRegisterController.js")
+const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 
 
 const router = express.Router()

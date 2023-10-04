@@ -1,5 +1,5 @@
-const Barber = require("../models/barberRegisterModel.js")
-const Salon = require("../models/salonsRegisterModel.js")
+const Barber = require("../../models/barberRegisterModel.js")
+const Salon = require("../../models/salonsRegisterModel.js")
 
 
 const createBarber = async(barberData) => {

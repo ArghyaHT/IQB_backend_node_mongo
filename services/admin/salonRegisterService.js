@@ -1,9 +1,9 @@
-const Salon = require("../models/salonsRegisterModel.js")
-const Admin = require("../models/adminRegisterModel.js")
+const Salon = require("../../models/salonsRegisterModel.js")
+const Admin = require("../../models/adminRegisterModel.js")
 
 //-------CreateSalon------//
 
-const createSalon = async (salonData, adminEmail) => {
+const createSalon = async (salonData, AdminEmail) => {
   const {
     UserName,
     SalonName,
@@ -21,7 +21,7 @@ const createSalon = async (salonData, adminEmail) => {
     SalonServices
   } = salonData
 
-const AdminEmail = adminEmail
+const email = AdminEmail
   try {
 
     const salonId = await Salon.countDocuments() + 1;
@@ -32,7 +32,7 @@ const AdminEmail = adminEmail
 
     const salonCode = firstTwoLetters + salonId;
     //Find the Salon If exits 
-    const existingSalon = await Salon.findOne({ UserName });
+    const existingSalon = await Salon.findOne({ UserName: UserName });
     
     
     if (existingSalon) {
@@ -44,7 +44,7 @@ const AdminEmail = adminEmail
 
 
      await Admin.findOneAndUpdate(
-      { Email: AdminEmail },
+      { Email: email },
       { SalonId: salonId },
       { new: true })
 
@@ -69,8 +69,6 @@ const AdminEmail = adminEmail
       AdminEmail: AdminEmail
     });
 
-
-    const token = await salon.generateAuthToken();
     const savedSalon = await salon.save();
 
     savedSalon.SalonServices.forEach((service, index) => {

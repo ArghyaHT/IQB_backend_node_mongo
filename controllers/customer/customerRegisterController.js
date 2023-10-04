@@ -1,6 +1,6 @@
 
-const { validateSignUp } = require("../middlewares/registerValidator");
-const customerService = require("../services/customerRegisterService")
+const { validateSignUp } = require("../../middlewares/registerValidator");
+const customerService = require("../../services/customer/customerRegisterService.js")
 
 
 // Create a new customer

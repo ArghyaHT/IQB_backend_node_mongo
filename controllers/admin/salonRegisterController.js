@@ -1,17 +1,15 @@
-const salonService = require("../services/salonRegisterService")
+const salonService = require("../../services/admin/salonRegisterService")
 
 // Create a new Salon
 const salonSignUp = async (req, res) => {
   try {
     const salonData = req.body;
-    const {adminEmail} = req.body
+    const {AdminEmail} = req.body
 
 
-    const result = await salonService.createSalon(salonData, adminEmail);
+    const result = await salonService.createSalon(salonData, AdminEmail);
 
     res.status(result.status).json({
-
-      status: result.status,
       response: result.response,
       error: result.error
     });
@@ -19,7 +17,6 @@ const salonSignUp = async (req, res) => {
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
       error: 'Failed to create Salon'
     });
   }

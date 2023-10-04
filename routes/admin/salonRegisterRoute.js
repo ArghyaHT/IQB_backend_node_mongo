@@ -1,12 +1,12 @@
 const express = require("express")
-const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId,  } = require("../controllers/salonRegisterController")
+const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId,  } = require("../../controllers/admin/salonRegisterController")
 
 
 const router = express.Router()
 
 
 //SalonSignUp
-router.route("/salonSignUp").post(salonSignUp)
+router.route("/createSalon").post(salonSignUp)
 
 router.route("/searchByCity").post(searchSalonsByCity)
 

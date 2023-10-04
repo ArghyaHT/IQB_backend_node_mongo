@@ -1,6 +1,6 @@
 const express = require("express");
-const { registerBarber, getAllBarberbySalonId, updateBarber, deleteBarber } = require("../controllers/barberRegisterController");
-const { barberValidateSignUp, validate } = require("../middlewares/barberRegisterValidate");
+const { registerBarber, getAllBarberbySalonId, updateBarber, deleteBarber } = require("../../controllers/barber/barberRegisterController");
+const { barberValidateSignUp, validate } = require("../../middlewares/barberRegisterValidate");
 
 
 const router = express.Router();

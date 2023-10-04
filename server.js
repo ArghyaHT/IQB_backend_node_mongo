@@ -2,13 +2,13 @@ const express = require("express")
 const connectDB = require("./db/db.js")
 const cors = require("cors")
 
-const registerCustomer = require("./routes/customerRegisterRoute.js")
+const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
-const registerAdmin = require("./routes/adminRegisterRoutes.js")
+const registerAdmin = require("./routes/admin/adminRegisterRoutes.js")
 
-const salonRegister = require("./routes/salonRegisterRoute.js")
+const salonRegister = require("./routes/admin/salonRegisterRoute.js")
 
-const barberRegister = require("./routes/barberRegisterRoutes.js")
+const barberRegister = require("./routes/barber/barberRegisterRoutes.js")
 
 
 

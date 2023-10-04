@@ -1,9 +1,9 @@
-const Admin = require("../models/adminRegisterModel.js")
+const Admin = require("../../models/adminRegisterModel.js")
 
 const bcrypt = require("bcrypt")
 
 const crypto = require("crypto");
-const { sendPasswordResetEmail } = require("../utils/emailSender.js");
+const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
 
 const createAdmin = async(adminData) => {
     const {

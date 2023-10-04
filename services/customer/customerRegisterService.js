@@ -1,10 +1,10 @@
-const Customer = require("../models/customerRegisterModel.js")
+const Customer = require("../../models/customerRegisterModel.js")
 
 const bcrypt = require("bcrypt")
 
 const crypto = require("crypto")
 
-const { sendPasswordResetEmail } = require("../utils/emailSender.js")
+const { sendPasswordResetEmail } = require("../../utils/emailSender.js")
 
 
 //----------SignUp For customer-----------------//

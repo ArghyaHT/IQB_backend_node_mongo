@@ -1,6 +1,6 @@
 const express = require("express");
-const { validateSignUp, validate } = require("../middlewares/registerValidator");
-const { adminSignUp, adminSignIn, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword } = require("../controllers/adminRegisterController");
+const { validateSignUp, validate } = require("../../middlewares/registerValidator");
+const { adminSignUp, adminSignIn, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword } = require("../../controllers/admin/adminRegisterController.js");
 
 
 const router = express.Router();
