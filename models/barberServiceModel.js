@@ -1,27 +1,24 @@
 const mongoose = require("mongoose")
 
 const barberServiceSchema = new mongoose.Schema({
-    BarberId:{
+    barberId:{
         type: Number
     },
-    SalonId:{
+    salonId:{
         type: Number
     },
-    BarberServices:[{
-        ServiceId: {
+    barberServices:[{
+        serviceId: {
             type: String,
         },
-        ServiceCode:{
+        serviceCode:{
             type: String
         },
-        ServiceName: {
+        serviceName: {
             type: String,
             required: true,
         },
-        ServiceDescription: {
-            type: String,
-            required: true,
-        },
+
         }]  
 })
 

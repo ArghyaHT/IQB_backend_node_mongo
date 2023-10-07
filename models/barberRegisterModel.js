@@ -1,47 +1,56 @@
 const mongoose = require("mongoose")
 
 const barberSchema = new mongoose.Schema({
-    Email:{
+    email:{
         type: String,
         required: true
     },
 
-    FirstName:{
+   firstName:{
         type:String,
         required: true
     },
 
-    LastName:{
+    lastName:{
         type: String,
         required: true
     },
 
-    UserName:{
+    userName:{
         type: String,
         required: true,
     },
 
-    MobileNumber:{
+    mobileNumber:{
         type: Number,
         required: true,
     },
-    DateOfBirth:{
+    dateOfBirth:{
         type: Date,
     },
-    SalonId:{
+    salonId:{
         type:Number
     },
-    BarberId:{
+    barberId:{
         type:Number
     },
-    BarberCode:{
+    barberCode:{
         type:String
     },
-    IsActive:{
+    isActive:{
         type:Boolean
     },
+    barberServices:[{
+        serviceId:{
+            type: Number
+        },
+        serviceName:{
+            type:String
+        } 
+
+    }]
    
-})
+}, {timestamps: true})
 
 const Barber = mongoose.model('Barber', barberSchema);
   

@@ -5,20 +5,19 @@ const Admin = require("../../models/adminRegisterModel.js")
 
 const createSalon = async (salonData, AdminEmail) => {
   const {
-    UserName,
-    SalonName,
-    SalonAppIcon,
-    SalonLogo,
-    Address,
-    City,
-    Country,
-    PostCode,
-    ContactTel,
-    SalonWebsite,
-    SalonFacebook,
-    SalonTwitter,
-    SalonInstagram,
-    SalonServices
+    userName,
+    salonName,
+    salonIcon,
+    salonLogo,
+    address,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    twitterLink,
+    instraLink,
   } = salonData
 
 const email = AdminEmail
@@ -26,13 +25,13 @@ const email = AdminEmail
 
     const salonId = await Salon.countDocuments() + 1;
 
-    const firstTwoLetters = SalonName.slice(0, 2).toUpperCase();
+    const firstTwoLetters = salonName.slice(0, 2).toUpperCase();
     // const secondTwoLetters = admin.FirstName.slice(0, 2).toUpperCase();
 
 
     const salonCode = firstTwoLetters + salonId;
     //Find the Salon If exits 
-    const existingSalon = await Salon.findOne({ UserName: UserName });
+    const existingSalon = await Salon.findOne({ userName });
     
     
     if (existingSalon) {
@@ -44,36 +43,34 @@ const email = AdminEmail
 
 
      await Admin.findOneAndUpdate(
-      { Email: email },
-      { SalonId: salonId },
+      { email: email },
+      { salonId: salonId },
       { new: true })
 
     //Save the Salon
     const salon = new Salon({
-      SalonId: salonId,
-      UserName: UserName,
-      SalonName: SalonName,
-      SalonCode: salonCode,
-      SalonAppIcon: SalonAppIcon,
-      SalonLogo: SalonLogo,
-      Address: Address,
-      City: City,
-      Country: Country,
-      PostCode: PostCode,
-      ContactTel: ContactTel,
-      SalonWebsite: SalonWebsite,
-      SalonFacebook: SalonFacebook,
-      SalonTwitter: SalonTwitter,
-      SalonInstagram: SalonInstagram,
-      SalonServices: SalonServices,
-      AdminEmail: AdminEmail
+     salonId,
+     userName,
+    salonName,
+    salonIcon,
+    salonLogo,
+    address,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    twitterLink,
+    instraLink,
+
     });
 
     const savedSalon = await salon.save();
 
-    savedSalon.SalonServices.forEach((service, index) => {
-      service.ServiceId = index + 1;
-    });
+    // savedSalon.SalonServices.forEach((service, index) => {
+    //   service.ServiceId = index + 1;
+    // });
 
     await savedSalon.save();
 
@@ -103,7 +100,7 @@ const email = AdminEmail
 
 const searchSalonsByCity = async (city) => {
   try {
-    const salons = await Salon.find({ City: city })
+    const salons = await Salon.find({ city })
 
     if (salons.length === 0) {
       return ({
@@ -132,7 +129,7 @@ const searchSalonsByCity = async (city) => {
 
 const getSalonInfoBySalonId = async (salonId) => {
   try {
-    const getSalonInfo = await Salon.findOne({ SalonId: salonId })
+    const getSalonInfo = await Salon.findOne({ salonId })
     if (!getSalonInfo) {
       return ({
         status: 404,
@@ -158,19 +155,18 @@ const getSalonInfoBySalonId = async (salonId) => {
 const updateSalonBySalonId = async (salonData, salonId, adminEmail) => {
 const {
   userName,
-  salonName,
-  salonAppIcon,
-  salonLogo,
-  address,
-  city,
-  country,
-  postCode,
-  contactTel,
-  salonWebsite,
-  salonFacebook,
-  salonTwitter,
-  salonInstagram,
-  salonServices
+    salonName,
+    salonIcon,
+    salonLogo,
+    address,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    twitterLink,
+    instraLink,
 } = salonData
 
 try{
@@ -182,20 +178,20 @@ try{
   }
   
   const updatedSalon = await Salon.findOneAndUpdate({SalonId: salonId, AdminEmail: adminEmail}, 
-    { UserName: userName,
-      SalonName: salonName,
-      SalonAppIcon: salonAppIcon,
-      SalonLogo: salonLogo,
-      Address: address,
-      City: city,
-      Country: country,
-      PostCode: postCode,
-      ContactTel: contactTel,
-      SalonWebsite: salonWebsite,
-      SalonFacebook: salonFacebook,
-      SalonInstagram: salonInstagram,
-      SalonTwitter: salonTwitter,
-      SalonServices: salonServices
+    { 
+      userName,
+      salonName,
+      salonIcon,
+      salonLogo,
+      address,
+      city,
+      country,
+      postCode,
+      contactTel,
+      webLink,
+      fblink,
+      twitterLink,
+      instraLink,
     }, 
     {
       new: true
@@ -221,7 +217,7 @@ catch (error) {
 
 const getAllSalonServices = async(salonId) =>{
   try{
-    const salon = await Salon.findOne({SalonId: salonId})
+    const salon = await Salon.findOne({ salonId})
 
     if(!salon){
        
@@ -254,7 +250,7 @@ const updateSalonService = async(salonId, serviceId, newServiceData) => {
     serviceDescription
   }= newServiceData
   try{
-    const updatedService = await Salon.findOneAndUpdate({SalonId: salonId, "SalonServices.ServiceId": serviceId},
+    const updatedService = await Salon.findOneAndUpdate({ salonId, "SalonServices.ServiceId": serviceId},
     {
       $set: {
         "SalonServices.$.ServiceName": serviceName,

@@ -1,93 +1,89 @@
 const mongoose = require("mongoose")
 
-const serviceSchema = new mongoose.Schema({
-    ServiceId :{
-        type: String,
-    },
-    ServiceName: {
-        type: String,
-        required: true,
-    },
-    ServiceDescription: {
-        type: String,
-        required: true,
-    },
-   
-});
-
 const salonsSchema = new mongoose.Schema({
-    SalonId:{
+    salonId:{
         type: Number,
     },
-    UserName:{
+    userName:{
         type: String,
         required:true
     },
-    SalonName:{
+    salonName:{
         type:String,
         required: true,
     },
-    AdminEmail:{
+    adminEmail:{
         type:String,
     },
-    SalonCode:{
+    salonCode:{
         type: String,
     },
-    SalonAppIcon:{
+    salonIcon:{
         type:String,
         // required: true
     },
-    SalonLogo:{
+    salonLogo:{
         type:String,
         // required: true
     },
-    Address:{
+    address:{
         type:String,
         required: true
     },
-    City:{
+    city:{
         type:String,
         required: true
     },
-    Country:{
+    country:{
         type:String,
         required:true
     },
-    PostCode:{
+    postCode:{
         type:String,
         required:true
     },
-    ContactTel:{
+    contactTel:{
         type:Number,
         required:true
     },
 
-    SalonWebsite:{
+    webLink:{
         type:String,
         required:true
     },
-    SalonFacebook:{
+    fbLink:{
         type:String,
         
     },
-    SalonTwitter:{
+    twitterlink:{
         type:String,
     },
-    SalonInstagram:{
+    instraLink:{
         type:String,
     },
-
-    SalonServices: [serviceSchema], 
-
-    RegisteredBarber:[{
-        BarberId:{
+    longitude:{
+        type:String
+    },
+    latitude:{
+        type:String
+    },
+    isLicensed:{
+        type: Boolean,
+        default: false
+    },
+    moduleAvailability: {
+        type: String,
+        enum: ["Queuing", "Appointment", "Both"],
+    },
+    registeredBarber:[{
+        barberId:{
             type:Number,
         },
-        BarberEmail:{
+        barberEmail:{
             type: String,
         }
     }]
-});
+},{timestamps: true});
 const Salon = mongoose.model('Salon', salonsSchema);
   
 module.exports = Salon;

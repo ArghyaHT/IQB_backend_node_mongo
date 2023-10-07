@@ -10,6 +10,12 @@ const salonRegister = require("./routes/admin/salonRegisterRoute.js")
 
 const barberRegister = require("./routes/barber/barberRegisterRoutes.js")
 
+const serviceRegister = require("./routes/admin/serviceRegisterRoute.js")
+
+const barberService = require("./routes/barber/barberService.js")
+
+const barberAuth = require("./routes/barberAuth/barberAuthRoute.js")
+
 
 
 connectDB()
@@ -27,6 +33,12 @@ app.use("/admin", registerAdmin)
 app.use("/salon", salonRegister)
 
 app.use("/barber", barberRegister)
+
+app.use("/service", serviceRegister)
+
+app.use("/barberService", barberService)
+
+app.use("/api", barberAuth)
 
 const PORT = 8080;
 

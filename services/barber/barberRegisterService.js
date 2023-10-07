@@ -2,7 +2,7 @@ const Barber = require("../../models/barberRegisterModel.js")
 const Salon = require("../../models/salonsRegisterModel.js")
 
 
-const createBarber = async(barberData) => {
+const createBarber = async(barberData, barberServices) => {
 const {
 email, 
 firstName,
@@ -13,14 +13,13 @@ dateOfBirth,
 salonId,
 isActive,
 } = barberData
-
 try{
     const barberId = await Barber.countDocuments() + 1;
     const firstTwoLetters = firstName.slice(0, 2).toUpperCase()
 
     const barberCode = firstTwoLetters + salonId 
 
-    const existingBarber = await Barber.findOne({Email: email})
+    const existingBarber = await Barber.findOne({email})
 
     if(existingBarber){
         return {
@@ -31,16 +30,16 @@ try{
 
     
     const barber = new Barber({
-        Email: email,
-        FirstName: firstName,
-        LastName: lastName,
-        UserName: userName,
-        MobileNumber: mobileNumber,
-        DateOfBirth: dateOfBirth,
-        SalonId: salonId,
-        IsActive: isActive,
-        BarberId: barberId,
-        BarberCode: barberCode
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        userName: userName,
+        mobileNumber: mobileNumber,
+        dateOfBirth: dateOfBirth,
+        salonId: salonId,
+        isActive: isActive,
+        barberId: barberId,
+        barberCode: barberCode,
     })
   
 
