@@ -11,9 +11,11 @@ const { sendPasswordResetEmail } = require("../../utils/emailSender.js")
 const createCustomer = async (customerData) => {
   try {
     const {
+      salonId,
       email,
       firstName,
       lastName,
+      userName,
       gender,
       dateOfBirth,
       mobileNumber,
@@ -21,7 +23,7 @@ const createCustomer = async (customerData) => {
     } = customerData;
 
     //Find the Customer If exits 
-    const existingCustomer = await Customer.findOne({ Email: email });
+    const existingCustomer = await Customer.findOne({ email });
 
     if (existingCustomer) {
       return {
@@ -37,17 +39,19 @@ const createCustomer = async (customerData) => {
 
     //Save the customer
     const customer = new Customer({
-      Email: email,
-      FirstName: firstName,
-      LastName: lastName,
-      Gender: gender,
-      DateOfBirth: dateOfBirth,
-      MobileNumber: mobileNumber,
-      Password: hashedPassword,
-      VerificationCode: verificationCode,
+      salonId,
+      email,
+      firstName,
+      lastName,
+      userName,
+      gender,
+      dateOfBirth,
+      mobileNumber,
+      password: hashedPassword,
+      verificationCode,
     });
 
-    const token = await customer.generateAuthToken();
+    // const token = await customer.generateAuthToken();
 
     const savedCustomer = await customer.save();
     return {
@@ -71,7 +75,7 @@ const createCustomer = async (customerData) => {
 //----------SignIn For customer-----------------//
 const signInCustomer = async (email, password) => {
   try {
-    const customer = await Customer.findOne({ Email: email });
+    const customer = await Customer.findOne({ email });
     if (!customer) {
       return {
         status: 400,
@@ -79,10 +83,10 @@ const signInCustomer = async (email, password) => {
       };
     }
 
-    const isPasswordValid = await bcrypt.compare(password, customer.Password);
+    const isPasswordValid = await bcrypt.compare(password, customer.password);
 
-    const token = await customer.generateAuthToken();
-    console.log("the token part" + token)
+    // const token = await customer.generateAuthToken();
+    // console.log("the token part" + token)
 
     if (!isPasswordValid) {
       return {
@@ -188,28 +192,28 @@ const matchVerificationCodeandResetpassword = async (verificationCode, newPasswo
 }
 
 
-const getAllCustomers = async() =>{
-  try{
-    const allCustomers = await Customer.find()
-   
-    return {
-      status: 200,
-      response: allCustomers,
-    };
-  }
+// const getAllCustomers = async () => {
+//   try {
+//     const allCustomers = await Customer.find({})
 
-  catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: 'Failed to Show Admins'
-    };
-  }
-}
+//     return {
+//       status: 200,
+//       response: allCustomers,
+//     };
+//   }
 
-const deleteCustomer = async(email) =>{
-  try{
-    const customer = await Customer.findOne({Email: email})
+//   catch (error) {
+//     console.log(error.message)
+//     return {
+//       status: 500,
+//       message: 'Failed to Show Admins'
+//     };
+//   }
+// }
+
+const deleteCustomer = async (email) => {
+  try {
+    const customer = await Customer.findOne({ email })
     const deletedCustomer = customer.deleteOne();
     return {
       status: 200,
@@ -225,7 +229,7 @@ const deleteCustomer = async(email) =>{
   }
 }
 
-const updateCustomer = async(customerData) =>{
+const updateCustomer = async (customerData) => {
   const {
     email,
     firstName,
@@ -235,14 +239,14 @@ const updateCustomer = async(customerData) =>{
     mobileNumber,
   } = customerData;
 
-  try{
-    const findCustomer = await Customer.findOneAndUpdate({Email: email},
-      {FirstName: firstName, LastName: lastName, Gender: gender, DateOfBirth: dateOfBirth, MobileNumber: mobileNumber},
-      {new: true})
-      return {
-        status: 200,
-        response: findCustomer,
-      };
+  try {
+    const findCustomer = await Customer.findOneAndUpdate({ email },
+      {  firstName, lastName, gender, dateOfBirth, mobileNumber },
+      { new: true })
+    return {
+      status: 200,
+      response: findCustomer,
+    };
   }
   catch (error) {
     console.log(error.message)
@@ -260,7 +264,7 @@ module.exports = {
   signInCustomer,
   enterEmail,
   matchVerificationCodeandResetpassword,
-  getAllCustomers,
+  // getAllCustomers,
   deleteCustomer,
   updateCustomer,
 }

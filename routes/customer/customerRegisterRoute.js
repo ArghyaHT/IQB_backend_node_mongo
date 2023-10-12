@@ -20,6 +20,7 @@ router.route("/resetPassword").post(resetpassword)
 //GetAllCustomers
 router.route("/getAllCustomers").get(allCustomers)
 
+// getAllCustomers by Salon ID
 
 //DeleteCustomers
 router.route("/deleteCustomer").delete(deleteSingleCustomer)

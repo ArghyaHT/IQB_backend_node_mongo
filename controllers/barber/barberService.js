@@ -1,30 +1,67 @@
-const  barberServiceBybarberId = require("../../services/barber/barberService.js")
+const barberServiceBybarberId = require("../../services/barber/barberService.js")
 
 
 
-const barberServiceBybarberIdServiceId = async(req, res) => {
-    try{
-        const {salonId, barberId}= req.body;
-        const selectedSecvices = req.body
-        const result = await barberServiceBybarberId.addBarberServices(salonId, barberId, selectedSecvices);
-    
-        res.status(result.status).json({
-       
-            status: result.status,
-            response: result.response,
-          });
-        
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({
-          status: 500,
-          error: 'Failed to create Barber'
-        });
-      }
-    }
+const barberServiceBybarberIdServiceId = async (req, res) => {
+  try {
+    const { salonId, barberId } = req.body;
+    const selectedServicesArray = req.body.selectedServices;
+    const result = await barberServiceBybarberId.addBarberServices(salonId, barberId, selectedServicesArray);
+
+    res.status(result.status).json({
+      response: result.response,
+    });
+
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Failed to create Barber'
+    });
+  }
+}
 
 
-    module.exports = {
-        barberServiceBybarberIdServiceId
-    }
+const getBarberServicesByBarberId = async (req, res) => {
+  try {
+    const { barberId } = req.body;
+    const result = await barberServiceBybarberId.getServicesByBarberId(barberId);
+
+    res.status(result.status).json({
+      response: result.response,
+    });
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Failed to get Services'
+    });
+  }
+}
+
+
+const deletebarberServiceBybarberIdServiceId = async (req, res) => {
+  try {
+    const { salonId, barberId } = req.body;
+    const selectedServicesArray = req.body.selectedServices;
+    const result = await barberServiceBybarberId.deleteBarberServices(salonId, barberId, selectedServicesArray);
+
+    res.status(result.status).json({
+      response: result.response,
+    });
+
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Failed to create Barber'
+    });
+  }
+}
+
+
+module.exports = {
+  barberServiceBybarberIdServiceId,
+  getBarberServicesByBarberId,
+  deletebarberServiceBybarberIdServiceId
+}

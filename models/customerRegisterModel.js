@@ -4,63 +4,76 @@ const jwt = require("jsonwebtoken")
 
 
 const customerSchema = new mongoose.Schema({
-    Email:{
+
+    salonId:{
+        type: Number
+    },
+    customerId:{
+        type: Number
+    },
+    email:{
         type: String,
         required: true
     },
 
-    FirstName:{
+    firstName:{
         type:String,
         required: true
     },
 
-    LastName:{
+    lastName:{
         type: String,
         required: true
     },
-
-    Gender:{
+    userName:{
+        type: String,
+        required: true
+    },
+    gender:{
         type:String,
         required: true
     },
 
-    DateOfBirth:{
+    dateOfBirth:{
         type: Date,
         required:true
     },
-    MobileNumber:{
+    mobileNumber:{
         type: Number,
         required: true,
     },
-    Password:{
+    password:{
         type: String,
         required: true
     },
 
-    VerificationCode:{
+    verificationCode:{
         type: String,
         // required:true
     },
+    profilePic:{
+        type: String
+    }
 
-    tokens: [{
-        token:{
-            type: String,
-            required : true
-        }
-    }]
-  });
+//     tokens: [{
+//         token:{
+//             type: String,
+//             required : true
+//         }
+//     }]
+//   });
   
-customerSchema.methods.generateAuthToken = async function(){
-    try{
-        const token = jwt.sign({_id: this._id.toString()}, "thisiismynewjsonwebtokencreationiamdoing");
-        this.tokens = this.tokens.concat({token: token})
+// customerSchema.methods.generateAuthToken = async function(){
+//     try{
+//         const token = jwt.sign({_id: this._id.toString()}, "thisiismynewjsonwebtokencreationiamdoing");
+//         this.tokens = this.tokens.concat({token: token})
 
-        await this.save()
-    }
-    catch(error){
-        console.log(error)
-    }
-}
+//         await this.save()
+//     }
+//     catch(error){
+//         console.log(error)
+//     }
+})
 
   const Customer = mongoose.model('Customer', customerSchema);
   

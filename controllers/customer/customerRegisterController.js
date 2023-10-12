@@ -1,6 +1,7 @@
 
 const { validateSignUp } = require("../../middlewares/registerValidator");
 const customerService = require("../../services/customer/customerRegisterService.js")
+const Customer = require("../../models/customerRegisterModel.js")
 
 
 // Create a new customer
@@ -13,8 +14,7 @@ try{
   const result = await customerService.createCustomer(customerData);
 
   res.status(result.status).json({
-   
-    status: result.status,
+    success:true,
     response: result.response,
     VerificationCode: result.VerificationCode
   });
@@ -23,7 +23,7 @@ try{
 catch (error) {
   console.error(error);
   res.status(500).json({
-    status: 500,
+   success: false,
     error: 'Failed to create customer'
   });
 }
@@ -33,18 +33,18 @@ catch (error) {
 //-----------SignIn Customer-------------//
 const signIn = async (req, res) => {
   try {
-    const { Email, Password } = req.body;
+    const { email, password } = req.body;
 
-    const result = await customerService.signInCustomer(Email, Password);
+    const result = await customerService.signInCustomer(email, password);
 
     res.status(result.status).json({
-      status: result.status,
+      success: true,
       response: result.response,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
+      success: false,
       error: 'Failed to sign in',
     });
   }
@@ -98,20 +98,72 @@ const resetpassword = async (req, res) => {
 
 
 const allCustomers = async(req, res) => {
-  try{
-      const result = await customerService.getAllCustomers()
+  try {
+    // const getAllBarbers = await Barber.find({salonId: salonId})
 
+    const { salonId, userName, email, page = 1, limit = 10, sortField, sortOrder } = req.query
+    let query = {}
+
+    const searchRegExpName = new RegExp('.*' + userName + ".*", 'i')
+    const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i')
+
+    if (salonId) {
+      query.salonId = salonId
+    }
+
+    if (userName || email) {
+      query.$or = [
+        { userName: { $regex: searchRegExpName } },
+        { email: { $regex: searchRegExpEmail } }
+      ];
+    }
+
+    const sortOptions = {};
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    const skip = Number(page - 1) * Number(limit)
+
+    const getAllCustomers = await Customer.find(query).sort(sortOptions).skip(skip).limit(Number(limit))
+
+    const totalCustomers = await Customer.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      message: "All barbers fetched successfully",
+      getAllCustomers,
+      totalPages: Math.ceil(totalCustomers / Number(limit)),
+      currentPage: Number(page),
+      totalCustomers,
+    })
+
+  }
+  catch (error) {
+    console.log(error.message)
+    return {
+      status: 500,
+      message: error.message,
+    };
+  }
+}
+
+const updateCustomer = async(req, res) =>{
+  const customerData = req.body;
+  validateSignUp[req]
+  try {
+      const result = await customerService.updateCustomer(customerData);
       res.status(result.status).json({
 
-          status: result.status,
+         success: true,
           response: result.response,
       });
   }
   catch (error) {
       console.error(error);
       res.status(500).json({
-          status: 500,
-          message: 'Failed to Show Admins'
+          success:false,
+          message: 'Failed to update Customer'
       });
   }
 }
@@ -136,25 +188,7 @@ const deleteSingleCustomer = async(req, res) =>{
   }
 }
 
-const updateCustomer = async(req, res) =>{
-  const customerData = req.body;
-  validateSignUp[req]
-  try {
-      const result = await customerService.updateCustomer(customerData);
-      res.status(result.status).json({
 
-          status: result.status,
-          response: result.response,
-      });
-  }
-  catch (error) {
-      console.error(error);
-      res.status(500).json({
-          status: 500,
-          message: 'Failed to update Customer'
-      });
-  }
-}
 
 
   module.exports = {

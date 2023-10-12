@@ -8,7 +8,7 @@ router.route("/login").post(auth, async (req, res) => {
     try {
         const newuser = req.user
 
-        const userExists = await BarberAuth.findOne({ userId: newuser.decodeValue.user_id })
+        const userExists = await BarberAuth.findOne({ email: newuser.decodeValue.email })
 
         if (!userExists) {
             //create new user
@@ -16,10 +16,8 @@ router.route("/login").post(auth, async (req, res) => {
                 const newUser = new BarberAuth({
                     name: newuser.decodeValue.name,
                     email: newuser.decodeValue.email,
-                    userId: newuser.decodeValue.user_id,
                     email_verified: newuser.decodeValue.email_verified,
                     auth_time: newuser.decodeValue.auth_time,
-                    isAdmin: newuser.admin,
                     isBarber:newuser.barber
                 })
 
@@ -39,7 +37,7 @@ router.route("/login").post(auth, async (req, res) => {
 
         } else {
             try {
-                const filter = { userId: newuser.decodeValue.user_id }
+                const filter = { email: newuser.decodeValue.email }
                 const options = {
                     upsert: true,
                     new: true

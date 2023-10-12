@@ -21,7 +21,6 @@ const createService = async(req, res) =>{
 
 const getAllServicesBySalonId = async(req, res) =>{
   try{
-
     const {salonId} = req.body;
 
     const result = await serviceRegister.getAllServicesBySalonId(salonId);
@@ -59,10 +58,30 @@ const updateBarberServicesAndServiceSupportedBarber = async(req, res) =>{
 }
 
 
+const getAllBarbersByServiceId = async(req, res) =>{
+  try{
+    const {salonId, serviceId} = req.query
+    const result = await serviceRegister.getBarbersByServiceId(salonId, serviceId);
+    res.status(result.status).json({
+      success: result.success,
+      response: result.response,
+      error: result.error
+    });
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to add services'
+    });
+  }
+}
 
 
 module.exports ={
     createService,
     getAllServicesBySalonId, 
     updateBarberServicesAndServiceSupportedBarber,
+    getAllBarbersByServiceId,
+
 }

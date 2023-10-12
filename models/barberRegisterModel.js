@@ -1,57 +1,80 @@
 const mongoose = require("mongoose")
 
 const barberSchema = new mongoose.Schema({
-    email:{
+  
+
+    //    firstName:{
+    //         type:String,
+    //         // required: true
+    //     },
+
+    //     lastName:{
+    //         type: String,
+    //         // required: true
+    //     },
+    name: {
         type: String,
-        required: true
+        // required:true
     },
-
-   firstName:{
-        type:String,
-        required: true
-    },
-
-    lastName:{
+    email: {
         type: String,
-        required: true
+        // required: true
     },
-
-    userName:{
+    userName: {
         type: String,
-        required: true,
+        // required: true,
     },
 
-    mobileNumber:{
+    mobileNumber: {
         type: Number,
-        required: true,
+        // required: true,
     },
-    dateOfBirth:{
+    dateOfBirth: {
         type: Date,
     },
-    salonId:{
-        type:Number
+    salonId: {
+        type: Number
     },
-    barberId:{
-        type:Number
+    barberId: {
+        type: Number
     },
-    barberCode:{
-        type:String
+    barberCode: {
+        type: String
     },
-    isActive:{
-        type:Boolean
+    isActive: {
+        type: Boolean
     },
-    barberServices:[{
-        serviceId:{
+    email_verified: {
+        type: Boolean,
+        // required: true
+    },
+    auth_time: {
+        type: String,
+        // required: true
+    },
+    // isAdmin: {
+    //     type: Boolean,
+    //     default: false
+    // },
+    isBarber:{
+        type:Boolean,
+        default:false
+    },
+    barberServices: [{
+        serviceId: {
             type: Number
         },
-        serviceName:{
-            type:String
-        } 
+        serviceCode: {
+            type: String
+        },
+        serviceName: {
+            type: String
+        }
 
     }]
-   
-}, {timestamps: true})
+
+}, { timestamps: true })
 
 const Barber = mongoose.model('Barber', barberSchema);
-  
+
 module.exports = Barber;

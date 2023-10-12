@@ -1,86 +1,226 @@
 const barberService = require("../../services/barber/barberRegisterService.js")
 
-const {barberValidateSignUp} = require("../../middlewares/barberRegisterValidate.js")
+const { barberValidateSignUp } = require("../../middlewares/barberRegisterValidate.js")
+
+const Barber = require("../../models/barberRegisterModel.js")
+
+const { auth } = require("../../utils/AuthUser");
 
 
-const registerBarber = async(req, res) => {
-try{
+const registerBarber = async (req, res) => {
+  try {
     const barberData = req.body;
-
     barberValidateSignUp[req]
 
     const result = await barberService.createBarber(barberData);
 
     res.status(result.status).json({
-   
-        status: result.status,
-        response: result.response,
-      });
-    
-}
-catch (error) {
+      success: true,
+      response: result.response,
+
+    });
+
+  }
+  catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
+      success: false,
+      error: 'Failed to create Barber',
+
+    });
+  }
+}
+
+const barberLogin = async(req, res) => {
+  try {
+    const newuser = req.user
+
+    const userExists = await Barber.findOne({ email: newuser.decodeValue.email })
+
+    if (!userExists) {
+        //create new user
+        try {
+            const newUser = new Barber({
+                name: newuser.decodeValue.name,
+                email: newuser.decodeValue.email,
+                email_verified: newuser.decodeValue.email_verified,
+                auth_time: newuser.decodeValue.auth_time,
+                isBarber:newuser.barber
+            })
+
+            const savedUser = await newUser.save()
+
+            res.status(200).json({
+                success: true,
+                message: "Barber created successfully",
+                user: savedUser
+            })
+        } catch (error) {
+            return res.status(400).json({
+                success: false,
+                message: error
+            })
+        }
+
+    } else {
+        try {
+            const filter = { email: newuser.decodeValue.email }
+            const options = {
+                upsert: true,
+                new: true
+            }
+
+            const result = await Barber.findOneAndUpdate(filter, {
+                $set: {
+                    auth_time: newuser.decodeValue.auth_time
+                }
+            }, options)
+
+            res.status(200).json({
+                success: true,
+                message: "Barber auth time updated successfully",
+                user: result
+            })
+        } catch (error) {
+            return res.status(404).json({
+                success: false,
+                message: error
+            })
+        }
+    }
+
+} catch (error) {
+    return res.status(404).json({
+        success: false,
+        message: error
+    })
+}
+}
+
+
+const addServicesTobarbers = async (req, res) => {
+  try {
+    const { salonId, barberId } = req.body;
+    const selectedServicesArray = req.body.selectedServices;
+    const result = await barberService.addBarberServices(salonId, barberId, selectedServicesArray);
+
+    res.status(result.status).json({
+      success: true,
+      response: result.response,
+    });
+
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
       error: 'Failed to create Barber'
     });
   }
 }
 
-const getAllBarberbySalonId = async(req, res) =>{
-  const {salonId} =  req.body;
-  try{
-    const result = await barberService.getAllBarbersBySalonId(salonId)
-    
-    res.status(result.status).json({
-      status: result.status,
-      response: result.response,
-    });
+// const getAllBarberbySalonId = async (req, res) => {
+//   const { salonId } = req.body;
+//   try {
+//     const result = await barberService.getAllBarbersBySalonId(salonId)
+
+//     res.status(result.status).json({
+//       success: true,
+//       response: result.response,
+
+//     });
+//   }
+//   catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to get Barbers'
+//     });
+//   }
+// }
+
+const getAllBarberbySalonId = async (req, res) => {
+  try {
+    // const getAllBarbers = await Barber.find({salonId: salonId})
+
+    const { salonId, userName, email, page = 1, limit = 1, sortField, sortOrder } = req.query
+    let query = {}
+
+    const searchRegExpName = new RegExp('.*' + userName + ".*", 'i')
+    const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i')
+
+    if (salonId) {
+      query.salonId = salonId
+    }
+
+    if (userName || email) {
+      query.$or = [
+        { userName: { $regex: searchRegExpName } },
+        { email: { $regex: searchRegExpEmail } }
+      ];
+    }
+
+    const sortOptions = {};
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    const skip = Number(page - 1) * Number(limit)
+
+    const getAllBarbers = await Barber.find(query).sort(sortOptions).skip(skip).limit(Number(limit))
+
+    const totalBarbers = await Barber.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      message: "All barbers fetched successfully",
+      getAllBarbers,
+      totalPages: Math.ceil(totalBarbers / Number(limit)),
+      currentPage: Number(page),
+      totalBarbers,
+    })
+
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.log(error.message)
+    return {
       status: 500,
-      error: 'Failed to get Barbers'
-    });
+      message: error.message,
+    };
   }
 }
 
-const updateBarber = async(req, res) =>{
-  const {email} = req.body
+const updateBarber = async (req, res) => {
+  const { email } = req.body
   const barberData = req.body
   barberValidateSignUp[req]
-  try{
+  try {
     const result = await barberService.updateBarberByEmail(email, barberData)
 
     res.status(result.status).json({
-      status: result.status,
       response: result.response,
     });
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
       error: 'Failed to Update Barber'
     });
   }
 }
 
-const deleteBarber = async(req, res) =>{
-  const {email, salonId} = req.body;
-  try{
+const deleteBarber = async (req, res) => {
+  const { email, salonId } = req.body;
+  try {
     const result = await barberService.deleteBarberByEmail(salonId, email);
 
     res.status(result.status).json({
-      status: result.status,
       response: result.response,
     });
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
       error: 'Failed to Update Barber'
     });
   }
@@ -90,8 +230,10 @@ const deleteBarber = async(req, res) =>{
 
 
 module.exports = {
-    registerBarber,
-    getAllBarberbySalonId,
-    updateBarber,
-    deleteBarber,
+  registerBarber,
+  barberLogin,
+  getAllBarberbySalonId,
+  updateBarber,
+  deleteBarber,
+  addServicesTobarbers,
 }

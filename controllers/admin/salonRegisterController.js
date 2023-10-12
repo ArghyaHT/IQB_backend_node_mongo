@@ -10,6 +10,7 @@ const salonSignUp = async (req, res) => {
     const result = await salonService.createSalon(salonData, AdminEmail);
 
     res.status(result.status).json({
+      success: true,
       response: result.response,
       error: result.error
     });
@@ -17,10 +18,30 @@ const salonSignUp = async (req, res) => {
   catch (error) {
     console.error(error);
     res.status(500).json({
+      success: false,
       error: 'Failed to create Salon'
     });
   }
 };
+
+const addServices = async(req, res) =>{
+  try{
+    const {serviceName, serviceDesc, servicePrice} = req.body;
+    const {salonId} = req.body;
+
+    const result = await salonService.addSalonServices(serviceName,serviceDesc,servicePrice, salonId);
+    res.status(result.status).json({
+        response: result.response,
+        error: result.error
+      });
+  } 
+    catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: 'Failed to create Salon'
+      });
+    }
+}
 
 const searchSalonsByCity = async (req, res) => {
 
@@ -29,16 +50,37 @@ const searchSalonsByCity = async (req, res) => {
     const result = await salonService.searchSalonsByCity(city)
 
     res.status(result.status).json({
-
-      status: result.status,
+      success: true,
+      response: result.response,
       message: result.message,
-      response: result.data
+     
     })
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
+      success: false,
+      error: 'Failed to search Salons'
+    });
+  }
+}
+
+const getSalonsByLocation = async (req, res) => {
+
+  try {
+    const { longitude, latitude } = req.query;
+    const result = await salonService.searchSalonsByLocation(longitude, latitude)
+
+    res.status(result.status).json({
+      success: true,
+      message: result.message,
+      response: result.response
+      
+    })
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
       error: 'Failed to search Salons'
     });
   }
@@ -46,21 +88,20 @@ const searchSalonsByCity = async (req, res) => {
 
 
 const getSalonInfo = async (req, res) => {
-  const { salonId } = req.body;
+  const { salonId } = req.query;
 
   try {
     const result = await salonService.getSalonInfoBySalonId(salonId)
     res.status(result.status).json({
-
-      status: result.status,
+      success: true,
       message: result.message,
-      data: result.data
+      response: result.response
     })
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
+      success: false,
       error: 'Failed to search Salons'
     });
   }
@@ -69,14 +110,10 @@ const getSalonInfo = async (req, res) => {
 const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
 
   try {
-    const salonData  = req.body;
-    const {salonId} = req.body
-    const {adminEmail} = req.body
     
-    const result = await salonService.updateSalonBySalonId(salonData, salonId, adminEmail);
+    const result = req.body!= null ? await salonService.updateSalonBySalonId(req.body) : null;
    
     res.status(result.status).json({
-
       status: result.status,
       message: result.message,
       response: result.response
@@ -159,10 +196,12 @@ catch (error) {
 module.exports = {
   salonSignUp,
   searchSalonsByCity,
+  getSalonsByLocation,
   getSalonInfo, 
   updateSalonBySalonIdAndAdminEmail,
   allSalonServices,
   updateSalonServiceByServiceId,
-  deleteServiceByServiceIdSalonId
+  deleteServiceByServiceIdSalonId,
+  addServices
 
 }

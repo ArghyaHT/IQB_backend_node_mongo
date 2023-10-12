@@ -33,6 +33,10 @@ const barberAuthSchema = mongoose.Schema({
     isBarber:{
         type:Boolean,
         default:false
+    },
+    isCustomer:{
+        type:Boolean,
+        default:false
     }
 },{timestamps:true})
 

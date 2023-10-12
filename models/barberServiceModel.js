@@ -18,6 +18,10 @@ const barberServiceSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
+        serviceEWT: {
+            type: Number,
+            
+        }
 
         }]  
 })

@@ -26,17 +26,17 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-app.use("/customer", registerCustomer)
+app.use("/api/customer", registerCustomer)
 
-app.use("/admin", registerAdmin)
+app.use("/api/admin", registerAdmin)
 
-app.use("/salon", salonRegister)
+app.use("/api/salon", salonRegister)
 
-app.use("/barber", barberRegister)
+app.use("/api/barber", barberRegister)
 
-app.use("/service", serviceRegister)
+app.use("/api/service", serviceRegister)
 
-app.use("/barberService", barberService)
+app.use("/api/barberService", barberService)
 
 app.use("/api", barberAuth)
 

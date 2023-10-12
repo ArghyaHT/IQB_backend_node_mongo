@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.route("/adminSignUp").post(validateSignUp, validate, adminSignUp)
 
-
 router.route("/getAllAdmins").get(allAdmins)
 
 router.route("/deleteAdmin").delete(deleteSingleAdmin)
