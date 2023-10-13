@@ -31,92 +31,26 @@ const registerBarber = async (req, res) => {
   }
 }
 
-// const barberLogin = async(req, res) => {
-//   try {
-//     const newuser = req.user
-
-//     const barberExists = await Barber.findOne({ email: newuser.decodeValue.email })
-
-//     if (!barberExists) {
-//         //create new user
-//         try {
-//           // const barberId = await Barber.countDocuments() + 1;
-//           // const firstTwoLetters = newuser.decodeValue.name.slice(0, 2).toUpperCase()
-
-//           // const barberCode = firstTwoLetters + barberId; 
-//             const newUser = new Barber({
-//                 name: newuser.decodeValue.name || newuser.name,
-//                 email: newuser.decodeValue.email,
-//                 email_verified: newuser.decodeValue.email_verified,
-//                 auth_time: newuser.decodeValue.auth_time,
-//                 // barberId:barberId,
-//                 // barberCode:barberCode,
-//                 isBarber:newuser.barber
-//             })
-
-//             const savedUser = await newUser.save()
-
-//             res.status(200).json({
-//                 success: true,
-//                 message: "Barber created successfully",
-//                 user: savedUser
-//             })
-//         } catch (error) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: error
-//             })
-//         }
-
-//     } else {
-//         try {
-//             const filter = { email: newuser.decodeValue.email }
-//             const options = {
-//                 upsert: true,
-//                 new: true
-//             }
-
-//             const result = await Barber.findOneAndUpdate(filter, {
-//                 $set: {
-//                     auth_time: newuser.decodeValue.auth_time
-//                 }
-//             }, options)
-
-//             res.status(200).json({
-//                 success: true,
-//                 message: "Barber auth time updated successfully",
-//                 user: result
-//             })
-//         } catch (error) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: error
-//             })
-//         }
-//     }
-
-// } catch (error) {
-//     return res.status(404).json({
-//         success: false,
-//         message: error
-//     })
-// }
-// }
-
 const barberLogin = async(req, res) => {
   try {
     const newuser = req.user
 
-    const userExists = await Barber.findOne({ email: newuser.decodeValue.email })
+    const barberExists = await Barber.findOne({ email: newuser.decodeValue.email })
 
-    if (!userExists) {
+    if (!barberExists) {
         //create new user
         try {
+          const barberId = await Barber.countDocuments() + 1;
+          const firstTwoLetters = newuser.decodeValue.name.slice(0, 2).toUpperCase()
+
+          const barberCode = firstTwoLetters + barberId; 
             const newUser = new Barber({
                 name: newuser.decodeValue.name || newuser.name,
                 email: newuser.decodeValue.email,
                 email_verified: newuser.decodeValue.email_verified,
                 auth_time: newuser.decodeValue.auth_time,
+                barberId:barberId,
+                barberCode:barberCode,
                 isBarber:newuser.barber
             })
 
@@ -168,6 +102,72 @@ const barberLogin = async(req, res) => {
     })
 }
 }
+
+// const barberLogin = async(req, res) => {
+//   try {
+//     const newuser = req.user
+
+//     const userExists = await Barber.findOne({ email: newuser.decodeValue.email })
+
+//     if (!userExists) {
+//         //create new user
+//         try {
+//             const newUser = new Barber({
+//                 name: newuser.decodeValue.name || newuser.name,
+//                 email: newuser.decodeValue.email,
+//                 email_verified: newuser.decodeValue.email_verified,
+//                 auth_time: newuser.decodeValue.auth_time,
+//                 isBarber:newuser.barber
+//             })
+
+//             const savedUser = await newUser.save()
+
+//             res.status(200).json({
+//                 success: true,
+//                 message: "Barber created successfully",
+//                 user: savedUser
+//             })
+//         } catch (error) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: error
+//             })
+//         }
+
+//     } else {
+//         try {
+//             const filter = { email: newuser.decodeValue.email }
+//             const options = {
+//                 upsert: true,
+//                 new: true
+//             }
+
+//             const result = await Barber.findOneAndUpdate(filter, {
+//                 $set: {
+//                     auth_time: newuser.decodeValue.auth_time
+//                 }
+//             }, options)
+
+//             res.status(200).json({
+//                 success: true,
+//                 message: "Barber auth time updated successfully",
+//                 user: result
+//             })
+//         } catch (error) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: error
+//             })
+//         }
+//     }
+
+// } catch (error) {
+//     return res.status(404).json({
+//         success: false,
+//         message: error
+//     })
+// }
+// }
 
 const addServicesTobarbers = async (req, res) => {
   try {
@@ -306,3 +306,5 @@ module.exports = {
   deleteBarber,
   addServicesTobarbers,
 }
+
+// https://iqb-frontend.netlify.app/
