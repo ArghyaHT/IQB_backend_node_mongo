@@ -41,7 +41,8 @@ const barberLogin = async(req, res) => {
         //create new user
         try {
           const barberId = await Barber.countDocuments() + 1;
-          const firstTwoLetters = newuser.decodeValue.name.slice(0, 2).toUpperCase() || newuser.name.slice(0,2).toUpperCase()
+          
+          const firstTwoLetters = newuser.decodeValue.name ? newuser.decodeValue.name.slice(0, 2).toUpperCase() : newuser.name.slice(0,2).toUpperCase();
 
           const barberCode = firstTwoLetters + barberId; 
 
@@ -74,30 +75,30 @@ const barberLogin = async(req, res) => {
         }
 
     } else {
-        // try {
-        //     const filter = { email: newuser.decodeValue.email }
-        //     const options = {
-        //         upsert: true,
-        //         new: true
-        //     }
+        try {
+            const filter = { email: newuser.decodeValue.email }
+            const options = {
+                upsert: true,
+                new: true
+            }
 
-        //     const result = await Barber.findOneAndUpdate(filter, {
-        //         $set: {
-        //             auth_time: newuser.decodeValue.auth_time
-        //         }
-        //     }, options)
+            const result = await Barber.findOneAndUpdate(filter, {
+                $set: {
+                    auth_time: newuser.decodeValue.auth_time
+                }
+            }, options)
 
-        //     res.status(200).json({
-        //         success: true,
-        //         message: "Barber auth time updated successfully",
-        //         user: result
-        //     })
-        // } catch (error) {
-        //     return res.status(404).json({
-        //         success: false,
-        //         message: error
-        //     })
-        // }
+            res.status(200).json({
+                success: true,
+                message: "Barber auth time updated successfully",
+                user: result
+            })
+        } catch (error) {
+            return res.status(404).json({
+                success: false,
+                message: error
+            })
+        }
     }
 
 } catch (error) {
