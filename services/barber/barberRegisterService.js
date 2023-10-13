@@ -3,24 +3,9 @@ const Salon = require("../../models/salonsRegisterModel.js")
 
 
 const createBarber = async(barberData) => {
-const {
-email, 
-firstName,
-lastName,
-userName,
-mobileNumber,
-dateOfBirth,
-salonId,
-isActive,
-barberServices
-} = barberData
+const {email, name, isActive, isBarber} = barberData
 
 try{
-    const barberId = await Barber.countDocuments() + 1;
-    const firstTwoLetters = firstName.slice(0, 2).toUpperCase()
-
-    const barberCode = firstTwoLetters + salonId 
-
     const existingBarber = await Barber.findOne({email})
 
     if(existingBarber){
@@ -29,19 +14,11 @@ try{
             response: 'A barber with the provided Email already exists',
           };
     }
-    
     const barber = new Barber({
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        userName: userName,
-        mobileNumber: mobileNumber,
-        dateOfBirth: dateOfBirth,
-        salonId: salonId,
-        isActive: isActive,
-        barberId: barberId,
-        barberCode: barberCode,
-        barberServices: barberServices
+       email,
+       name,
+       isActive,
+       isBarber
     })
   
 
@@ -221,21 +198,50 @@ catch (error) {
 //     }
 
 
-const updateBarberByEmail = async(email, barberData) =>{
-const{
-    firstName,
-    lastName,
-    mobileNumber,
-} = barberData
+const updateBarberByEmail = async( barberData) => {
+
+    const{salonId, email, userName, mobileNumber,dateOfBirth,barberServices, isActive} = barberData
 try{
-    const updateBarber = await Barber.findOneAndUpdate(
-        {email: email},
-        {firstName: firstName, lastName:lastName, mobileNumber: mobileNumber},
-        {new:true})
+
+    const barber = await Barber.findOne({email})
+    const firstTwoLetters = barber.name.slice(0, 2).toUpperCase()
+
+    const barberCode = firstTwoLetters + salonId; // todo with barberId instead of salonId
+    
+    barber.salonId = salonId,
+    barber.userName = userName,
+    barber.mobileNumber= mobileNumber,
+    barber.dateOfBirth = dateOfBirth,
+    barber.barberCode = barberCode,
+    barber.barberServices = barberServices,
+    barber.isActive = isActive
+
+
+    const updatedBarber =   await barber.save();
+    
+
+//     const updatedBarber = await barber.updateOne({email:barber.email},{
+//         $set: {
+//             salonId,
+//             userName,
+//             mobileNumber,
+//             dateOfBirth,
+//             barberCode,
+//             barberServices,
+//             isActive,
+//           },
+//     },
+//     {new:true}
+// )
+
+    // const updateBarber = await Barber.findOneAndUpdate(
+    //     { email},
+    //     {firstName: firstName, lastName:lastName, mobileNumber: mobileNumber},
+    //     {new:true})
 
         return {
             status: 200,
-            response: updateBarber,
+            response: updatedBarber,
         }
 }
 catch (error) {

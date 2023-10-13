@@ -42,7 +42,8 @@ const barberSchema = new mongoose.Schema({
         type: String
     },
     isActive: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     email_verified: {
         type: Boolean,

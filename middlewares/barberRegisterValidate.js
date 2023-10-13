@@ -2,19 +2,13 @@ const { check, validationResult } = require('express-validator');
 
 exports.barberValidateSignUp = [
   check('email').normalizeEmail().isEmail().withMessage('Invalid email'),
-  
-  
-  check('firstName').trim()
-  .notEmpty()
-  .isLength({min: 3, max: 20}) 
-  .withMessage('First name is required'),
-  
-  
-  check('lastName')
+    
+
+  check('name')
   .trim()
   .notEmpty()
   .isLength({min: 3, max: 20}) 
-  .withMessage('Last name is required'),
+  .withMessage('Name is required'),
   
 ];
 

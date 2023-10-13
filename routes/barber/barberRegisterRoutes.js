@@ -9,7 +9,7 @@ const router = express.Router();
 router.route("/registerBarber").post(barberValidateSignUp,validate, registerBarber)
 
 
-router.route("/login").post(auth, barberLogin)
+router.route("/login").post( barberLogin)
 
 
 router.route("/addBarberServices").post(addServicesTobarbers)
@@ -18,7 +18,7 @@ router.route("/addBarberServices").post(addServicesTobarbers)
 
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId)
 
-router.route("/updateBarberByEmail").put(updateBarber)
+router.route("/updateBarberByEmail").post(updateBarber)
 
 router.route("/deleteBarberByEmail").delete(deleteBarber)
 

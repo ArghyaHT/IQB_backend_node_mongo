@@ -35,16 +35,22 @@ const barberLogin = async(req, res) => {
   try {
     const newuser = req.user
 
-    const userExists = await Barber.findOne({ email: newuser.decodeValue.email })
+    const barberExists = await Barber.findOne({ email: newuser.decodeValue.email })
 
-    if (!userExists) {
+    if (!barberExists) {
         //create new user
         try {
+          const barberId = await Barber.countDocuments() + 1;
+          const firstTwoLetters = newuser.decodeValue.name.slice(0, 2).toUpperCase()
+
+          const barberCode = firstTwoLetters + barberId; 
             const newUser = new Barber({
                 name: newuser.decodeValue.name,
                 email: newuser.decodeValue.email,
                 email_verified: newuser.decodeValue.email_verified,
                 auth_time: newuser.decodeValue.auth_time,
+                barberId:barberId,
+                barberCode:barberCode,
                 isBarber:newuser.barber
             })
 
@@ -191,11 +197,10 @@ const getAllBarberbySalonId = async (req, res) => {
 }
 
 const updateBarber = async (req, res) => {
-  const { email } = req.body
   const barberData = req.body
   barberValidateSignUp[req]
   try {
-    const result = await barberService.updateBarberByEmail(email, barberData)
+    const result = await barberService.updateBarberByEmail(barberData)
 
     res.status(result.status).json({
       response: result.response,

@@ -28,12 +28,14 @@ const adminSignIn = async(req, res) =>{
         const result = await adminService.signInAdmin(email, password);
 
         res.status(result.status).json({
+            success: true,
             response: result.response,
         });
     }
     catch (error) {
         console.error(error);
         res.status(500).json({
+            success: false,
             message: 'Failed to Sign In'
         });
     }
