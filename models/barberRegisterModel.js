@@ -59,7 +59,7 @@ const barberSchema = new mongoose.Schema({
     // },
     isBarber:{
         type:Boolean,
-        default:false
+        // default:false
     },
     barberServices: [{
         serviceId: {

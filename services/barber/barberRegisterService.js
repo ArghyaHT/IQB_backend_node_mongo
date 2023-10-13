@@ -206,7 +206,7 @@ try{
     // const barber = await Barber.findOne({email})
     // const firstTwoLetters = barber.name.slice(0, 2).toUpperCase()
 
-    const updateBarber = await Barber.findOneAndUpdate({email: email},
+    const barber = await Barber.findOneAndUpdate({email: email},
         {name: name,
          salonId: salonId,
          userName: userName,
@@ -217,9 +217,6 @@ try{
  },{new: true})
     
     
-
-
-    const updatedBarber =   await barber.save();
     
 
 //     const updatedBarber = await barber.updateOne({email:barber.email},{
@@ -243,7 +240,7 @@ try{
 
         return {
             status: 200,
-            response: updatedBarber,
+            response: barber,
         }
 }
 catch (error) {
@@ -258,7 +255,7 @@ catch (error) {
 
 const deleteBarberByEmail = async(salonId, email) =>{
     try{
-        const deleteBarber = await Barber.deleteOne({salonId: salonId, email: email});
+        const deleteBarber = await Barber.findOneAndUpdate({salonId: salonId, email: email}, {isActive: false}, {new:true});
 
         // await Salon.findOneAndUpdate({
         //     SalonId: salonId

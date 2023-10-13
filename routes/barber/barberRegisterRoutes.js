@@ -20,6 +20,6 @@ router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId)
 
 router.route("/updateBarberByEmail").post(updateBarber)
 
-router.route("/deleteBarberByEmail").delete(deleteBarber)
+router.route("/deleteBarberByEmail").post(deleteBarber)
 
 module.exports = router;

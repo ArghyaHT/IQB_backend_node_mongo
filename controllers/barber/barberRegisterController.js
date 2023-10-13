@@ -214,7 +214,7 @@ const getAllBarberbySalonId = async (req, res) => {
   try {
     // const getAllBarbers = await Barber.find({salonId: salonId})
 
-    const { salonId, userName, email, page = 1, limit = 1, sortField, sortOrder } = req.query
+    const { salonId, userName, email, page = 1, limit = 10, sortField, sortOrder } = req.query
     let query = {}
 
     const searchRegExpName = new RegExp('.*' + userName + ".*", 'i')
@@ -267,29 +267,34 @@ const updateBarber = async (req, res) => {
     const result = await barberService.updateBarberByEmail(barberData)
 
     res.status(result.status).json({
+      success: true,
       response: result.response,
     });
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
+      success: false,
       error: 'Failed to Update Barber'
     });
   }
 }
 
 const deleteBarber = async (req, res) => {
-  const { email, salonId } = req.body;
+  const { salonId } = req.query;
+  const {email} = req.body
   try {
     const result = await barberService.deleteBarberByEmail(salonId, email);
 
     res.status(result.status).json({
+      success:true,
       response: result.response,
     });
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
+      success: false,
       error: 'Failed to Update Barber'
     });
   }
