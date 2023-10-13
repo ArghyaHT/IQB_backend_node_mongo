@@ -28,17 +28,15 @@ const adminSchema = new mongoose.Schema({
         type:String,
     },
 
+    profilePic:{
+        type:String
+    },
+
     dateOfBirth:{
         type: Date,
     },
     mobileNumber:{
         type: Number,
-    },
-  
-
-    verificationCode:{
-        type: String,
-        // required:true
     },
 
     isActive: {

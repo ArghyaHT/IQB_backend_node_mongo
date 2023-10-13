@@ -7,29 +7,29 @@ const Barber = require("../../models/barberRegisterModel.js")
 const { auth } = require("../../utils/AuthUser");
 
 
-const registerBarber = async (req, res) => {
-  try {
-    const barberData = req.body;
-    barberValidateSignUp[req]
+// const registerBarber = async (req, res) => {
+//   try {
+//     const barberData = req.body;
+//     barberValidateSignUp[req]
 
-    const result = await barberService.createBarber(barberData);
+//     const result = await barberService.createBarber(barberData);
 
-    res.status(result.status).json({
-      success: true,
-      response: result.response,
+//     res.status(result.status).json({
+//       success: true,
+//       response: result.response,
 
-    });
+//     });
 
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create Barber',
+//   }
+//   catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to create Barber',
 
-    });
-  }
-}
+//     });
+//   }
+// }
 
 const barberLogin = async(req, res) => {
   try {
@@ -175,26 +175,26 @@ const barberLogin = async(req, res) => {
 // }
 // }
 
-const addServicesTobarbers = async (req, res) => {
-  try {
-    const { salonId, barberId } = req.body;
-    const selectedServicesArray = req.body.selectedServices;
-    const result = await barberService.addBarberServices(salonId, barberId, selectedServicesArray);
+// const addServicesTobarbers = async (req, res) => {
+//   try {
+//     const { salonId, barberId } = req.body;
+//     const selectedServicesArray = req.body.selectedServices;
+//     const result = await barberService.addBarberServices(salonId, barberId, selectedServicesArray);
 
-    res.status(result.status).json({
-      success: true,
-      response: result.response,
-    });
+//     res.status(result.status).json({
+//       success: true,
+//       response: result.response,
+//     });
 
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create Barber'
-    });
-  }
-}
+//   }
+//   catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to create Barber'
+//     });
+//   }
+// }
 
 // const getAllBarberbySalonId = async (req, res) => {
 //   const { salonId } = req.body;
@@ -310,12 +310,12 @@ const deleteBarber = async (req, res) => {
 
 
 module.exports = {
-  registerBarber,
+  // registerBarber,
   barberLogin,
   getAllBarberbySalonId,
   updateBarber,
   deleteBarber,
-  addServicesTobarbers,
+  // addServicesTobarbers,
 }
 
 // https://iqb-frontend.netlify.app/

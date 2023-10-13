@@ -57,6 +57,9 @@ const barberSchema = new mongoose.Schema({
     //     type: Boolean,
     //     default: false
     // },
+    profilePic:{
+        type: String
+    },
     isBarber:{
         type:Boolean,
         // default:false

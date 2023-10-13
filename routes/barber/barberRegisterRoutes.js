@@ -6,20 +6,20 @@ const { auth } = require("../../utils/AuthUser")
 
 const router = express.Router();
 
-router.route("/registerBarber").post(barberValidateSignUp,validate, registerBarber)
+// router.route("/registerBarber").post(barberValidateSignUp,validate, registerBarber)
 
 
 router.route("/login").post(auth, barberLogin)
 
 
-router.route("/addBarberServices").post(addServicesTobarbers)
+// router.route("/addBarberServices").post(addServicesTobarbers)
 
 
 
-router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId)
+router.route("/getAllBarberBySalonId").post(auth, getAllBarberbySalonId)
 
-router.route("/updateBarberByEmail").post(updateBarber)
+router.route("/updateBarberByEmail").post(auth, updateBarber)
 
-router.route("/deleteBarberByEmail").post(deleteBarber)
+router.route("/deleteBarberByEmail").post(auth, deleteBarber)
 
 module.exports = router;

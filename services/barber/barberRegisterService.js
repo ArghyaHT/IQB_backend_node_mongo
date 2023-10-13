@@ -2,55 +2,55 @@ const Barber = require("../../models/barberRegisterModel.js")
 const Salon = require("../../models/salonsRegisterModel.js")
 
 
-const createBarber = async(barberData) => {
-const {email, name, isActive, isBarber} = barberData
+// const createBarber = async(barberData) => {
+// const {email, name, isActive, isBarber} = barberData
 
-try{
-    const existingBarber = await Barber.findOne({email})
+// try{
+//     const existingBarber = await Barber.findOne({email})
 
-    if(existingBarber){
-        return {
-            status: 400,
-            response: 'A barber with the provided Email already exists',
-          };
-    }
-    const barber = new Barber({
-       email,
-       name,
-       isActive,
-       isBarber
-    })
+//     if(existingBarber){
+//         return {
+//             status: 400,
+//             response: 'A barber with the provided Email already exists',
+//           };
+//     }
+//     const barber = new Barber({
+//        email,
+//        name,
+//        isActive,
+//        isBarber
+//     })
   
 
-    const savedBarber = await barber.save();
+//     const savedBarber = await barber.save();
     
-    // await Salon.findOneAndUpdate({
-    //     SalonId: salonId
-    // },
-    // {
-    //     $push: {
-    //       RegisteredBarber: {
-    //         BarberId: barberId, 
-    //         BarberEmail: email  
-    //       },
-    //     },
-    //   },
-    //   {new: true})
+//     // await Salon.findOneAndUpdate({
+//     //     SalonId: salonId
+//     // },
+//     // {
+//     //     $push: {
+//     //       RegisteredBarber: {
+//     //         BarberId: barberId, 
+//     //         BarberEmail: email  
+//     //       },
+//     //     },
+//     //   },
+//     //   {new: true})
     
-    return {
-        status: 200,
-        response: savedBarber,
-    }
-}
+//     return {
+//         status: 200,
+//         response: savedBarber,
+//     }
+// }
 
-catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: error.message,
- };
-}
-}
+// catch (error) {
+//     console.log(error.message)
+//     return {
+//       status: 500,
+//       message: error.message,
+//  };
+// }
+// }
 
 
 // const addBarberServices = async (salonId, barberId, selectedServicesArray) => {
@@ -203,9 +203,6 @@ const updateBarberByEmail = async( barberData) => {
     const{salonId, name, email, userName, mobileNumber,dateOfBirth,barberServices, isActive} = barberData
 try{
 
-    // const barber = await Barber.findOne({email})
-    // const firstTwoLetters = barber.name.slice(0, 2).toUpperCase()
-
     const barber = await Barber.findOneAndUpdate({email: email},
         {name: name,
          salonId: salonId,
@@ -284,7 +281,7 @@ const deleteBarberByEmail = async(salonId, email) =>{
 
 
 module.exports = {
-    createBarber,
+    // createBarber,
     // getAllBarbersBySalonId,
     updateBarberByEmail,
     deleteBarberByEmail,

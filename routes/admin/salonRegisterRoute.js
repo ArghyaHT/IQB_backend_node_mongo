@@ -8,7 +8,7 @@ const router = express.Router()
 //SalonSignUp
 router.route("/createSalon").post(salonSignUp)
 
-router.route("/addSalonServices").post(addServices)
+// router.route("/addSalonServices").post(addServices)
 
 router.route("/searchByCity").post(searchSalonsByCity)
 

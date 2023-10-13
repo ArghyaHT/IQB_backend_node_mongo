@@ -5,21 +5,18 @@ const {auth} = require("../../utils/AuthUser")
 
 const router = express.Router();
 
-router.route("/adminSignUp").post(validateSignUp, validate, adminSignUp)
+// router.route("/adminSignUp").post(validateSignUp, validate, adminSignUp)
 
 router.route("/login").post(auth, adminLogin)
 
-router.route("/getAllAdmins").get(allAdmins)
+// router.route("/getAllAdmins").get(allAdmins)
 
-router.route("/deleteAdmin").delete(deleteSingleAdmin)
+router.route("/deleteAdmin").post(auth, deleteSingleAdmin)
 
-router.route("/updateAdmin").put(validateSignUp, validate, updateAdmin)
+router.route("/updateAdmin").put(auth, updateAdmin)
 
-router.route("/forgetAdminPassword").post(forgetAdminPassword)
+// router.route("/forgetAdminPassword").post(forgetAdminPassword)
 
-router.route("/resetAdminPassword").post(resetAdminpassword)
-
-
-
+// router.route("/resetAdminPassword").post(resetAdminpassword)
 
 module.exports = router
