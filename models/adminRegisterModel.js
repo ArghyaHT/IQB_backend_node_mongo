@@ -2,49 +2,50 @@ const mongoose = require("mongoose")
 
 
 const adminSchema = new mongoose.Schema({
-    SalonId:{
+    salonId:{
         type: String
     },
-    Email:{
+    name: {
         type: String,
-        required: true
     },
-
-    FirstName:{
-        type:String,
-        required: true
-    },
-
-    LastName:{
+    email: {
         type: String,
-        required: true
     },
-    UserName:{
-        type:String,
-        required: true
+    email_verified: {
+        type: Boolean,
     },
-    Gender:{
+    auth_time: {
+        type: String,
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    userName:{
         type:String,
-        required: true
+    },
+    gender:{
+        type:String,
     },
 
-    DateOfBirth:{
+    dateOfBirth:{
         type: Date,
-        required:true
     },
-    MobileNumber:{
+    mobileNumber:{
         type: Number,
-        required: true,
     },
-    Password:{
-        type: String,
-        required: true
-    },
+  
 
-    VerificationCode:{
+    verificationCode:{
         type: String,
         // required:true
     },
+
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+  
 
  
   });

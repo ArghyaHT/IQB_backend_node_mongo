@@ -200,21 +200,23 @@ catch (error) {
 
 const updateBarberByEmail = async( barberData) => {
 
-    const{salonId, email, userName, mobileNumber,dateOfBirth,barberServices, isActive} = barberData
+    const{salonId, name, email, userName, mobileNumber,dateOfBirth,barberServices, isActive} = barberData
 try{
 
-    const barber = await Barber.findOne({email})
-    const firstTwoLetters = barber.name.slice(0, 2).toUpperCase()
+    // const barber = await Barber.findOne({email})
+    // const firstTwoLetters = barber.name.slice(0, 2).toUpperCase()
 
-    const barberCode = firstTwoLetters + salonId; // todo with barberId instead of salonId
+    const updateBarber = await Barber.findOneAndUpdate({email: email},
+        {name: name,
+         salonId: salonId,
+         userName: userName,
+         mobileNumber:mobileNumber,
+         dateOfBirth: dateOfBirth,
+         barberServices: barberServices, 
+         isActive: isActive
+ },{new: true})
     
-    barber.salonId = salonId,
-    barber.userName = userName,
-    barber.mobileNumber= mobileNumber,
-    barber.dateOfBirth = dateOfBirth,
-    barber.barberCode = barberCode,
-    barber.barberServices = barberServices,
-    barber.isActive = isActive
+    
 
 
     const updatedBarber =   await barber.save();

@@ -22,8 +22,9 @@ const auth = async (req, res, next) => {
 
         const barberdata = req.body.barber || false
         const admindata = req.body.admin || false
+        const namedata = req.body.name || ""
 
-        req.user = {decodeValue:decodeValue, barber:barberdata,admin:admindata }   
+        req.user = {decodeValue:decodeValue, barber:barberdata,admin:admindata,name:namedata}   
         next()
 
     } catch (error) {

@@ -1,6 +1,7 @@
 
 const { validateSignUp } = require("../../middlewares/registerValidator");
 const adminService = require("../../services/admin/adminRegisterService")
+const Admin = require("../../models/adminRegisterModel")
 
 const adminSignUp = async (req, res) => {
     const adminData = req.body;
@@ -40,6 +41,144 @@ const adminSignIn = async(req, res) =>{
         });
     }
 }
+const adminLogin = async(req, res) =>{
+    try {
+        const newuser = req.user
+
+        const userExists = await Admin.findOne({ email: newuser.decodeValue.email })
+
+        if (!userExists) {
+            //create new user
+            try {
+                const newUser = new Admin({
+                    name: newuser.decodeValue.name || newuser.name,
+                    email: newuser.decodeValue.email,              
+                    email_verified: newuser.decodeValue.email_verified,
+                    auth_time: newuser.decodeValue.auth_time,
+                    isAdmin: newuser.admin,            
+                })
+
+                const savedUser = await newUser.save()
+
+                res.status(200).json({
+                    success: true,
+                    message: "Admin created successfully",
+                    user: savedUser
+                })
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: error
+                })
+            }
+
+        } else {
+            try {
+                const filter = { email: newuser.decodeValue.email }
+                const options = {
+                    upsert: true,
+                    new: true
+                }
+
+                const result = await Admin.findOneAndUpdate(filter, {
+                    $set: {
+                        auth_time: newuser.decodeValue.auth_time
+                    }
+                }, options)
+
+                res.status(200).json({
+                    success: true,
+                    message: "Admin auth time updated successfully",
+                    user: result
+                })
+            } catch (error) {
+                return res.status(404).json({
+                    success: false,
+                    message: error
+                })
+            }
+        }
+
+    } catch (error) {
+        return res.status(404).json({
+            success: false,
+            message: error
+        })
+    }
+}
+
+
+
+
+// router.post("/admin/login", auth, async (req, res) => {
+//     try {
+//         const newuser = req.user
+
+//         const userExists = await Admin.findOne({ userId: newuser.decodeValue.user_id })
+
+//         if (!userExists) {
+//             //create new user
+//             try {
+//                 const newUser = new Admin({
+//                     name: newuser.decodeValue.name,
+//                     email: newuser.decodeValue.email,
+//                     userId: newuser.decodeValue.user_id,
+//                     email_verified: newuser.decodeValue.email_verified,
+//                     auth_time: newuser.decodeValue.auth_time,
+//                     isAdmin: newuser.admin,
+//                     isUser:newuser.user
+//                 })
+
+//                 const savedUser = await newUser.save()
+
+//                 res.status(200).json({
+//                     success: true,
+//                     message: "Admin created successfully",
+//                     user: savedUser
+//                 })
+//             } catch (error) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: error
+//                 })
+//             }
+
+//         } else {
+//             try {
+//                 const filter = { userId: newuser.decodeValue.user_id }
+//                 const options = {
+//                     upsert: true,
+//                     new: true
+//                 }
+
+//                 const result = await Admin.findOneAndUpdate(filter, {
+//                     $set: {
+//                         auth_time: newuser.decodeValue.auth_time
+//                     }
+//                 }, options)
+
+//                 res.status(200).json({
+//                     success: true,
+//                     message: "Admin auth time updated successfully",
+//                     user: result
+//                 })
+//             } catch (error) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: error
+//                 })
+//             }
+//         }
+
+//     } catch (error) {
+//         return res.status(404).json({
+//             success: false,
+//             message: error
+//         })
+//     }
+// })
+
+//=================================================
 
 const allAdmins = async(req, res) => {
     try{
@@ -141,6 +280,7 @@ module.exports = {
     deleteSingleAdmin, 
     updateAdmin,
     forgetAdminPassword,
-    resetAdminpassword
+    resetAdminpassword,
+    adminLogin,
 
 }

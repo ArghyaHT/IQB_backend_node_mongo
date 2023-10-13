@@ -45,7 +45,7 @@ const barberLogin = async(req, res) => {
 
           const barberCode = firstTwoLetters + barberId; 
             const newUser = new Barber({
-                name: newuser.decodeValue.name,
+                name: newuser.decodeValue.name || newuser.name,
                 email: newuser.decodeValue.email,
                 email_verified: newuser.decodeValue.email_verified,
                 auth_time: newuser.decodeValue.auth_time,
@@ -198,7 +198,6 @@ const getAllBarberbySalonId = async (req, res) => {
 
 const updateBarber = async (req, res) => {
   const barberData = req.body
-  barberValidateSignUp[req]
   try {
     const result = await barberService.updateBarberByEmail(barberData)
 
