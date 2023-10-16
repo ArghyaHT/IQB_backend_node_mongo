@@ -4,10 +4,10 @@ const salonService = require("../../services/admin/salonRegisterService")
 const salonSignUp = async (req, res) => {
   try {
     const salonData = req.body;
-    const {AdminEmail} = req.body
+    const {adminEmail} = req.body
 
 
-    const result = await salonService.createSalon(salonData, AdminEmail);
+    const result = await salonService.createSalon(salonData, adminEmail);
 
     res.status(result.status).json({
       success: true,
