@@ -101,19 +101,19 @@ const allCustomers = async(req, res) => {
   try {
     // const getAllBarbers = await Barber.find({salonId: salonId})
 
-    const { salonId, userName, email, page = 1, limit = 10, sortField, sortOrder } = req.query
+    const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query
     let query = {}
 
-    const searchRegExpName = new RegExp('.*' + userName + ".*", 'i')
+    const searchRegExpName = new RegExp('.*' + name + ".*", 'i')
     const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i')
 
     if (salonId) {
       query.salonId = salonId
     }
 
-    if (userName || email) {
+    if (name || email) {
       query.$or = [
-        { userName: { $regex: searchRegExpName } },
+        { name: { $regex: searchRegExpName } },
         { email: { $regex: searchRegExpEmail } }
       ];
     }
@@ -131,7 +131,7 @@ const allCustomers = async(req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "All barbers fetched successfully",
+      message: "All Customers fetched successfully",
       getAllCustomers,
       totalPages: Math.ceil(totalCustomers / Number(limit)),
       currentPage: Number(page),
@@ -154,7 +154,6 @@ const updateCustomer = async(req, res) =>{
   try {
       const result = await customerService.updateCustomer(customerData);
       res.status(result.status).json({
-
          success: true,
           response: result.response,
       });

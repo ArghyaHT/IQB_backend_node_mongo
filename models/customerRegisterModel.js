@@ -16,18 +16,13 @@ const customerSchema = new mongoose.Schema({
         required: true
     },
 
-    firstName:{
-        type:String,
-        required: true
-    },
-
-    lastName:{
+    name:{
         type: String,
         required: true
     },
     userName:{
         type: String,
-        required: true
+        // required: true
     },
     gender:{
         type:String,

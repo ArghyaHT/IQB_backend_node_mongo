@@ -12,6 +12,7 @@ const salonSignUp = async (req, res) => {
     res.status(result.status).json({
       success: true,
       response: result.response,
+      message: result.message,
       error: result.error
     });
   }
@@ -193,6 +194,30 @@ catch (error) {
 }
 
 
+
+const getAllSalonsByAdmin = async (req, res) => {
+
+  try {
+    const { adminEmail } = req.query;
+    const result = await salonService.getSalonsByAdminEmail(adminEmail)
+
+    res.status(result.status).json({
+      success: true,
+      message: result.message,
+      response: result.response, 
+      error: result.error   
+    })
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success:false,
+      error: 'Failed to search Salons'
+    });
+  }
+}
+
+
 module.exports = {
   salonSignUp,
   searchSalonsByCity,
@@ -202,6 +227,7 @@ module.exports = {
   allSalonServices,
   updateSalonServiceByServiceId,
   deleteServiceByServiceIdSalonId,
-  addServices
+  addServices,
+  getAllSalonsByAdmin
 
 }

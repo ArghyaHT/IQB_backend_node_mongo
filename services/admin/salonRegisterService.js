@@ -434,6 +434,34 @@ const deleteSalonService = async (salonId, serviceId) => {
   }
 }
 
+const getSalonsByAdminEmail = async(adminEmail) =>{
+
+  try{
+    const salonListByAdminEmail = await Salon.find({adminEmail});
+
+    if(!salonListByAdminEmail){
+      return ({
+        status: 200,
+        message: 'No Salons found for this Admin',
+      });
+    }
+
+    return ({
+      status: 200,
+      message: 'Salons found successfully.',
+      response: salonListByAdminEmail,
+    });
+}
+catch (error) {
+  console.error(error);
+  return ({
+    status: 500,
+    message: 'Failed to search salons by this adminEmail.',
+  });
+}
+
+}
+
 
 module.exports = {
   createSalon,
@@ -444,6 +472,7 @@ module.exports = {
   getAllSalonServices,
   updateSalonService,
   deleteSalonService,
+  getSalonsByAdminEmail
   // addSalonServices,
 }
 

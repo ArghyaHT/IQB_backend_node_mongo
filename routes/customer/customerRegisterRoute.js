@@ -6,7 +6,7 @@ const { validateSignUp, validate } = require("../../middlewares/registerValidato
 const router = express.Router()
 
 //SignUp
-router.route("/signUp").post(validateSignUp, validate ,signUp)
+router.route("/signUp").post(signUp)
 
 //SignIn
 router.route("/signIn").post(signIn)

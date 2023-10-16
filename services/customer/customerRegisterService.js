@@ -13,8 +13,7 @@ const createCustomer = async (customerData) => {
     const {
       salonId,
       email,
-      firstName,
-      lastName,
+      name,
       userName,
       gender,
       dateOfBirth,
@@ -23,7 +22,7 @@ const createCustomer = async (customerData) => {
     } = customerData;
 
     //Find the Customer If exits 
-    const existingCustomer = await Customer.findOne({ email });
+    const existingCustomer = await Customer.findOne({ email, salonId });
 
     if (existingCustomer) {
       return {
@@ -41,8 +40,7 @@ const createCustomer = async (customerData) => {
     const customer = new Customer({
       salonId,
       email,
-      firstName,
-      lastName,
+      name,
       userName,
       gender,
       dateOfBirth,
@@ -241,7 +239,7 @@ const updateCustomer = async (customerData) => {
 
   try {
     const findCustomer = await Customer.findOneAndUpdate({ email },
-      {  firstName, lastName, gender, dateOfBirth, mobileNumber },
+      { firstName, lastName, gender, dateOfBirth, mobileNumber },
       { new: true })
     return {
       status: 200,
