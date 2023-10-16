@@ -31,6 +31,8 @@ const { auth } = require("../../utils/AuthUser");
 //   }
 // }
 
+
+
 const barberLogin = async(req, res) => {
   try {
     const newuser = req.user
@@ -220,7 +222,7 @@ const getAllBarberbySalonId = async (req, res) => {
   try {
     // const getAllBarbers = await Barber.find({salonId: salonId})
 
-    const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query
+    const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query
     let query = {}
 
     const searchRegExpName = new RegExp('.*' + name + ".*", 'i')
