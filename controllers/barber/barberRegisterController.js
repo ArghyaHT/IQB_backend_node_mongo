@@ -220,19 +220,19 @@ const getAllBarberbySalonId = async (req, res) => {
   try {
     // const getAllBarbers = await Barber.find({salonId: salonId})
 
-    const { salonId, userName, email, page = 1, limit = 10, sortField, sortOrder } = req.query
+    const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query
     let query = {}
 
-    const searchRegExpName = new RegExp('.*' + userName + ".*", 'i')
+    const searchRegExpName = new RegExp('.*' + name + ".*", 'i')
     const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i')
 
     if (salonId) {
       query.salonId = salonId
     }
 
-    if (userName || email) {
+    if (name || email) {
       query.$or = [
-        { userName: { $regex: searchRegExpName } },
+        { name: { $regex: searchRegExpName } },
         { email: { $regex: searchRegExpEmail } }
       ];
     }

@@ -16,7 +16,7 @@ router.route("/login").post(auth, barberLogin)
 
 
 
-router.route("/getAllBarberBySalonId").post(auth, getAllBarberbySalonId)
+router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId)
 
 router.route("/updateBarberByEmail").post(auth, updateBarber)
 
