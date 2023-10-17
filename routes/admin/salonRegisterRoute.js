@@ -4,28 +4,25 @@ const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndA
 
 const router = express.Router()
 
+router.route("/getAllSalonsByAdminEmail").get(getAllSalonsByAdmin) //api integrated
 
 //SalonSignUp
-router.route("/createSalon").post(salonSignUp)
+router.route("/createSalon").post(salonSignUp) //api integrated
 
 // router.route("/addSalonServices").post(addServices)
 
 router.route("/searchByCity").post(searchSalonsByCity)
 
-router.route("/getSalonsByLocation").get(getSalonsByLocation)
+router.route("/getSalonsByLocation").get(getSalonsByLocation) //api working
 
-router.route("/getSalonInfoBySalonId").get(getSalonInfo)
+router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 router.route("/updateSalonBySalonIdAndAdminEmail").post(updateSalonBySalonIdAndAdminEmail)
 
-router.route("/allSalonServices").post(allSalonServices)
+router.route("/allSalonServices").post(allSalonServices) //api working
 
-router.route("/updateSalonServiceByServiceId").put(updateSalonServiceByServiceId)
+router.route("/updateSalonServiceByServiceId").put(updateSalonServiceByServiceId) //api working perfectly
 
 router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSalonId)
 
-router.route("/getAllSalonsByAdminEmail").get(getAllSalonsByAdmin)
-
-
-
-module.exports = router
+module.exports = router 

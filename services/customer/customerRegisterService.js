@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt")
 
 const crypto = require("crypto")
 
-const { sendPasswordResetEmail } = require("../../utils/emailSender.js")
+const { sendPasswordResetEmail, sendCustomerMail } = require("../../utils/emailSender.js")
 
 
 //----------SignUp For customer-----------------//
@@ -69,7 +69,6 @@ const createCustomer = async (customerData) => {
 }
 
 
-
 //----------SignIn For customer-----------------//
 const signInCustomer = async (email, password) => {
   try {
@@ -103,10 +102,9 @@ const signInCustomer = async (email, password) => {
 
 
 //Forget Password
-
 const enterEmail = async (email) => {
   try {
-    const customer = await Customer.findOne({ Email: email });
+    const customer = await Customer.findOne({ email: email });
     if (!customer) {
       return {
         status: 400,
@@ -116,10 +114,10 @@ const enterEmail = async (email) => {
 
     const verificationCode = crypto.randomBytes(2).toString('hex');
 
-    customer.VerificationCode = verificationCode;
+    customer.verificationCode = verificationCode;
     await customer.save();
 
-    if (customer.VerificationCode) {
+    if (customer.verificationCode) {
       const email = "bikkihimanstech@gmail.com"
 
       const resetLink = "`https://gmail.com/reset-password`"
@@ -256,6 +254,34 @@ const updateCustomer = async (customerData) => {
 }
 
 
+const sendMail = async(email, subject, text) =>{
+
+  try{
+    const customer = await Customer.findOne({ email });
+    if (!customer) {
+      return {
+        status: 400,
+        response: 'Email Id did not match',
+      };
+    }
+    if(customer){
+      sendCustomerMail(email, subject, text)
+
+
+      return {
+        status: 200,
+        message: 'Mail has been sent Successfully',
+      };
+
+    }
+    
+  }
+  catch (error) {
+    console.error('Failed to enter email:', error);
+    throw new Error('Failed to sign in');
+  }
+}
+
 
 module.exports = {
   createCustomer,
@@ -265,4 +291,5 @@ module.exports = {
   // getAllCustomers,
   deleteCustomer,
   updateCustomer,
+  sendMail,
 }

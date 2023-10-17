@@ -308,7 +308,25 @@ const deleteBarber = async (req, res) => {
   }
 }
 
+const chnageBarberWorkingStatus = async(req, res) => {
+  try {
+    const { barberId } = req.params;
+    const { isActive } = req.body;
 
+    // Update the isActive status in the database
+    const updatedBarber = await Barber.findOneAndUpdate(barberId, { isActive }, { new: true });
+
+    if (!updatedBarber) {
+      return res.status(404).json({ message: "Barber not found" });
+    }
+
+    return res.status(200).json(updatedBarber);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+  
+}
 
 
 module.exports = {
@@ -317,6 +335,7 @@ module.exports = {
   getAllBarberbySalonId,
   updateBarber,
   deleteBarber,
+  chnageBarberWorkingStatus,
   // addServicesTobarbers,
 }
 

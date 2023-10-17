@@ -200,7 +200,7 @@ const Salon = require("../../models/salonsRegisterModel.js")
 
 const updateBarberByEmail = async( barberData) => {
 
-    const{salonId, name, email, userName, mobileNumber,dateOfBirth,barberServices, isActive} = barberData
+    const{salonId, name, email, userName, mobileNumber,dateOfBirth,barberServices} = barberData
 try{
 
     const barber = await Barber.findOneAndUpdate({email: email},
@@ -210,7 +210,6 @@ try{
          mobileNumber:mobileNumber,
          dateOfBirth: dateOfBirth,
          barberServices: barberServices, 
-         isActive: isActive
  },{new: true})
     
     

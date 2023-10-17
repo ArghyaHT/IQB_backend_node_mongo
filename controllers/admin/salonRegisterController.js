@@ -130,7 +130,7 @@ catch (error) {
 }
 
 const allSalonServices = async(req, res) =>{
-  const {salonId} = req.body;
+  const {salonId} = req.query;
   try{
     const result = await salonService.getAllSalonServices(salonId);
 

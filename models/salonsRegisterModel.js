@@ -105,7 +105,7 @@ const salonsSchema = new mongoose.Schema({
             // required: true,
         },
         servicePrice: {
-            type: String,
+            type: Number,
             // required: true
         },
         supportedBarbers: [{

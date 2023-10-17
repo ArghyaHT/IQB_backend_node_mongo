@@ -380,14 +380,16 @@ const updateSalonBySalonId = async (salonData) => {
 const updateSalonService = async (salonId, serviceId, newServiceData) => {
   const {
     serviceName,
-    serviceDescription
+    serviceDesc,
+    servicePrice,
   } = newServiceData
   try {
-    const updatedService = await Salon.findOneAndUpdate({ salonId, "SalonServices.ServiceId": serviceId },
+    const updatedService = await Salon.findOneAndUpdate({ salonId, "services.serviceId": serviceId },
       {
         $set: {
-          "SalonServices.$.ServiceName": serviceName,
-          "SalonServices.$.ServiceDescription": serviceDescription
+          "services.$.serviceName": serviceName,
+          "services.$.serviceDesc": serviceDesc,
+          "services.$.servicePrice": servicePrice
         }
       },
       { new: true })

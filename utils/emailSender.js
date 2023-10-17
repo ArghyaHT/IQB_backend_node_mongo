@@ -36,6 +36,26 @@ const sendPasswordResetEmail = (email, resetLink) => {
   });
 };
 
+
+const sendCustomerMail = (email,subject, text) => {
+  const mailOptions = {
+    from: 'arghyahimanstech@gmail.com',
+    to: `${email}`,
+    subject: `${subject}`,
+    html: `<p>Dear User,</p>
+           <p>${text}</p>`,
+  }
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+}
+
 module.exports ={
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendCustomerMail,
 }

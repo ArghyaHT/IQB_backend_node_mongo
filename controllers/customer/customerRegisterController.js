@@ -188,6 +188,27 @@ const deleteSingleCustomer = async(req, res) =>{
 }
 
 
+const sendMailToCustomer = async(req, res) =>{
+  const { email, subject, text } = req.body;
+
+  try {
+    const result = await customerService.sendMail(email, subject, text);
+    res.status(result.status).json({
+       success: true,
+        response: result.response,
+        message: result.message,
+    });
+}
+catch (error) {
+    console.error(error);
+    res.status(500).json({
+        success:false,
+        message: 'Failed to send mail'
+    });
+}
+
+}
+
 
 
   module.exports = {
@@ -197,6 +218,7 @@ const deleteSingleCustomer = async(req, res) =>{
   resetpassword,
   allCustomers,
   deleteSingleCustomer,
-  updateCustomer
+  updateCustomer,
+  sendMailToCustomer
   
   }
