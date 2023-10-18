@@ -14,6 +14,8 @@ const serviceRegister = require("./routes/admin/serviceRegisterRoute.js")
 
 const barberService = require("./routes/barber/barberService.js")
 
+const joinQ = require("./routes/Queueing/joinQueueRoutes.js")
+
 const barberAuth = require("./routes/barberAuth/barberAuthRoute.js")
 
 
@@ -37,6 +39,8 @@ app.use("/api/barber", barberRegister)
 app.use("/api/service", serviceRegister)
 
 app.use("/api/barberService", barberService)
+
+app.use("/api/queue", joinQ)
 
 app.use("/api", barberAuth)
 

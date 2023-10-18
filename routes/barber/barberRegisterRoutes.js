@@ -18,9 +18,9 @@ router.route("/login").post(auth, barberLogin) //api integrated
 
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integrated
 
-router.route("/updateBarberByEmail").post(auth, updateBarber)
+router.route("/updateBarberByEmail").post( updateBarber)
 
-router.route("/deleteBarberByEmail").post(auth, deleteBarber)
+router.route("/deleteBarberByEmail").post( deleteBarber)
 
 
 router.route("/changeBarberWorkingStatus").post(chnageBarberWorkingStatus) //api working

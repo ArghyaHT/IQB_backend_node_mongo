@@ -1,10 +1,10 @@
 const mongoose = require("mongoose")
 
 const joinqueueSchema = new mongoose.Schema({
-    id:{
-        type: Number,
-        required: true
-    },
+    // id:{
+    //     type: Number,
+    //     required: true
+    // },
     salonId:{
         type: Number,
         required: true
@@ -16,12 +16,17 @@ const joinqueueSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    firstLastName:{
+    name:{
         type: String,
         required: true
     },
     joinedQ:{
-        type: String
+        type:Boolean 
+    },
+
+    joinedQType:{
+        type: String,
+        enum: ['Single-Join', 'Group-Join', 'Auto-Join']
     },
     dateJoinedQ:{
         type: Date
@@ -36,7 +41,8 @@ const joinqueueSchema = new mongoose.Schema({
         type: Boolean
     },
     methodeUsed:{
-        type: String
+        type: String,
+        enum: ['Walk-In', 'Admin', 'App']
     },
     barberName:{
         type:String
@@ -65,7 +71,7 @@ const joinqueueSchema = new mongoose.Schema({
     serviceId:{
         type: Number
     },
-    barberDefaultEWT:{
+    barberEWT:{
         type: Number
     },
     localLineId:{
