@@ -321,24 +321,31 @@ const updateSalonBySalonId = async (salonData) => {
         message: 'Salon not found.',
       };
     }
+    
+    if (!salon.services || !Array.isArray(salon.services)) {
+      return {
+        status: 500,
+        message: 'Salon services are missing or not an array.',
+      };
+    }
 
-    const updateServices = services.map((s) =>{
-     const serviceId = s.serviceId;
-     const serviceName = s.serviceName;
-     const servicePrice = s.servicePrice;
+    // const updateServices = services.map((s) =>{
+    //  const serviceId = s.serviceId;
+    //  const serviceName = s.serviceName;
+    //  const servicePrice = s.servicePrice;
 
-     const existingService = salon.services.find((service) => service.serviceId === serviceId);
+    //  const existingService = salon.services.find((service) => service.serviceId === serviceId);
 
-        console.log(existingService)
-        if (existingService) {
-          existingService.serviceName = serviceName;
-          existingService.servicePrice = servicePrice;
-          return existingService;
-        }
-    });
+    //     console.log(existingService)
+    //     if (existingService) {
+    //       existingService.serviceName = serviceName;
+    //       existingService.servicePrice = servicePrice;
+    //       return existingService;
+    //     }
+    // });
    
 
-    const updatedSalon = await Salon.findOne({ salonId: salonId, adminEmail: adminEmail },
+    const updatedSalon = await Salon.findOneAndUpdate({ salonId: salonId, adminEmail: adminEmail },
       {
         userName,
         salonName,
@@ -353,13 +360,11 @@ const updateSalonBySalonId = async (salonData) => {
         fblink,
         twitterLink,
         instraLink,
-        services: updateServices
+        services
       },
       {
         new: true
       })
-
-
 
     return ({
       status: 200,
@@ -376,6 +381,8 @@ const updateSalonBySalonId = async (salonData) => {
   }
 
 }
+
+
 
 const updateSalonService = async (salonId, serviceId, newServiceData) => {
   const {

@@ -2,77 +2,90 @@ const Barber = require("../../models/barberRegisterModel.js")
 const Salon = require("../../models/salonsRegisterModel.js")
 
 
-// const createBarber = async(barberData) => {
-// const {email, name, isActive, isBarber} = barberData
+const createBarberByAdmin = async (barberData) => {
+    const { email, name, isActive, isBarber, userName, mobileNumber, dateOfBirth, salonId, barberServices } = barberData
 
-// try{
-//     const existingBarber = await Barber.findOne({email})
+    try {
+        const existingBarber = await Barber.findOne({ email })
 
-//     if(existingBarber){
-//         return {
-//             status: 400,
-//             response: 'A barber with the provided Email already exists',
-//           };
-//     }
-//     const barber = new Barber({
-//        email,
-//        name,
-//        isActive,
-//        isBarber
-//     })
-  
+        if (!existingBarber) {
+            const barberId = await Barber.countDocuments() + 1;
+            const firstTwoLetters = name.slice(0, 2).toUpperCase();
+            const barberCode = firstTwoLetters + barberId;
 
-//     const savedBarber = await barber.save();
-    
-//     // await Salon.findOneAndUpdate({
-//     //     SalonId: salonId
-//     // },
-//     // {
-//     //     $push: {
-//     //       RegisteredBarber: {
-//     //         BarberId: barberId, 
-//     //         BarberEmail: email  
-//     //       },
-//     //     },
-//     //   },
-//     //   {new: true})
-    
-//     return {
-//         status: 200,
-//         response: savedBarber,
-//     }
-// }
+            const barber = new Barber({
+                email,
+                name,
+                isActive,
+                isBarber,
+                userName,
+                mobileNumber,
+                barberId: barberId,
+                barberCode: barberCode,
+                dateOfBirth,
+                salonId,
+                barberServices
+            })
 
-// catch (error) {
-//     console.log(error.message)
-//     return {
-//       status: 500,
-//       message: error.message,
-//  };
-// }
-// }
+
+            const savedBarber = await barber.save();
+
+            // await Salon.findOneAndUpdate({
+            //     SalonId: salonId
+            // },
+            // {
+            //     $push: {
+            //       RegisteredBarber: {
+            //         BarberId: barberId, 
+            //         BarberEmail: email  
+            //       },
+            //     },
+            //   },
+            //   {new: true})
+
+            return {
+                status: 200,
+                message: "Barber Created Successfully",
+                response: savedBarber,
+            }
+        }
+
+        return {
+            status: 400,
+            response: 'A barber with the provided Email already exists',
+        };
+    }
+
+    catch (error) {
+        console.log(error.message)
+        return {
+            status: 500,
+            message: error.message,
+        };
+    }
+}
 
 
 // const addBarberServices = async (salonId, barberId, selectedServicesArray) => {
 //     try {
 //       // Fetch the barber details from the 'Barber' model
 //       const barber = await Barber.findOne({ barberId: barberId });
-  
+
 //       if (!barber) {
 //         return {
 //           status: 404,
 //           error: 'Barber not found',
 //         };
 //       }
-  
+
 //       const barberEmail = barber.email; // Retrieve the barberEmail
 //       // You can retrieve other barber details as needed
-  
+
 //       const matchSalonServices = await Salon.find({
 //         salonId: salonId,
 //         'services.serviceId': { $in: selectedServicesArray },
 //       });
-  
+
 //       console.log(matchSalonServices);
 
 
@@ -102,9 +115,9 @@ const Salon = require("../../models/salonsRegisterModel.js")
 //       const updatedBarberServices = barberServiceDocs.map((doc) => doc.barberServices);
 
 //       console.log(updatedBarberServices)
-    
-    
-    
+
+
+
 //     //  // Update the existing 'Barber' document
 //     // const updatedBarber =  await Barber.updateOne(
 //     //     { barberId: barber.barberId },
@@ -116,10 +129,10 @@ const Salon = require("../../models/salonsRegisterModel.js")
 //     //     },
 //     //     {new: true}
 //     //   );
-  
-  
+
+
 //       console.log('Inserted barberService documents:', updatedBarber);
-  
+
 //       // Update the 'Service' model to add 'barberId' and 'barberEmail' for each service
 //       // for (const serviceId of selectedServicesArray) {
 //       //   await Salon.findOneAndUpdate(
@@ -135,9 +148,9 @@ const Salon = require("../../models/salonsRegisterModel.js")
 //       //     { new: true }
 //       //   );
 //       // }
-  
+
 //       console.log('Barber added to services');
-  
+
 //       return {
 //         status: 200,
 //         response: 'Barber services and supported Barbers added successfully',
@@ -174,7 +187,7 @@ const Salon = require("../../models/salonsRegisterModel.js")
 // const getAllBarbersBySalonId = async(salonId,res ) =>{
 //     try{
 //         // const getAllBarbers = await Barber.find({salonId: salonId})
-    
+
 //         const {salonId,page = 1, limit = 1} = req.query
 //         let query = {}
 
@@ -186,7 +199,7 @@ const Salon = require("../../models/salonsRegisterModel.js")
 //             message:"All barbers",
 //             getAllBarbers
 //         })
-    
+
 //     }
 //     catch (error) {
 //         console.log(error.message)
@@ -198,60 +211,57 @@ const Salon = require("../../models/salonsRegisterModel.js")
 //     }
 
 
-const updateBarberByEmail = async( barberData) => {
+const updateBarberByEmail = async (barberData) => {
 
-    const{salonId, name, email, userName, mobileNumber,dateOfBirth,barberServices} = barberData
-try{
+    const { salonId, name, email, userName, mobileNumber, dateOfBirth, barberServices } = barberData
+    try {
 
-    const barber = await Barber.findOneAndUpdate({email: email},
-        {name: name,
-         salonId: salonId,
-         userName: userName,
-         mobileNumber:mobileNumber,
-         dateOfBirth: dateOfBirth,
-         barberServices: barberServices, 
- },{new: true})
-    
-    
-    
-
-//     const updatedBarber = await barber.updateOne({email:barber.email},{
-//         $set: {
-//             salonId,
-//             userName,
-//             mobileNumber,
-//             dateOfBirth,
-//             barberCode,
-//             barberServices,
-//             isActive,
-//           },
-//     },
-//     {new:true}
-// )
-
-    // const updateBarber = await Barber.findOneAndUpdate(
-    //     { email},
-    //     {firstName: firstName, lastName:lastName, mobileNumber: mobileNumber},
-    //     {new:true})
-
+        const barber = await Barber.findOneAndUpdate({ email: email },
+            {
+                name: name,
+                salonId: salonId,
+                userName: userName,
+                mobileNumber: mobileNumber,
+                dateOfBirth: dateOfBirth,
+                barberServices: barberServices,
+            },
+            { new: true })
         return {
             status: 200,
             response: barber,
         }
-}
-catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: error.message,
- };
+        //     const updatedBarber = await barber.updateOne({email:barber.email},{
+        //         $set: {
+        //             salonId,
+        //             userName,
+        //             mobileNumber,
+        //             dateOfBirth,
+        //             barberCode,
+        //             barberServices,
+        //             isActive,
+        //           },
+        //     },
+        //     {new:true}
+        // )
 
-}
+        // const updateBarber = await Barber.findOneAndUpdate(
+        //     { email},
+        //     {firstName: firstName, lastName:lastName, mobileNumber: mobileNumber},
+        //     {new:true})
+    }
+    catch (error) {
+        console.log(error.message)
+        return {
+            status: 500,
+            message: error.message,
+        };
+
+    }
 }
 
-const deleteBarberByEmail = async(salonId, email) =>{
-    try{
-        const deleteBarber = await Barber.findOneAndUpdate({salonId: salonId, email: email}, {isActive: false}, {new:true});
+const deleteBarberByEmail = async (salonId, email) => {
+    try {
+        const deleteBarber = await Barber.findOneAndUpdate({ salonId: salonId, email: email }, { isActive: false }, { new: true });
 
         // await Salon.findOneAndUpdate({
         //     SalonId: salonId
@@ -272,15 +282,15 @@ const deleteBarberByEmail = async(salonId, email) =>{
     catch (error) {
         console.log(error.message)
         return {
-          status: 500,
-          message: error.message,
-     };
+            status: 500,
+            message: error.message,
+        };
     }
 }
 
 
 module.exports = {
-    // createBarber,
+    createBarberByAdmin,
     // getAllBarbersBySalonId,
     updateBarberByEmail,
     deleteBarberByEmail,

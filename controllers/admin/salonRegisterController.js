@@ -112,6 +112,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
 
   try {
     
+    
     const result = req.body!= null ? await salonService.updateSalonBySalonId(req.body) : null;
    
     res.status(result.status).json({

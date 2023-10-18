@@ -7,29 +7,29 @@ const Barber = require("../../models/barberRegisterModel.js")
 const { auth } = require("../../utils/AuthUser");
 
 
-// const registerBarber = async (req, res) => {
-//   try {
-//     const barberData = req.body;
-//     barberValidateSignUp[req]
+const registerBarberByAdmin = async (req, res) => {
+  try {
+    const barberData = req.body;
 
-//     const result = await barberService.createBarber(barberData);
+    const result = await barberService.createBarberByAdmin(barberData);
 
-//     res.status(result.status).json({
-//       success: true,
-//       response: result.response,
+    res.status(result.status).json({
+      success: true,
+      message: result.message,
+      response: result.response,
 
-//     });
+    });
 
-//   }
-//   catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       error: 'Failed to create Barber',
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create Barber',
 
-//     });
-//   }
-// }
+    });
+  }
+}
 
 
 
@@ -330,7 +330,7 @@ const chnageBarberWorkingStatus = async(req, res) => {
 
 
 module.exports = {
-  // registerBarber,
+  registerBarberByAdmin,
   barberLogin,
   getAllBarberbySalonId,
   updateBarber,

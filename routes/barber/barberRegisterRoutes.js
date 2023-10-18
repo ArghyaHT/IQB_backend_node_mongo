@@ -1,12 +1,12 @@
 const express = require("express");
-const { registerBarber, getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin } = require("../../controllers/barber/barberRegisterController");
 const { barberValidateSignUp, validate } = require("../../middlewares/barberRegisterValidate");
 const { auth } = require("../../utils/AuthUser")
 
 
 const router = express.Router();
 
-// router.route("/registerBarber").post(barberValidateSignUp,validate, registerBarber)
+router.route("/registerBarberByAdmin").post(registerBarberByAdmin)
 
 
 router.route("/login").post(auth, barberLogin) //api integrated

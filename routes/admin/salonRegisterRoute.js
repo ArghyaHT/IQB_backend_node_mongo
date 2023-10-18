@@ -19,7 +19,7 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 router.route("/updateSalonBySalonIdAndAdminEmail").post(updateSalonBySalonIdAndAdminEmail)
 
-router.route("/allSalonServices").post(allSalonServices) //api working
+router.route("/allSalonServices").get(allSalonServices) //api working
 
 router.route("/updateSalonServiceByServiceId").put(updateSalonServiceByServiceId) //api working perfectly
 
