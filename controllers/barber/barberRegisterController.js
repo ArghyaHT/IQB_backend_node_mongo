@@ -347,6 +347,30 @@ const isBarberOnline = async(req, res) =>{
 }
 
 
+const getAllBarbersByServiceId = async(req, res) => {
+try{
+  const {serviceId} = req.query;
+
+  const barbers = await Barber.find({"barberServices.serviceId": serviceId})
+
+  if (!barbers || barbers.length === 0) {
+    return res.status(404).json({ message: "No barbers found for the given serviceId" });
+}
+
+return res.status(200).json(barbers);
+}
+catch (error) {
+  console.error(error);
+  return res.status(500).json({ message: "Internal Server Error" });
+}
+  
+
+
+}
+
+
+
+
 module.exports = {
   registerBarberByAdmin,
   barberLogin,
@@ -355,6 +379,7 @@ module.exports = {
   deleteBarber,
   chnageBarberWorkingStatus,
   isBarberOnline,
+  getAllBarbersByServiceId
   // addServicesTobarbers,
 }
 
