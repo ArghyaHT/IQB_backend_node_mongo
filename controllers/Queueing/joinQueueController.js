@@ -197,8 +197,9 @@ const autoJoin = async (req, res) => {
 
   try {
     const { salonId, isOnline } = req.query;
+    const {customerData} = req.body
 
-    const salon = await Salon.findOne({ salonId, })
+    const salon = await Salon.findOne({ salonId: salonId })
 
     // console.log("services array", salon.services)
     const serviceId = parseInt(req.query.serviceId, 10);
@@ -206,9 +207,6 @@ const autoJoin = async (req, res) => {
     const service = salon.services.find((s) => s.serviceId === serviceId);
 
     const serviceEWT = service.serviceEWT;
-
-
-
 
     const barbers = await BarberWorking.find({ salonId, isOnline })
     const barbersWithService = barbers.filter((barber) => barber.serviceId.includes(service.serviceId));
@@ -230,16 +228,7 @@ const autoJoin = async (req, res) => {
       { barberEWT: newBarberEWT },
       { new: true }
     );
-    const customerData = {
-      userName: "sagnik",
-      name: "Sagnik Ghosh",
-      joinedQ: true,
-      joinedQType: "Auto-Join",
-      dateJoinedQ: new Date(),
-      timeJoinedQ: new Date().toLocaleTimeString(),
-      methodUsed: "Walk-In",
 
-    };
 
     const existingQueue = await JoinedQueue.findOne({ salonId });
 
@@ -254,10 +243,10 @@ const autoJoin = async (req, res) => {
       customerEWT:assignedBarber.barberEWT ,
       userName: customerData.userName,
       name: customerData.name,
-      joinedQ: customerData.joinedQ,
+      joinedQ: true,
       joinedQType: customerData.joinedQType,
-      dateJoinedQ: customerData.dateJoinedQ,
-      timeJoinedQ: customerData.timeJoinedQ,
+      dateJoinedQ: new Date(),
+      timeJoinedQ: new Date().toLocaleTimeString(),
       methodUsed: customerData.methodUsed,
       barberName: assignedBarber.barberName,
       qPosition: nextQPosition,

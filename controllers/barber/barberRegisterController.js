@@ -369,6 +369,30 @@ catch (error) {
 }
 
 
+const getBarberServicesByBarberId = async(req, res) => {
+  try{
+    const {barberId} = req.query;
+
+    const barbers = await Barber.findOne({barberId})
+    
+    const barberServices = barbers.barberServices;
+
+    if (!barbers) {
+      return res.status(404).json({ message: "No barbers found for the geiven BarberId" });
+  }
+
+  return res.status(200).json({
+    success: true,
+    response: barberServices});
+}
+catch (error) {
+  console.error(error);
+  return res.status(500).json({ message: "Internal Server Error" });
+}
+
+}
+
+
 
 
 module.exports = {
@@ -379,7 +403,8 @@ module.exports = {
   deleteBarber,
   chnageBarberWorkingStatus,
   isBarberOnline,
-  getAllBarbersByServiceId
+  getAllBarbersByServiceId,
+  getBarberServicesByBarberId
   // addServicesTobarbers,
 }
 

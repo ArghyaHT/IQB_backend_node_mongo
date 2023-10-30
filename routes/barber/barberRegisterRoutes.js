@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin, isBarberOnline, getAllBarbersByServiceId } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin, isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId } = require("../../controllers/barber/barberRegisterController");
 const { barberValidateSignUp, validate } = require("../../middlewares/barberRegisterValidate");
 const { auth } = require("../../utils/AuthUser")
 
@@ -26,6 +26,8 @@ router.route("/deleteBarberByEmail").post( deleteBarber)
 router.route("/changeBarberWorkingStatus").post(chnageBarberWorkingStatus) //api working
 
 router.route("/getAllBarbersByServiceId").get(getAllBarbersByServiceId)
+
+router.route("/getBarberServicesByBarberId").get(getBarberServicesByBarberId)
 
 // router.route("/changeBarberOnlineStatus").put(isBarberOnline)
 

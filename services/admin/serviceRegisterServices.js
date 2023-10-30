@@ -124,43 +124,43 @@ const updateBarberAndService = async (barberId, selectedServices) => {
     }
 }
 
-const getBarbersByServiceId = async (salonId, serviceId) => {
-    try {
-        salonId = Number(salonId); // Ensure salonId is a number
-        serviceId = Number(serviceId); // Ensure serviceId is a number
+// const getBarbersByServiceId = async (salonId, serviceId) => {
+//     try {
+//         salonId = Number(salonId); // Ensure salonId is a number
+//         serviceId = Number(serviceId); // Ensure serviceId is a number
 
-        const service = await Service.findOne({ salonId: salonId, 'services.serviceId': serviceId });
+//         const service = await Service.findOne({ salonId: salonId, 'services.serviceId': serviceId });
 
-        if (!service) {
-            return {
-                status: 404,
-                success: false,
-                error: 'Service not found'
-            };
-        }
+//         if (!service) {
+//             return {
+//                 status: 404,
+//                 success: false,
+//                 error: 'Service not found'
+//             };
+//         }
 
-        const supportedBarbers = service.services.find(s => s.serviceId === serviceId).supportedBarbers;
+//         const supportedBarbers = service.services.find(s => s.serviceId === serviceId).supportedBarbers;
 
-        const barberDetails = await Barber.find({ barberId: { $in: supportedBarbers.map(b => b.barberId) } });
+//         const barberDetails = await Barber.find({ barberId: { $in: supportedBarbers.map(b => b.barberId) } });
 
-        return {
-            success: true,
-            status: 200,
-            response: barberDetails
-        };
-    } catch (error) {
-        console.error(error.message);
-        return {
-            status: 500,
-            error: 'Failed to get barbers'
-        };
-    }
-}
+//         return {
+//             success: true,
+//             status: 200,
+//             response: barberDetails
+//         };
+//     } catch (error) {
+//         console.error(error.message);
+//         return {
+//             status: 500,
+//             error: 'Failed to get barbers'
+//         };
+//     }
+// }
 
 module.exports = {
     cretaeNewSalonService,
     getAllServicesBySalonId,
     updateBarberAndService,
-    getBarbersByServiceId,
+    // getBarbersByServiceId,
 
 }
