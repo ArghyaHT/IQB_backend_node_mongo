@@ -357,7 +357,9 @@ try{
     return res.status(404).json({ message: "No barbers found for the given serviceId" });
 }
 
-return res.status(200).json(barbers);
+return res.status(200).json({
+  success: true,
+  response: barbers});
 }
 catch (error) {
   console.error(error);
