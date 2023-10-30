@@ -1,15 +1,9 @@
 const BarberWorking = require("../../models/barberWorkingModel")
 
-/// Need to check the api
 const isBarberOnline = async(req, res) =>{
     try {
-        const { barberId } = req.params;
-        const  {salonId} = req.params;
+        const { barberId, salonId } = req.query;
         const { isOnline } = req.body;
-
-        console.log('barberId:', barberId);
-        console.log('salonId:', salonId);
-        console.log('isOnline:', isOnline);
     
         const updatedBarber = await BarberWorking.findOneAndUpdate({salonId: salonId, barberId: barberId}, { isOnline }, { new: true });
     

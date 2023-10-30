@@ -1,13 +1,12 @@
 const mongoose = require("mongoose")
 
-const joinqueueSchema = new mongoose.Schema({
+const joinqueueHistorySchema = new mongoose.Schema({
     // id:{
     //     type: Number,
     //     required: true
     // },
     salonId:{
         type: Number,
-        required: true
     },
 
     queueList: [{
@@ -55,9 +54,6 @@ const joinqueueSchema = new mongoose.Schema({
         qgCode:{
             type:String
         },
-        qPosition:{
-            type: Number
-        },
         positionChangedMessageShown:{
             type: Boolean
         },
@@ -83,7 +79,7 @@ const joinqueueSchema = new mongoose.Schema({
    
 },{timestamps: true})
 
-const JoinedQueue = mongoose.model("JoinQueue", joinqueueSchema)
+const JoinedQueueHistory = mongoose.model("JoinQueueHistory", joinqueueHistorySchema)
 
-module.exports = JoinedQueue
+module.exports = JoinedQueueHistory;
 
