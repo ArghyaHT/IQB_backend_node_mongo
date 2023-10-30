@@ -64,6 +64,9 @@ const barberSchema = new mongoose.Schema({
         type:Boolean,
         // default:false
     },
+    isOnline:{
+        type: Boolean
+    },
     barberServices: [{
         serviceId: {
             type: Number
@@ -73,6 +76,9 @@ const barberSchema = new mongoose.Schema({
         },
         serviceName: {
             type: String
+        },
+        serviceEWT:{
+            type: Number
         }
 
     }]

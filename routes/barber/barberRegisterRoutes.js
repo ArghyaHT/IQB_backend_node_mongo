@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin, isBarberOnline } = require("../../controllers/barber/barberRegisterController");
 const { barberValidateSignUp, validate } = require("../../middlewares/barberRegisterValidate");
 const { auth } = require("../../utils/AuthUser")
 
@@ -24,5 +24,7 @@ router.route("/deleteBarberByEmail").post( deleteBarber)
 
 
 router.route("/changeBarberWorkingStatus").post(chnageBarberWorkingStatus) //api working
+
+// router.route("/changeBarberOnlineStatus").put(isBarberOnline)
 
 module.exports = router;

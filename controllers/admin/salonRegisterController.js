@@ -1,10 +1,12 @@
 const salonService = require("../../services/admin/salonRegisterService")
 
+const Salon = require("../../models/salonsRegisterModel")
+
 // Create a new Salon
 const salonSignUp = async (req, res) => {
   try {
     const salonData = req.body;
-    const {adminEmail} = req.body
+    const { adminEmail } = req.body
 
 
     const result = await salonService.createSalon(salonData, adminEmail);
@@ -25,23 +27,23 @@ const salonSignUp = async (req, res) => {
   }
 };
 
-const addServices = async(req, res) =>{
-  try{
-    const {serviceName, serviceDesc, servicePrice} = req.body;
-    const {salonId} = req.body;
+const addServices = async (req, res) => {
+  try {
+    const { serviceName, serviceDesc, servicePrice } = req.body;
+    const { salonId } = req.body;
 
-    const result = await salonService.addSalonServices(serviceName,serviceDesc,servicePrice, salonId);
+    const result = await salonService.addSalonServices(serviceName, serviceDesc, servicePrice, salonId);
     res.status(result.status).json({
-        response: result.response,
-        error: result.error
-      });
-  } 
-    catch (error) {
-      console.error(error);
-      res.status(500).json({
-        error: 'Failed to create Salon'
-      });
-    }
+      response: result.response,
+      error: result.error
+    });
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Failed to create Salon'
+    });
+  }
 }
 
 const searchSalonsByCity = async (req, res) => {
@@ -54,7 +56,7 @@ const searchSalonsByCity = async (req, res) => {
       success: true,
       response: result.response,
       message: result.message,
-     
+
     })
   }
   catch (error) {
@@ -76,7 +78,7 @@ const getSalonsByLocation = async (req, res) => {
       success: true,
       message: result.message,
       response: result.response
-      
+
     })
   }
   catch (error) {
@@ -111,28 +113,28 @@ const getSalonInfo = async (req, res) => {
 const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
 
   try {
-    
-    
-    const result = req.body!= null ? await salonService.updateSalonBySalonId(req.body) : null;
-   
+
+
+    const result = req.body != null ? await salonService.updateSalonBySalonId(req.body) : null;
+
     res.status(result.status).json({
       status: result.status,
       message: result.message,
       response: result.response
     })
-}
-catch (error) {
-  console.error(error);
-  res.status(500).json({
-    status: 500,
-    error: 'Failed to Update Salon'
-  });
-}
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      error: 'Failed to Update Salon'
+    });
+  }
 }
 
-const allSalonServices = async(req, res) =>{
-  const {salonId} = req.query;
-  try{
+const allSalonServices = async (req, res) => {
+  const { salonId } = req.query;
+  try {
     const result = await salonService.getAllSalonServices(salonId);
 
     res.status(result.status).json({
@@ -151,11 +153,11 @@ const allSalonServices = async(req, res) =>{
   }
 }
 
-const updateSalonServiceByServiceId = async(req, res) =>{
-  const {salonId, serviceId} = req.body
+const updateSalonServiceByServiceId = async (req, res) => {
+  const { salonId, serviceId } = req.body
   const newServiceData = req.body;
-  try{
-    const result =  await salonService.updateSalonService(salonId, serviceId, newServiceData);
+  try {
+    const result = await salonService.updateSalonService(salonId, serviceId, newServiceData);
     res.status(result.status).json({
 
       status: result.status,
@@ -173,9 +175,9 @@ const updateSalonServiceByServiceId = async(req, res) =>{
   }
 }
 
-const deleteServiceByServiceIdSalonId = async(req, res) =>{
-  const {salonId, serviceId} = req.body;
-  try{
+const deleteServiceByServiceIdSalonId = async (req, res) => {
+  const { salonId, serviceId } = req.body;
+  try {
     const result = await salonService.deleteSalonService(salonId, serviceId);
 
     res.status(result.status).json({
@@ -184,14 +186,14 @@ const deleteServiceByServiceIdSalonId = async(req, res) =>{
       message: result.message,
       response: result.response
     })
-}
-catch (error) {
-  console.error(error);
-  res.status(500).json({
-    status: 500,
-    error: 'Failed to update services'
-  });
-}
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      error: 'Failed to update services'
+    });
+  }
 }
 
 
@@ -205,25 +207,27 @@ const getAllSalonsByAdmin = async (req, res) => {
     res.status(result.status).json({
       success: true,
       message: result.message,
-      response: result.response, 
-      error: result.error   
+      response: result.response,
+      error: result.error
     })
   }
   catch (error) {
     console.error(error);
     res.status(500).json({
-      success:false,
+      success: false,
       error: 'Failed to search Salons'
     });
   }
 }
 
 
+
+
 module.exports = {
   salonSignUp,
   searchSalonsByCity,
   getSalonsByLocation,
-  getSalonInfo, 
+  getSalonInfo,
   updateSalonBySalonIdAndAdminEmail,
   allSalonServices,
   updateSalonServiceByServiceId,

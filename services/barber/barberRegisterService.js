@@ -1,5 +1,6 @@
 const Barber = require("../../models/barberRegisterModel.js")
 const Salon = require("../../models/salonsRegisterModel.js")
+const BarberWorking = require("../../models/barberWorkingModel.js")
 
 
 const createBarberByAdmin = async (barberData) => {
@@ -29,7 +30,22 @@ const createBarberByAdmin = async (barberData) => {
 
 
             const savedBarber = await barber.save();
+            const serviceIds = [];
 
+            for (const service of barberServices) {
+                serviceIds.push(service.serviceId);
+            }
+            const newBarberWorking = new BarberWorking({
+                salonId, 
+                barberName: name,
+                barberId: barberId,
+                serviceId: serviceIds
+
+            })
+
+            console.log(newBarberWorking)
+
+            await newBarberWorking.save();
             // await Salon.findOneAndUpdate({
             //     SalonId: salonId
             // },

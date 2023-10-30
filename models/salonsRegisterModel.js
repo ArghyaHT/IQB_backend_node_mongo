@@ -108,6 +108,9 @@ const salonsSchema = new mongoose.Schema({
             type: Number,
             // required: true
         },
+        serviceEWT:{
+            type: Number
+        },
         supportedBarbers: [{
             barberId: {
                 type: Number,
