@@ -375,7 +375,7 @@ const barberServedQueue = async (req, res) => {
         barberId: barberId,
       },
       {
-        $inc: { barberEWT: serviceEWT },
+        $inc: { barberEWT: -serviceEWT },
       }
     );
 
