@@ -40,7 +40,7 @@ const singleJoinQueue = async (req, res) => {
       joinedQType,
       qPosition: nextQPosition,
       dateJoinedQ: new Date(),
-      timeJoinedQ: dateJoinedQ.toLocaleTimeString(),
+       timeJoinedQ: new Date().toLocaleTimeString(),
       methodUsed,
       barberName,
       barberId,
