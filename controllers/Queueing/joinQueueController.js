@@ -33,18 +33,14 @@ const singleJoinQueue = async (req, res) => {
       const barberQueue = existingQueue.queueList.filter((b) => b.barberId === barberId);
       nextQPosition = barberQueue.length + 1;
     }
-    // let qPosition = 1;
-    const joinedQ = true;
-    const currentDate = new Date();
-    const currentTime = currentDate.toLocaleTimeString();
     const newQueue = {
       name,
       userName,
-      joinedQ: joinedQ,
+      joinedQ: true,
       joinedQType,
       qPosition: nextQPosition,
-      dateJoinedQ: currentDate,
-      timeJoinedQ: currentTime,
+      dateJoinedQ: new Date(),
+      timeJoinedQ: dateJoinedQ.toLocaleTimeString(),
       methodUsed,
       barberName,
       barberId,
@@ -73,30 +69,7 @@ const singleJoinQueue = async (req, res) => {
       });
     }
 
-    // const existingQueue = await JoinedQueue.findOne({ salonId: salonId });
-    // if (existingQueue) {
-    //     if (existingQueue.queueList) {
-    //         qPosition = existingQueue.queueList.length + 1;
-    //     } else {
-    //         existingQueue.queueList = [];
-    //     }
-
-    //     newQ.qPosition = qPosition;
-    //     existingQueue.queueList.push(newQ);
-    //     await existingQueue.save();
-    // } else {
-    //     const newQueue = new JoinedQueue({
-    //         salonId,
-    //         queueList: [newQ],
-    //     });
-    //     await newQueue.save();
-    // }
-
-    // res.status(200).json({
-    //     success: true,
-    //     message: "Joined Queue",
-    //     response: newQ,
-    // })
+  
 
   }
   catch (error) {
@@ -192,13 +165,12 @@ const groupJoinQueue = async (req, res) => {
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, isOnline } = req.query;
-    const { userName, name, joinedQType, methodUsed } = req.body
+    const { salonId, isOnline, userName, name, joinedQType, methodUsed } = req.body
 
     const salon = await Salon.findOne({ salonId: salonId })
 
     // console.log("services array", salon.services)
-    const serviceId = parseInt(req.query.serviceId, 10);
+    const serviceId = parseInt(req.body.serviceId, 10);
 
     const service = salon.services.find((s) => s.serviceId === serviceId);
 
@@ -396,6 +368,16 @@ const barberServedQueue = async (req, res) => {
     existingQueue.queueList.splice(customerIndex, 1);
 
     await existingQueue.save();
+
+    await BarberWorking.updateOne(
+      {
+        salonId: salonId,
+        barberId: barberId,
+      },
+      {
+        $inc: { barberEWT: serviceEWT },
+      }
+    );
 
     res.status(200).json({
       success: true,

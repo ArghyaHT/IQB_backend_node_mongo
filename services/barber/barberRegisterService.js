@@ -46,18 +46,6 @@ const createBarberByAdmin = async (barberData) => {
             console.log(newBarberWorking)
 
             await newBarberWorking.save();
-            // await Salon.findOneAndUpdate({
-            //     SalonId: salonId
-            // },
-            // {
-            //     $push: {
-            //       RegisteredBarber: {
-            //         BarberId: barberId, 
-            //         BarberEmail: email  
-            //       },
-            //     },
-            //   },
-            //   {new: true})
 
             return {
                 status: 200,
