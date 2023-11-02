@@ -18,6 +18,8 @@ const joinQ = require("./routes/Queueing/joinQueueRoutes.js")
 
 const barberWorking = require("./routes/Queueing/barberWorkingRoutes.js")
 
+const salonSettings = require("./routes/salonSettings/salonSettingsRoute.js")
+
 const barberAuth = require("./routes/barberAuth/barberAuthRoute.js")
 
 
@@ -45,6 +47,8 @@ app.use("/api/barberService", barberService)
 app.use("/api/queue", joinQ)
 
 app.use("/api/barberWorking", barberWorking)
+
+app.use("/api/salonSettings", salonSettings)
 
 app.use("/api", barberAuth)
 

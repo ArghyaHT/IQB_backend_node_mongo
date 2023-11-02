@@ -35,17 +35,42 @@ const createBarberByAdmin = async (barberData) => {
             for (const service of barberServices) {
                 serviceIds.push(service.serviceId);
             }
-            const newBarberWorking = new BarberWorking({
-                salonId, 
-                barberName: name,
-                barberId: barberId,
-                serviceId: serviceIds
+            // const newBarberWorking = new BarberWorking({
+            //     salonId, 
+            //     barberName: name,
+            //     barberId: barberId,
+            //     serviceId: serviceIds
 
-            })
+            // })
+              // Check if there is an existing BarberWorking document for the salonId
+      const existingBarberWorking = await BarberWorking.findOne({ salonId });
 
-            console.log(newBarberWorking)
+      if (existingBarberWorking) {
+        // If an existing document is found, update it by pushing new data
+        existingBarberWorking.barberWorking.push({
+          barberId,
+          barberName: name,
+          serviceId: serviceIds,
+        });
+        await existingBarberWorking.save();
+      } else {
+        // If no existing document is found, create a new one
+        const newBarberWorking = new BarberWorking({
+          salonId,
+          barberWorking: [
+            {
+              barberId,
+              barberName: name,
+              serviceId: serviceIds,
+            },
+          ],
+        });
+        await newBarberWorking.save();
+      }
 
-            await newBarberWorking.save();
+            // console.log(newBarberWorking)
+
+            // await newBarberWorking.save();
 
             return {
                 status: 200,
