@@ -5,86 +5,89 @@ const salonQueueListSchema = new mongoose.Schema({
     //     type: Number,
     //     required: true
     // },
-    salonId:{
+    salonId: {
         type: Number,
         required: true
     },
 
     queueList: [{
-        position:{
-            type:Number,
+        position: {
+            type: Number,
         },
-        userName:{
+        userName: {
             type: String,
             // required: true
         },
-        name:{
+        name: {
             type: String,
             // required: true
         },
-        joinedQ:{
-            type:Boolean 
+        joinedQ: {
+            type: Boolean
         },
-    
-        joinedQType:{
+
+        joinedQType: {
             type: String,
             enum: ['Single-Join', 'Group-Join', 'Auto-Join']
         },
-        dateJoinedQ:{
+        dateJoinedQ: {
             type: Date
         },
-        timeJoinedQ:{
+        timeJoinedQ: {
             type: String
         },
-        timePositionChanged:{
+        timePositionChanged: {
             type: String
         },
-        loggedIn:{
+        loggedIn: {
             type: Boolean
         },
-        methodUsed:{
+        methodUsed: {
             type: String,
             enum: ['Walk-In', 'Admin', 'App']
         },
-        barberName:{
-            type:String
+        barberName: {
+            type: String
         },
-        forceUpdate:{
+        forceUpdate: {
             type: Boolean
         },
-        qgCode:{
-            type:String
+        qgCode: {
+            type: String
         },
-        qPosition:{
+        qPosition: {
             type: Number
         },
-        positionChangedMessageShown:{
+        positionChangedMessageShown: {
             type: Boolean
         },
-        logNo:{
+        logNo: {
             type: String
         },
-        lineCreated:{
+        lineCreated: {
             type: String
         },
-        barberId:{
+        barberId: {
             type: Number
         },
-        serviceId:{
+        serviceId: {
             type: Number
         },
-        serviceName:{
+        serviceName: {
             type: String
         },
-        customerEWT:{
+        serviceEWT: {
             type: Number
         },
-        localLineId:{
+        customerEWT: {
+            type: Number
+        },
+        localLineId: {
             type: Number
         }
     }]
-   
-},{timestamps: true})
+
+}, { timestamps: true })
 
 const SalonQueueList = mongoose.model("SalonQueueList", salonQueueListSchema)
 

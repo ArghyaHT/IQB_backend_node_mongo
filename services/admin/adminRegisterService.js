@@ -1,6 +1,6 @@
 const Admin = require("../../models/adminRegisterModel.js")
 
-const bcrypt = require("bcrypt")
+// const bcrypt = require("bcrypt")
 
 const crypto = require("crypto");
 const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
