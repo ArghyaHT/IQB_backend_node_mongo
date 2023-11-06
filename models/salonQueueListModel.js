@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-const joinqueueSchema = new mongoose.Schema({
+const salonQueueListSchema = new mongoose.Schema({
     // id:{
     //     type: Number,
     //     required: true
@@ -73,6 +73,9 @@ const joinqueueSchema = new mongoose.Schema({
         serviceId:{
             type: Number
         },
+        serviceName:{
+            type: String
+        },
         customerEWT:{
             type: Number
         },
@@ -83,7 +86,7 @@ const joinqueueSchema = new mongoose.Schema({
    
 },{timestamps: true})
 
-const JoinedQueue = mongoose.model("JoinQueue", joinqueueSchema)
+const SalonQueueList = mongoose.model("SalonQueueList", salonQueueListSchema)
 
-module.exports = JoinedQueue
+module.exports = SalonQueueList
 

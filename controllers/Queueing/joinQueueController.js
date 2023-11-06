@@ -1,62 +1,40 @@
 const BarberWorking = require("../../models/barberWorkingModel");
-const JoinedQueue = require("../../models/joinQueueModel");
+const SalonQueueList = require("../../models/salonQueueListModel");
 const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel")
 
 
 const singleJoinQueue = async (req, res) => {
   try {
-    const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, serviceId } = req.body;
-
-    const barberService = await Barber.findOne({ salonId })
-
-    const service = barberService.barberServices.find((s) => s.serviceId === serviceId);
-    if (!service) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid service selected.',
-      });
-    }
-    const serviceEWT = service.serviceEWT;
-
-    console.log(service)
-
-    const barber = await BarberWorking.findOne({
-      salonId: salonId,
-      'barberWorking.barberId': barberId,
-    });
-
-    if (barber) {
-      const foundBarber = barber.barberWorking.find(barber => barber.barberId === barberId);
-      let newBarberEWT = foundBarber.barberEWT + serviceEWT;
-
-      //  Update the barber's EWT
-      await BarberWorking.findOneAndUpdate(
-        { 'barberWorking.barberId': barberId },
-        { $set: { 'barberWorking.$.barberEWT': newBarberEWT } },
+    const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, serviceId, serviceEWT } = req.body;
+    
+    // Update the barberEWT and queueCount For the Barber
+      const updatedBarber= await Barber.findOneAndUpdate(
+        { salonId: salonId, barberId: barberId},
+        { $inc: { barberEWT: serviceEWT,  queueCount: 1  }}, //  barberWorking.barberEWT + serviceEWT;
         { new: true }
       );
 
-      const existingQueue = await JoinedQueue.findOne({ salonId: salonId });
+// Retrieve the service name from the barber's details
+  const serviceName = updatedBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
 
-      let nextQPosition = 1;
-      if (existingQueue) {
-        const barberQueue = existingQueue.queueList.filter((b) => b.barberId === barberId);
-        nextQPosition = barberQueue.length + 1;
-      }
+      //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
+      const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
+
       const newQueue = {
         name,
         userName,
         joinedQ: true,
         joinedQType,
-        qPosition: nextQPosition,
+        qPosition: updatedBarber.queueCount,
         dateJoinedQ: new Date(),
         timeJoinedQ: new Date().toLocaleTimeString(),
         methodUsed,
         barberName,
         barberId,
         serviceId,
-        customerEWT: foundBarber.barberEWT,
+        serviceName,
+        customerEWT: updatedBarber.barberEWT - serviceEWT,
       }
 
       if (existingQueue) {
@@ -68,7 +46,7 @@ const singleJoinQueue = async (req, res) => {
           response: existingQueue,
         });
       } else {
-        const newQueueData = new JoinedQueue({
+        const newQueueData = new SalonQueueList({
           salonId: salonId,
           queueList: [newQueue],
         });
@@ -79,10 +57,6 @@ const singleJoinQueue = async (req, res) => {
           response: savedInQueue,
         });
       }
-    } else {
-      console.log('No matching document found.');
-    }
-
   }
   catch (error) {
     console.error(error);
@@ -92,74 +66,63 @@ const singleJoinQueue = async (req, res) => {
 
     });
   }
-
 }
 
 const groupJoinQueue = async (req, res) => {
   try {
     const { salonId, groupInfo } = req.body;
 
-    if (!groupInfo || groupInfo.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid group join data",
-      });
-    }
+    // Initialize existingQueue as null
+    let existingQueue = null;
 
-    let existingQueue = await JoinedQueue.findOne({ salonId: salonId });
+    // Retrieve the existing queue for the salon
+    existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
+    // If no existing queue is found, create a new one
     if (!existingQueue) {
-      // Create a new JoinedQueue document for the salon if it doesn't exist
-      existingQueue = new JoinedQueue({
+      existingQueue = new SalonQueueList({
         salonId: salonId,
         queueList: [],
       });
       await existingQueue.save();
     }
 
+    // Iterate through each group member
     for (const member of groupInfo) {
-      const barberService = await Barber.findOne({ salonId });
+     // Update the barberEWT and queueCount For the Barber
+     const updatedBarber= await Barber.findOneAndUpdate(
+      { salonId: salonId, barberId: member.barberId},
+      { $inc: { barberEWT: member.serviceEWT,
+                queueCount: 1  }}, //  barberWorking.barberEWT + serviceEWT;
+      { new: true }
+    );
+     // Retrieve the service name from the barber's details
+     const serviceName = updatedBarber.barberServices.find(service => service.serviceId === member.serviceId)?.serviceName;
 
-      const service = barberService.barberServices.find((s) => s.serviceId === member.serviceId);
+      // Generate a unique groupJoinCode by combining qPosition and barberId
+      const groupJoinCode = `${member.qPosition}-${member.barberId}`;
 
-      const serviceEWT = service.serviceEWT;
-      const { barberId } = member;
+      // Create queue entry data for the group member
+      const joinedQData = {
+        name: member.name,
+        userName: member.userName,
+        joinedQ: true,
+        joinedQType: "Group-Join",
+        qPosition: updatedBarber.queueCount,
+        barberName: member.barberName,
+        barberId: member.barberId,
+        serviceId: member.serviceId,
+        serviceName: serviceName,
+        barberEWT: member.barberEWT,
+        qgCode: groupJoinCode,
+        methodUsed: "Admin", // Customize or set the method used as needed
+        dateJoinedQ: new Date(),
+        timeJoinedQ: new Date().toLocaleTimeString(),
+        customerEWT: updatedBarber.barberEWT - member.serviceEWT,
+      };
 
-      const barber = await BarberWorking.findOne({
-        salonId: salonId,
-        'barberWorking.barberId': barberId,
-      })
-      if (barber) {
-        const foundBarber = barber.barberWorking.find(barber => barber.barberId === barberId);
-        let newBarberEWT = foundBarber.barberEWT + serviceEWT;
-
-        await BarberWorking.findOneAndUpdate(
-          { 'barberWorking.barberId': barberId },
-          { $set: { 'barberWorking.$.barberEWT': newBarberEWT } },
-          { new: true }
-        );
-
-        // Calculate the qPosition based on the existing queue list
-        const barberQueue = existingQueue.queueList.filter((customer) => customer.barberId === barberId);
-        const nextQPosition = barberQueue.length + 1;
-        const joinedQData = {
-          name: member.name,
-          userName: member.userName,
-          joinedQ: true,
-          joinedQType: "Group-Join",
-          qPosition: nextQPosition,
-          barberName: member.barberName,
-          barberId: member.barberId,
-          serviceId: member.serviceId,
-          barberEWT: member.barberEWT,
-          methodUsed: "Admin", // Customize or set the method used as needed
-          dateJoinedQ: new Date(),
-          timeJoinedQ: new Date().toLocaleTimeString(),
-          customerEWT: foundBarber.barberEWT,
-        };
-
-        existingQueue.queueList.push(joinedQData);
-      }
+      // Add the queue entry to the existing queue list
+      existingQueue.queueList.push(joinedQData);
     }
 
     // Save the updated salon queue document
@@ -180,207 +143,74 @@ const groupJoinQueue = async (req, res) => {
   }
 };
 
+
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, isOnline, userName, name, joinedQType, methodUsed, serviceId } = req.body;
+    const { salonId, userName, name, joinedQType, methodUsed, serviceId, serviceEWT } = req.body;
 
-    const barberList = await BarberWorking.findOne({ salonId: salonId });
-
-    const matchingBarbers = []
-    barberList.barberWorking.forEach(barber => {
-      if (barber.isOnline === isOnline && barber.serviceId.includes(serviceId)) {
-        matchingBarbers.push(barber)
-      }
-    });
-
-    if (matchingBarbers.length > 0) {
-      // Find the barber with the lowest barberEWT
-      const assignedBarber = matchingBarbers.reduce((minBarber, barber) => {
-        return barber.barberEWT < minBarber.barberEWT ? barber : minBarber;
-      });
-
-      const barberService = await Barber.findOne({ salonId })
-
-      const service = barberService.barberServices.find((s) => s.serviceId === serviceId);
-
-      const serviceEWT = service.serviceEWT;
-
-      const newBarberEWT = assignedBarber.barberEWT + serviceEWT;
-
-      await BarberWorking.findOneAndUpdate(
-        { salonId, "barberWorking.barberId": assignedBarber.barberId },
-        { $set: { "barberWorking.$.barberEWT": newBarberEWT } },
-        { new: true }
-      );
-      const existingQueue = await JoinedQueue.findOne({ salonId });
-
-      let nextQPosition = 1;
-      if (existingQueue) {
-        const barberQueue = existingQueue.queueList.filter((b) => b.barberId === assignedBarber.barberId);
-        nextQPosition = barberQueue.length + 1;
-      }
-      const joinedQueueData = {
-        customerEWT: assignedBarber.barberEWT,
-        userName,
-        name,
-        joinedQ: true,
-        joinedQType,
-        dateJoinedQ: new Date(),
-        timeJoinedQ: new Date().toLocaleTimeString(),
-        methodUsed,
-        serviceId,
-        barberName: assignedBarber.barberName,
-        qPosition: nextQPosition,
-        barberId: assignedBarber.barberId,
-      };
-
-      if (existingQueue) {
-        existingQueue.queueList.push(joinedQueueData);
-        await existingQueue.save();
-        res.status(200).json({
-          success: true,
-          message: 'Joined Queue',
-          queueList: existingQueue.queueList, // Include the queueList in the response
-        });
-      } else {
-        const newQueue = new JoinedQueue({
-          salonId: salonId,
-          queueList: [joinedQueueData],
-        });
-
-        await newQueue.save();
-
-        res.status(200).json({
-          success: true,
-          message: 'Joined Queue',
-          response: newQueue.queueList,
-        });
-      }
-    }
-    else {
-      res.status(404).json({
-        message: 'No Barber Found',
+    // Query barbers that are online and provide the specified service
+    const availableBarber = await Barber.findOneAndUpdate(
+      {
+        salonId: salonId,
+        isOnline: true,
+        'barberServices.serviceId': serviceId,
+      },
+      {
+        $inc: { barberEWT: serviceEWT, queueCount: 1 },
+      },
+      { new: true, sort: { barberEWT: 1 } }
+    );
+     
+    // if no barbers provide the particular service
+    if (availableBarber.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No available barbers for this service.',
       });
     }
+    // Retrieve the service name from the barber's details
+  const serviceName = availableBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
+ 
+  //Add the customer to the existing queue or new queue for the salon
+  const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
+    const newQueue = {
+      name,
+      userName,
+      joinedQ: true,
+      joinedQType,
+      qPosition: availableBarber.queueCount,
+      dateJoinedQ: new Date(),
+      timeJoinedQ: new Date().toLocaleTimeString(),
+      methodUsed,
+      barberName:availableBarber.name,
+      barberId:availableBarber.barberId,
+      serviceId,
+      serviceName,
+      customerEWT: availableBarber.barberEWT - serviceEWT,
+    }
 
-
-
-
-
-
-
-    // barberList.forEach((barber) => {
-    //   const firstbarberWorking = barber.barberWorking;
-
-    //   // Sort the barberWorking array for each barber in ascending order based on barberEWT
-    //   firstbarberWorking.sort((a, b) => a.barberEWT - b.barberEWT);
-
-    //  const assignedBarber = firstbarberWorking[0];
-    //  console.log(assignedBarber)
-    // });
-
-
-
-
-
-
-
-    // // Retrieve barbers who provide the specified service
-    // const barber = await Barber.find({ salonId: salonId, 'barberServices.serviceId': serviceId });
-
-    // if (barber.length === 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Invalid service selected.',
-    //   });
-    // }
-
-    // const providedService = barber.barberServices.find((s) => s.serviceId === serviceId);
-    // if (!providedService) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Invalid service selected.',
-    //   });
-    // }
-
-    // const serviceEWT = providedService.serviceEWT;
-
-    // // Find barbers in the salon, who are online and provide the specified service
-    // const barbers = await BarberWorking.find({
-    //   salonId,
-    //   "barberWorking.isOnline": isOnline,
-    //   "barberWorking.serviceId": serviceId,
-    // });
-
-    // if (barbers.length === 0) {
-    //   return res.status(200).json({
-    //     success: true,
-    //     message: 'No barbers available for this service.',
-    //   });
-    // }
-
-    // // Sort barbers within the salon by their barberEWT in ascending order
-    // barbers.sort((a, b) => a.barberWorking[0].barberEWT - b.barberWorking[0].barberEWT);
-
-    // const assignedBarber = barbers[0];
-
-    // const newBarberEWT = assignedBarber.barberWorking[0].barberEWT + serviceEWT;
-    // assignedBarber.barberWorking[0].barberEWT = newBarberEWT;
-
-    // await BarberWorking.findOneAndUpdate(
-    //   { salonId, "barberWorking.barberId": assignedBarber.barberWorking[0].barberId },
-    //   { $set: { "barberWorking.$.barberEWT": newBarberEWT } },
-    //   { new: true }
-    // );
-
-    // const existingQueue = await JoinedQueue.findOne({ salonId });
-
-    // let nextQPosition = 1;
-
-    // if (existingQueue) {
-    //   const barberQueue = existingQueue.queueList.filter((b) => b.barberId === assignedBarber.barberWorking[0].barberId);
-    //   nextQPosition = barberQueue.length + 1;
-    // }
-
-    // const joinedQueueData = {
-    //   customerEWT: assignedBarber.barberWorking[0].barberEWT,
-    //   userName,
-    //   name,
-    //   joinedQ: true,
-    //   joinedQType,
-    //   dateJoinedQ: new Date(),
-    //   timeJoinedQ: new Date().toLocaleTimeString(),
-    //   methodUsed,
-    //   serviceId,
-    //   barberName: assignedBarber.barberWorking[0].barberName,
-    //   qPosition: nextQPosition,
-    //   barberId: assignedBarber.barberWorking[0].barberId,
-    // };
-
-    // if (existingQueue) {
-    //   existingQueue.queueList.push(joinedQueueData);
-    //   await existingQueue.save();
-    //   res.status(200).json({
-    //     success: true,
-    //     message: 'Joined Queue',
-    //     queueList: existingQueue.queueList, // Include the queueList in the response
-    //   });
-    // } else {
-    //   const newQueue = new JoinedQueue({
-    //     salonId: salonId,
-    //     queueList: [joinedQueueData],
-    //   });
-
-    //   await newQueue.save();
-
-    //   res.status(200).json({
-    //     success: true,
-    //     message: 'Joined Queue',
-    //     response: newQueue.queueList,
-    //   });
-    // }
+    if (existingQueue) {
+      existingQueue.queueList.push(newQueue);
+      await existingQueue.save();
+      res.status(200).json({
+        success: true,
+        message: "Joined Queue",
+        response: existingQueue,
+      });
+    } else {
+      const newQueueData = new SalonQueueList({
+        salonId: salonId,
+        queueList: [newQueue],
+      });
+      const savedInQueue = await newQueueData.save();
+      res.status(200).json({
+        success: true,
+        message: "Joined Queue",
+        response: savedInQueue,
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -395,7 +225,7 @@ const getQueueListBySalonId = async (req, res) => {
   try {
     const { salonId } = req.query;
     console.log(salonId)
-    const getSalon = await JoinedQueue.findOne({ salonId })
+    const getSalon = await SalonQueueList.findOne({ salonId })
 
     if (getSalon) {
       const getQList = getSalon.queueList || [];
@@ -425,103 +255,80 @@ const getQueueListBySalonId = async (req, res) => {
 
 const barberServedQueue = async (req, res) => {
   try {
-    const { salonId, barberId, serviceId } = req.body;
+    
+      const { salonId, barberId, serviceId } = req.body; // also mongoID will come from frontend
 
-    const barberService = await Barber.findOne({ salonId })
-
-    const service = barberService.barberServices.find((s) => s.serviceId === serviceId);
-
-    if (!service) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service not found with the specified serviceId.',
+      // Find the JoinedQueue document that matches the salonId and contains a queue entry with the specified barberId
+      const queue = await SalonQueueList.findOne({
+        salonId: salonId
       });
-    }
-
-    const serviceEWT = service.serviceEWT;
-
-    const existingQueue = await JoinedQueue.findOne({ salonId: salonId });
-
-    if (!existingQueue) {
-      return res.status(404).json({
-        success: false,
-        error: 'Queue not found for this salon.',
-      });
-    }
-
-    // Filter out the customer who is served by the barber
-    const customerIndex = existingQueue.queueList.findIndex(
-      (customer) => customer.barberId === barberId
-    );
-
-    if (customerIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        error: 'Customer not found in the queue.',
-      });
-    }
-
-    const servedCustomer = existingQueue.queueList[customerIndex];
-
-    const remainingCustomers = existingQueue.queueList
-      .slice(customerIndex + 1)
-      .filter((customer) => customer.barberId === barberId);
-
-    const currentDate = new Date();
-    const currentTime = currentDate.toLocaleTimeString();
-
-    for (const customer of remainingCustomers) {
-      customer.customerEWT = customer.customerEWT - serviceEWT;
-      customer.timeJoinedQ = currentTime;
-      customer.qPosition = customer.qPosition - 1;
-    }
-
-    const removedCustomerData = {
-      name: servedCustomer.name,
-      userName: servedCustomer.userName,
-      joinedQType: servedCustomer.joinedQType,
-      dateJoinedQ: servedCustomer.dateJoinedQ,
-      timeJoinedQ: servedCustomer.timeJoinedQ,
-      methodUsed: servedCustomer.methodUsed,
-      barberName: servedCustomer.barberName,
-      barberId: servedCustomer.barberId,
-      serviceId: servedCustomer.serviceId,
-      customerEWT: servedCustomer.customerEWT,
-    };
-
-    const existingJoinQueueHistory = await JoinedQueueHistory.findOne({ salonId: salonId });
-
-    if (existingJoinQueueHistory) {
-      existingJoinQueueHistory.queueList.push(removedCustomerData);
-      await existingJoinQueueHistory.save();
-    } else {
-      const joinQueueHistoryData = new JoinedQueueHistory({
-        salonId,
-        queueList: [removedCustomerData],
-      });
-      await joinQueueHistoryData.save();
-    }
-
-    existingQueue.queueList.splice(customerIndex, 1);
-
-    await existingQueue.save();
-
-    await BarberWorking.updateOne(
+      let serviceEWT = 0;
+     
+      if(queue.length != 0)
       {
-        salonId: salonId,
-        "barberWorking.barberId": barberId,
-      },
-      {
-        $inc: { "barberWorking.$.barberEWT": -serviceEWT },
+      
+      queue.queueList.forEach(async(element) => {
+      
+      if(element.qPosition === 1 && element.serviceId === serviceId && element.barberId=== barberId) // also need to match primary id or any reference to the queueList
+       {
+      // add this elemet to queue history and remove from this queueList
+      const salon = await JoinedQueueHistory.findOne({salonId})
+      // const customerdata = {
+      //   userName: element.userName,
+      //   name: element.name,
+      //   joinedQ: element.joinedQ,
+      //   joinedQType: element.joinedQType,
+      //   timeJoinedQ: element.timeJoinedQ,
+      //   dateJoinedQ: element.dateJoinedQ,
+      //   barberName: element.barberName,
+      //   serviceId: element.serviceId,
+      //   methodUsed: element.methodUsed,
+      // }
+
+      if(!salon){
+        const newSalonHistory = new JoinedQueueHistory({
+          salonId,
+          queueList: [element]
+        })
+
+        await newSalonHistory.save();
       }
-    );
+      else{
+        salon.queueList.push(element)
+      }
+     
+       } 
+       else{
+     // decremnt the qPosition of every element
+      serviceEWT = element.serviceEWT
+      element.qPosition -=1;
+      element.customerEWT = serviceEWT
+       }
+        });
+        
+      }
+     
+       // Update barber information
+       if (serviceEWT > 0) {
+        // Find the corresponding barber and decrement qcount and ewt
+        const updatedBarber = await Barber.findOneAndUpdate(
+          { salonId: salonId, barberId: barberId },
+          {
+            $inc: { barberEWT: -serviceEWT, queueCount: -1 },
+          },
+          { new: true }
+        );
 
-    res.status(200).json({
-      success: true,
-      message: 'Customer served and removed from the queue.',
-      servedCustomer,
-      remainingQueue: existingQueue.queueList,
-    });
+        res.status(200).json({
+          success: true,
+          message: 'Customer served from the queue successfully.',
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: 'No service to be served.',
+        });
+      }
   } catch (error) {
     console.error(error);
     res.status(500).json({

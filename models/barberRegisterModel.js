@@ -2,16 +2,6 @@ const mongoose = require("mongoose")
 
 const barberSchema = new mongoose.Schema({
   
-
-    //    firstName:{
-    //         type:String,
-    //         // required: true
-    //     },
-
-    //     lastName:{
-    //         type: String,
-    //         // required: true
-    //     },
     name: {
         type: String,
         // required:true
@@ -81,7 +71,20 @@ const barberSchema = new mongoose.Schema({
             type: Number
         }
 
-    }]
+    }],
+       // total time waiting
+       barberEWT:{
+        type: Number,
+        default: 0,
+    },
+    //populate this field with the count 
+    queueCount:{
+        type: Number, 
+        default: 0
+    },
+    isOnline:{
+        type: Boolean
+    },
 
 }, { timestamps: true })
 

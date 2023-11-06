@@ -72,6 +72,9 @@ const joinqueueHistorySchema = new mongoose.Schema({
         customerEWT:{
             type: Number
         },
+        serviceEWT:{
+            type: Number
+        },
         localLineId:{
             type: Number
         }

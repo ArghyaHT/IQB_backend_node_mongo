@@ -51,6 +51,7 @@ const createBarberByAdmin = async (barberData) => {
           barberId,
           barberName: name,
           serviceId: serviceIds,
+    
         });
         await existingBarberWorking.save();
       } else {
