@@ -71,7 +71,7 @@ const salonQueueListSchema = new mongoose.Schema({
             type: Number
         },
         serviceId: {
-            type: Number
+            type: String
         },
         serviceName: {
             type: String

@@ -5,82 +5,82 @@ const joinqueueHistorySchema = new mongoose.Schema({
     //     type: Number,
     //     required: true
     // },
-    salonId:{
+    salonId: {
         type: Number,
     },
 
     queueList: [{
-        position:{
-            type:Number,
+        position: {
+            type: Number,
         },
-        userName:{
+        userName: {
             type: String,
             // required: true
         },
-        name:{
+        name: {
             type: String,
             // required: true
         },
-        joinedQ:{
-            type:Boolean 
+        joinedQ: {
+            type: Boolean
         },
-    
-        joinedQType:{
+
+        joinedQType: {
             type: String,
             enum: ['Single-Join', 'Group-Join', 'Auto-Join']
         },
-        dateJoinedQ:{
+        dateJoinedQ: {
             type: Date
         },
-        timeJoinedQ:{
+        timeJoinedQ: {
             type: String
         },
-        timePositionChanged:{
+        timePositionChanged: {
             type: String
         },
-        loggedIn:{
+        loggedIn: {
             type: Boolean
         },
-        methodUsed:{
+        methodUsed: {
             type: String,
             enum: ['Walk-In', 'Admin', 'App']
         },
-        barberName:{
-            type:String
-        },
-        forceUpdate:{
-            type: Boolean
-        },
-        qgCode:{
-            type:String
-        },
-        positionChangedMessageShown:{
-            type: Boolean
-        },
-        logNo:{
+        barberName: {
             type: String
         },
-        lineCreated:{
+        forceUpdate: {
+            type: Boolean
+        },
+        qgCode: {
             type: String
         },
-        barberId:{
+        positionChangedMessageShown: {
+            type: Boolean
+        },
+        logNo: {
+            type: String
+        },
+        lineCreated: {
+            type: String
+        },
+        barberId: {
             type: Number
         },
-        serviceId:{
+        serviceId: {
+            type: String
+        },
+        customerEWT: {
             type: Number
         },
-        customerEWT:{
+        serviceEWT: {
             type: Number
         },
-        serviceEWT:{
-            type: Number
-        },
-        localLineId:{
+        localLineId: {
             type: Number
         }
     }]
-   
-},{timestamps: true})
+
+}, { timestamps: true })
 
 const JoinedQueueHistory = mongoose.model("JoinQueueHistory", joinqueueHistorySchema)
 

@@ -6,17 +6,32 @@ const Barber = require("../../models/barberRegisterModel")
 
 const singleJoinQueue = async (req, res) => {
   try {
-    const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, serviceId, serviceEWT } = req.body;
+    const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, services } = req.body;
 
+    let totalServiceEWT = 0;
+    let serviceIds = "";
+    let serviceNames = "";
+
+    for (const service of services) {
+      totalServiceEWT += service.serviceEWT;
+      if (serviceIds) {
+        serviceIds += "-";
+      }
+      serviceIds += service.serviceId.toString();
+      if (serviceNames) {
+        serviceNames += ",";
+      }
+      serviceNames += service.serviceName;
+    }
     // Update the barberEWT and queueCount For the Barber
     const updatedBarber = await Barber.findOneAndUpdate(
       { salonId: salonId, barberId: barberId },
-      { $inc: { barberEWT: serviceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
+      { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
       { new: true }
     );
 
-    // Retrieve the service name from the barber's details
-    const serviceName = updatedBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
+    // // Retrieve the service name from the barber's details
+    // const serviceName = updatedBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
 
     //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
@@ -32,10 +47,10 @@ const singleJoinQueue = async (req, res) => {
       methodUsed,
       barberName,
       barberId,
-      serviceId,
-      serviceName,
-      serviceEWT,
-      customerEWT: updatedBarber.barberEWT - serviceEWT,
+      serviceId: serviceIds,
+      serviceName: serviceNames,
+      serviceEWT: totalServiceEWT,
+      customerEWT: updatedBarber.barberEWT - totalServiceEWT,
     }
 
     if (existingQueue) {
@@ -90,19 +105,33 @@ const groupJoinQueue = async (req, res) => {
 
     // Iterate through each group member
     for (const member of groupInfo) {
-      // Update the barberEWT and queueCount For the Barber
+      let totalServiceEWT = 0;
+      let serviceIds = "";
+      let serviceNames = "";
+
+      for (const service of member.services) {
+        totalServiceEWT += service.serviceEWT;
+        if (serviceIds) {
+          serviceIds += "-";
+        }
+        serviceIds += service.serviceId.toString();
+        if (serviceNames) {
+          serviceNames += ",";
+        }
+        serviceNames += service.serviceName;
+      }
+
+      // Update the barberEWT and queueCount for the Barber
       const updatedBarber = await Barber.findOneAndUpdate(
         { salonId: salonId, barberId: member.barberId },
         {
           $inc: {
-            barberEWT: member.serviceEWT,
+            barberEWT: totalServiceEWT,
             queueCount: 1
           }
-        }, //  barberWorking.barberEWT + serviceEWT;
+        },
         { new: true }
       );
-      // Retrieve the service name from the barber's details
-      const serviceName = updatedBarber.barberServices.find(service => service.serviceId === member.serviceId)?.serviceName;
 
       // Generate a unique groupJoinCode by combining qPosition and barberId
       const groupJoinCode = `${updatedBarber.queueCount}-${member.barberId}`;
@@ -116,15 +145,14 @@ const groupJoinQueue = async (req, res) => {
         qPosition: updatedBarber.queueCount,
         barberName: member.barberName,
         barberId: member.barberId,
-        serviceId: member.serviceId,
-        serviceName: serviceName,
-        serviceEWT: member.serviceEWT,
-        barberEWT: member.barberEWT,
+        serviceId: serviceIds,
+        serviceName: serviceNames,
+        serviceEWT: totalServiceEWT,
         qgCode: groupJoinCode,
         methodUsed: "Admin", // Customize or set the method used as needed
         dateJoinedQ: new Date(),
         timeJoinedQ: new Date().toLocaleTimeString(),
-        customerEWT: updatedBarber.barberEWT - member.serviceEWT,
+        customerEWT: updatedBarber.barberEWT - totalServiceEWT,
       };
 
       // Add the queue entry to the existing queue list
@@ -153,30 +181,44 @@ const groupJoinQueue = async (req, res) => {
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, userName, name, joinedQType, methodUsed, serviceId, serviceEWT } = req.body;
+    const { salonId, userName, name, joinedQType, methodUsed, services } = req.body;
+    const serviceIds = services.map(service => service.serviceId);
 
+    let totalServiceEWT = 0;
+    let serviceIds1 = serviceIds.join('-');
+    let serviceNames = "";
+
+    for (const service of services) {
+      totalServiceEWT += service.serviceEWT;
+      if (serviceNames) {
+        serviceNames += ",";
+      }
+      serviceNames += service.serviceName;
+    }
     // Query barbers that are online and provide the specified service
     const availableBarber = await Barber.findOneAndUpdate(
       {
         salonId: salonId,
         isOnline: true,
-        'barberServices.serviceId': serviceId,
+        'barberServices.serviceId': { $all: serviceIds },
       },
       {
-        $inc: { barberEWT: serviceEWT, queueCount: 1 },
+        $inc: { barberEWT: totalServiceEWT, queueCount: 1 },
       },
       { new: true, sort: { barberEWT: 1 } }
     );
 
-    // if no barbers provide the particular service
-    if (availableBarber.length === 0) {
+    console.log(availableBarber)
+
+    // if no single barbers provide the multiple services 
+    if (!availableBarber) {
       return res.status(400).json({
         success: false,
-        message: 'No available barbers for this service.',
+        message: 'No single barber provide the services.',
       });
     }
-    // Retrieve the service name from the barber's details
-    const serviceName = availableBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
+    // // Retrieve the service name from the barber's details
+    // const serviceName = availableBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
 
     //Add the customer to the existing queue or new queue for the salon
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
@@ -192,10 +234,10 @@ const autoJoin = async (req, res) => {
       methodUsed,
       barberName: availableBarber.name,
       barberId: availableBarber.barberId,
-      serviceId,
-      serviceName,
-      serviceEWT,
-      customerEWT: availableBarber.barberEWT - serviceEWT,
+      serviceId: serviceIds1,
+      serviceName: serviceNames,
+      serviceEWT: totalServiceEWT,
+      customerEWT: availableBarber.barberEWT - totalServiceEWT,
     }
 
     if (existingQueue) {
