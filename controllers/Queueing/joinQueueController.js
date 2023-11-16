@@ -304,8 +304,8 @@ const getQueueListBySalonId = async (req, res) => {
 
 const barberServedQueue = async (req, res) => {
   try {
-    const { salonId, barberId, serviceId } = req.body;
-    const { _id } = req.query;
+    const { salonId, barberId, serviceId, _id } = req.body;
+    
     // also mongoID and queue position will come from frontend
 
     // Find the JoinedQueue document that matches the salonId and contains a queue entry with the specified barberId
