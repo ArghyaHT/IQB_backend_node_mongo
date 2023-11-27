@@ -4,27 +4,25 @@ const salonSettingsSchema  = new mongoose.Schema({
     salonId:{
         type: Number
     },
-    queueSettings:{
-        settings1:{
-            type:String
-        },
-        settings2:{
-            type: String
-        },
-        settings3:{
-            type: String
-        }
-    },
+    // queueSettings:{
+    //     settings1:{
+    //         type:String
+    //     },
+    //     settings2:{
+    //         type: String
+    //     },
+    //     settings3:{
+    //         type: String
+    //     }
+    // },
     appointmentSettings:{
-        appSettings1:{
+        appointmentStartTime:{
             type:String
         },
-        appSettings:{
+        appointmentEndTime:{
             type:String
         },
-        appSettings3: {
-            type:String
-        }
+        // timeSlots: [{type: String}]
     }
 },{timestamps: true})
 

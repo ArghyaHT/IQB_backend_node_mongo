@@ -24,6 +24,8 @@ const barberReports = require("./routes/reports/barberReportGraphRoutes.js")
 
 const barberAuth = require("./routes/barberAuth/barberAuthRoute.js")
 
+const appointments = require("./routes/Appointments/appointmentsRoutes.js")
+
 
 
 connectDB()
@@ -53,6 +55,8 @@ app.use("/api/barberWorking", barberWorking)
 app.use("/api/salonSettings", salonSettings)
 
 app.use("/api/barberReports", barberReports)
+
+app.use("/api/appointments", appointments)
 
 app.use("/api", barberAuth)
 

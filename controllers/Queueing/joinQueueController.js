@@ -30,9 +30,6 @@ const singleJoinQueue = async (req, res) => {
       { new: true }
     );
 
-    // // Retrieve the service name from the barber's details
-    // const serviceName = updatedBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
-
     //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
@@ -207,8 +204,6 @@ const autoJoin = async (req, res) => {
       },
       { new: true, sort: { barberEWT: 1 } }
     );
-
-    console.log(availableBarber)
 
     // if no single barbers provide the multiple services 
     if (!availableBarber) {

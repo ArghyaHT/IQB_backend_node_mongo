@@ -43,9 +43,6 @@ const adminSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-  
-
- 
   });
   
   const Admin = mongoose.model('Admin', adminSchema);
