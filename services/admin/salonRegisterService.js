@@ -1,5 +1,6 @@
 const Salon = require("../../models/salonsRegisterModel.js")
 const Admin = require("../../models/adminRegisterModel.js")
+const Barber = require("../../models/barberRegisterModel.js")
 
 //-------CreateSalon------//
 
@@ -231,30 +232,37 @@ const searchSalonsByLocation = async (longitude, latitude) => {
   // };
 };
 
-const getSalonInfoBySalonId = async (salonId) => {
-  try {
-    const getSalonInfo = await Salon.findOne({ salonId })
-    if (!getSalonInfo) {
-      return ({
-        status: 404,
-        message: 'No salons found for the particular SalonId.',
-      });
-    }
-    return ({
-      status: 200,
-      message: 'Salons found successfully.',
-      response: getSalonInfo,
-    });
+// const getSalonInfoBySalonId = async (salonId) => {
+//   try {
+//     // Find salon information by salonId
+//     const salonInfo = await Salon.findOne({ salonId });
 
-  }
-  catch (error) {
-    console.error(error);
-    return ({
-      status: 500,
-      message: 'Failed to search salons by The SalonId.',
-    });
-  }
-}
+//     if (!salonInfo) {
+//       return {
+//         status: 404,
+//         message: 'No salons found for the particular SalonId.',
+//       };
+//     }
+
+//     // Find associated barbers using salonId
+//     const barbers = await Barber.find({ salonId });
+
+//     return {
+//       status: 200,
+//       message: 'Salon and barbers found successfully.',
+//       response: {
+//         salonInfo: salonInfo,
+//         barbers: barbers,
+//       },
+//     };
+//   } catch (error) {
+//     console.error(error);
+//     return {
+//       status: 500,
+//       message: 'Failed to search salons and barbers by the SalonId.',
+//     };
+//   }
+// }
 
 const getAllSalonServices = async (salonId) => {
   try {
@@ -477,7 +485,7 @@ module.exports = {
   createSalon,
   searchSalonsByCity,
   searchSalonsByLocation,
-  getSalonInfoBySalonId,
+  // getSalonInfoBySalonId,
   updateSalonBySalonId,
   getAllSalonServices,
   updateSalonService,

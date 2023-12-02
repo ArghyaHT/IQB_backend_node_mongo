@@ -4,69 +4,74 @@ const bcrypt = require("bcrypt")
 
 const crypto = require("crypto")
 
-const { sendPasswordResetEmail, sendCustomerMail } = require("../../utils/emailSender.js")
+const { sendPasswordResetEmail, sendCustomerMail, sendVerificationCodeByEmail } = require("../../utils/emailSender.js")
 
 
 //----------SignUp For customer-----------------//
-const createCustomer = async (customerData) => {
-  try {
-    const {
-      salonId,
-      email,
-      name,
-      userName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      password,
-    } = customerData;
+// const createCustomer = async (customerData) => {
+//   try {
+//     const {
+//       salonId,
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password,
+//     } = customerData;
 
-    //Find the Customer If exits 
-    const existingCustomer = await Customer.findOne({ email, salonId });
+//     const verificationCode = crypto.randomBytes(2).toString('hex');
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (existingCustomer) {
-      return {
-        status: 400,
-        response: 'A customer with the provided email already exists',
-      };
-    }
+//     const customer = new Customer({
+//       salonId,
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password: hashedPassword,
+//       verificationCode,
+//     });
 
+//     const savedCustomer = await customer.save();
 
+//     if (savedCustomer) {
+//       const email = "arghyahimanstech@gmail.com"
+//       // Send verification code via email
+//       const emailSent = sendVerificationCodeByEmail(email, verificationCode);
 
-    const verificationCode = crypto.randomBytes(2).toString('hex');
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    //Save the customer
-    const customer = new Customer({
-      salonId,
-      email,
-      name,
-      userName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      password: hashedPassword,
-      verificationCode,
-    });
-
-    // const token = await customer.generateAuthToken();
-
-    const savedCustomer = await customer.save();
-    return {
-      status: 200,
-      response: savedCustomer,
-      VerificationCode: verificationCode
-    }
-
-  }
-  catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      error: 'Failed to create customer'
-    };
-  }
-}
+//       if (emailSent) {
+//         return {
+//           status: 200,
+//           response: verificationCode,
+//           message: 'Verification code has been sent successfully',
+//         };
+//       } else {
+//         return {
+//           status: 500,
+//           response: 'Failed to send verification code',
+//           message: 'Verification code has not been sent',
+//         };
+//       }
+//     } else {
+//       return {
+//         status: 400,
+//         response: 'Failed to save customer',
+//         message: 'Customer data could not be saved',
+//       };
+//     }
+//   }
+//   catch (error) {
+//     console.log(error.message)
+//     return {
+//       status: 500,
+//       error: 'Failed to create customer'
+//     };
+//   }
+// }
 
 
 //----------SignIn For customer-----------------//
@@ -146,7 +151,7 @@ const enterEmail = async (email) => {
 const matchVerificationCodeandResetpassword = async (verificationCode, newPassword, reEnterPassword) => {
   try {
     // Find the customer by verification code
-    const customer = await Customer.findOne({ VerificationCode: verificationCode });
+    const customer = await Customer.findOne({ verificationCode: verificationCode });
     if (!customer) {
       return {
         status: 400,
@@ -171,8 +176,8 @@ const matchVerificationCodeandResetpassword = async (verificationCode, newPasswo
 
     // Update the customer's password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    customer.Password = hashedPassword;
-    customer.VerificationCode = '';
+    customer.password = hashedPassword;
+    customer.verificationCode = '';
     // customer.VerificationCode = ''; // Clear the verification code
     await customer.save();
 
@@ -284,7 +289,7 @@ const sendMail = async(email, subject, text) =>{
 
 
 module.exports = {
-  createCustomer,
+  // createCustomer,
   signInCustomer,
   enterEmail,
   matchVerificationCodeandResetpassword,

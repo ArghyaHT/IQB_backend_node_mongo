@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const crypto = require("crypto")
 
 const barberSchema = new mongoose.Schema({
   
@@ -8,7 +9,17 @@ const barberSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        // required: true
+    },
+    password: {
+        type: String
+    },
+    barber: {
+        type: String,
+        default: false
+    },
+    AuthType: {
+        type: String,
+        default: "local"
     },
     userName: {
         type: String,
@@ -35,24 +46,12 @@ const barberSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    email_verified: {
+    isApproved:{
         type: Boolean,
-        // required: true
+        default: false
     },
-    auth_time: {
-        type: String,
-        // required: true
-    },
-    // isAdmin: {
-    //     type: Boolean,
-    //     default: false
-    // },
     profilePic:{
         type: String
-    },
-    isBarber:{
-        type:Boolean,
-        // default:false
     },
     isOnline:{
         type: Boolean
@@ -85,9 +84,25 @@ const barberSchema = new mongoose.Schema({
     isOnline:{
         type: Boolean
     },
-
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
 }, { timestamps: true })
 
+
+//Generating Password Reset Token
+barberSchema.methods.getResetPasswordToken = function () {
+
+    //generate token
+    const resetToken = crypto.randomBytes(20).toString("hex")
+
+    //Hashing and adding resetPasswordtoken to userSchema
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+
+    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+    //We return this because when user click then this resetPasswordToken will form .so thast why 
+    return resetToken
+}
 const Barber = mongoose.model('Barber', barberSchema);
 
 module.exports = Barber;

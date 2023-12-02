@@ -1,20 +1,38 @@
 const express = require("express");
-const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus, registerBarberByAdmin, isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId } = require("../../controllers/barber/barberRegisterController");
-const { barberValidateSignUp, validate } = require("../../middlewares/barberRegisterValidate");
-const { auth } = require("../../utils/AuthUser")
+const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon } = require("../../controllers/barber/barberRegisterController");
 
 
 const router = express.Router();
 
-router.route("/registerBarberByAdmin").post(registerBarberByAdmin)
+// router.route("/registerBarberByAdmin").post(registerBarberByAdmin)
 
 
-router.route("/login").post(auth, barberLogin) //api integrated
+// router.route("/login").post(auth, barberLogin) //api integrate
 
 
 // router.route("/addBarberServices").post(addServicesTobarbers)
 
+//AUTH ROUTES
+router.route("/register").post(registerController)
+router.route("/login").post(loginController)
+router.route('/logout').post(handleLogout)
+router.route('/forget-password').post(handleForgetPassword)
+router.route('/reset-password/:token').post(handleResetPassword)
 
+//GOOGLE_LOGIN
+router.route("/google-login").post(googleLoginController)
+
+//FOR REFRESHING NEW ACCESS TOKEN
+router.route("/refresh-token").post(refreshTokenController)
+
+//ALL PROTECTED ROUTES
+router.route("/profile").get(handleProtectedRoute,profileController)
+
+//CONNECT BARBER TO SALON
+router.route("/connectBarberToSalon").post(connectBarbertoSalon)
+
+//UPDATE BARBER PROFILE
+router.route("/updateBarberDetails").post(insertDetailsByBarber)
 
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integrated
 

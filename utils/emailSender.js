@@ -55,7 +55,25 @@ const sendCustomerMail = (email,subject, text) => {
   });
 }
 
+const sendVerificationCodeByEmail = (email,verificationCode) => {
+  const mailOptions = {
+    from: 'arghyahimanstech@gmail.com',
+    to: `${email}`,
+    subject: "Your Verification Code",
+    html: `<p>Dear User,</p>
+           <p>Your Verification Code is ${verificationCode}</p>`,
+  }
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+}
 module.exports ={
   sendPasswordResetEmail,
   sendCustomerMail,
+  sendVerificationCodeByEmail,
 }

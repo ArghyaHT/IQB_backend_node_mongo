@@ -4,7 +4,7 @@ const moment = require("moment")
 
 const createAppointment = async(req, res) => {
     try{
-        const {salonId, barberId, serviceId, appointmentDate, startTime, customerName, customerType, methodUsed} = req.body;
+        const {salonId, barberId, serviceId, appointmentDate, startTime, customerEmail, customerName, customerType, methodUsed} = req.body;
 
         const barber = await Barber.findOne({ barberId: barberId });
       
@@ -53,6 +53,7 @@ const createAppointment = async(req, res) => {
             appointmentDate, 
             startTime,
             timeSlots: `${startTime}-${endTime}`, 
+            customerEmail,
             customerName, 
             customerType,
             methodUsed,

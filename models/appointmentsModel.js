@@ -20,6 +20,9 @@ appointmentList:[{
     timeSlots:{
         type: String
     },
+    customerEmail:{
+        type: String
+    },
     customerName:{
         type: String
     },

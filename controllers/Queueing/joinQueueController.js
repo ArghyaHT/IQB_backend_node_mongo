@@ -1,4 +1,3 @@
-const BarberWorking = require("../../models/barberWorkingModel");
 const SalonQueueList = require("../../models/salonQueueListModel");
 const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel")

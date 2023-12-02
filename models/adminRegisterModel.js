@@ -11,15 +11,16 @@ const adminSchema = new mongoose.Schema({
     email: {
         type: String,
     },
-    email_verified: {
-        type: Boolean,
+    password: {
+        type: String
     },
-    auth_time: {
+    admin: {
         type: String,
-    },
-    isAdmin: {
-        type: Boolean,
         default: false
+    },
+    AuthType: {
+        type: String,
+        default: "local"
     },
     userName:{
         type:String,
@@ -43,8 +44,23 @@ const adminSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-  });
-  
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
+  },{ timestamps: true });
+  //Generating Password Reset Token
+adminSchema.methods.getResetPasswordToken = function () {
+
+    //generate token
+    const resetToken = crypto.randomBytes(20).toString("hex")
+
+    //Hashing and adding resetPasswordtoken to userSchema
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+
+    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+    //We return this because when user click then this resetPasswordToken will form .so thast why 
+    return resetToken
+}
   const Admin = mongoose.model('Admin', adminSchema);
   
   module.exports = Admin;

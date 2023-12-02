@@ -222,13 +222,13 @@ const updateAdmin = async(adminData) =>{
 
   try{
     const admin = await Admin.findOneAndUpdate({email: email},
-      {name: name, 
-        salonId: salonId,
-        userName: userName,
-        gender: gender, 
-        dateOfBirth: dateOfBirth,
-         mobileNumber: mobileNumber, 
-         isActive:isActive},
+      { name, 
+        salonId,
+        userName,
+        gender, 
+        dateOfBirth,
+        mobileNumber, 
+        isActive},
       {new: true})
       return {
         status: 200,

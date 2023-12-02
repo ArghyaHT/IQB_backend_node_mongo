@@ -1,7 +1,7 @@
 const salonService = require("../../services/admin/salonRegisterService")
 
 const Salon = require("../../models/salonsRegisterModel")
-
+const Barber = require("../../models/barberRegisterModel")
 // Create a new Salon
 const salonSignUp = async (req, res) => {
   try {
@@ -92,20 +92,34 @@ const getSalonsByLocation = async (req, res) => {
 
 const getSalonInfo = async (req, res) => {
   const { salonId } = req.query;
-
   try {
-    const result = await salonService.getSalonInfoBySalonId(salonId)
-    res.status(result.status).json({
+    // Find salon information by salonId
+    const salonInfo = await Salon.findOne({ salonId });
+
+    if (!salonInfo) {
+      res.status(404).json({
+        success: false,
+        message: 'No salons found for the particular SalonId.',
+      });
+    }
+
+    // Find associated barbers using salonId
+    const barbers = await Barber.find({ salonId });
+    console.log(barbers)
+
+    res.status(200).json({
       success: true,
-      message: result.message,
-      response: result.response
-    })
-  }
-  catch (error) {
+      message: 'Salon and barbers found successfully.',
+      response: {
+        salonInfo: salonInfo,
+        barbers: barbers,
+      },
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      error: 'Failed to search Salons'
+      message: 'Failed to search salons and barbers by the SalonId.',
     });
   }
 }
