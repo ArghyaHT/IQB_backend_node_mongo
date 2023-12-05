@@ -561,6 +561,7 @@ const connectBarbertoSalon = async(req, res) => {
   }
 }
 
+
 module.exports = {
   insertDetailsByBarber,
   // barberLogin,

@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 
+const crypto = require("crypto")
+
 
 const adminSchema = new mongoose.Schema({
     salonId:{

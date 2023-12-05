@@ -46,27 +46,27 @@ const addServices = async (req, res) => {
   }
 }
 
-const searchSalonsByCity = async (req, res) => {
+// const searchSalonsByCity = async (req, res) => {
 
-  try {
-    const { city } = req.body
-    const result = await salonService.searchSalonsByCity(city)
+//   try {
+//     const { city } = req.body
+//     const result = await salonService.searchSalonsByCity(city)
 
-    res.status(result.status).json({
-      success: true,
-      response: result.response,
-      message: result.message,
+//     res.status(result.status).json({
+//       success: true,
+//       response: result.response,
+//       message: result.message,
 
-    })
-  }
-  catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to search Salons'
-    });
-  }
-}
+//     })
+//   }
+//   catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to search Salons'
+//     });
+//   }
+// }
 
 const getSalonsByLocation = async (req, res) => {
 
@@ -235,11 +235,43 @@ const getAllSalonsByAdmin = async (req, res) => {
 }
 
 
+const searchSalonsByNameAndCity = async(req, res) =>{
+  try{
+    const {salonName, city, limit = 3, sortField, sortOrder} = req.query;
+    let query = {};
+    const searchRegExpName = new RegExp('.*' + salonName + ".*", 'i')
+    const searchRegExpEmail = new RegExp('.*' + city + ".*", 'i')
+    
+    if (salonName || city) {
+      query.$or = [
+        { salonName: { $regex: searchRegExpName } },
+        { city: { $regex: searchRegExpEmail } }
+      ];
+    }
 
+    const sortOptions = {};
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    const getAllSalons = await Salon.find(query).sort(sortOptions).limit(Number(limit));
+    res.status(200).json({
+      success: true,
+      message: "All Salons fetched successfully",
+      getAllSalons,
+    })
+  }catch (error) {
+    console.log(error.message)
+    return {
+      status: 500,
+      message: error.message,
+    };
+  }
+}
 
 module.exports = {
   salonSignUp,
-  searchSalonsByCity,
+  // searchSalonsByCity,
   getSalonsByLocation,
   getSalonInfo,
   updateSalonBySalonIdAndAdminEmail,
@@ -247,6 +279,7 @@ module.exports = {
   updateSalonServiceByServiceId,
   deleteServiceByServiceIdSalonId,
   addServices,
-  getAllSalonsByAdmin
+  getAllSalonsByAdmin,
+  searchSalonsByNameAndCity
 
 }
