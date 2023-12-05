@@ -7,12 +7,72 @@ const Appointment = require("../../models/appointmentsModel.js")
 const bcrypt = require("bcrypt")
 
 const crypto = require("crypto");
+const jwt = require('jsonwebtoken')
+
 const { sendVerificationCodeByEmail } = require("../../utils/emailSender");
 // const { sendVerificationCodeToMobile } = require("../../utils/mobileMessageSender");
 
-
+const JWT_ACCESS_SECRET = "accessToken"
 
 // Create a new customer
+// const signUp = async (req, res) => {
+//   try {
+//     const {
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password,
+//     } = req.body;
+
+// //Creating verification code and hashed password
+//     const verificationCode = crypto.randomBytes(2).toString('hex');
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     //Creating new Customer Object
+//     const customer = new Customer({
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password: hashedPassword,
+//       verificationCode,
+//     });
+
+//     const savedCustomer = await customer.save();
+
+//     if (savedCustomer.verificationCode) {
+//       const email = "arghyahimanstech@gmail.com"
+//       // Send verification code via email
+//       sendVerificationCodeByEmail(email, verificationCode);
+//       // sendVerificationCodeToMobile(mobileNumber, verificationCode)
+//       res.status(200).json({
+//           success: true,
+//           response: verificationCode,
+//           message: 'Customer saved and Verification code has been sent successfully',
+//         });
+      
+//     } else {
+//       res.status(400).json({
+//         success: false,
+//         response: 'Failed to save customer and send verification code',
+//         message: 'Customer data could not be saved',
+//       });
+//     }
+//   }
+// catch (error) {
+//   console.error(error);
+//   res.status(500).json({
+//    success: false,
+//     error: 'Failed to create customer'
+//   });
+// }
+// };
+
 const signUp = async (req, res) => {
   try {
     const {
@@ -25,11 +85,11 @@ const signUp = async (req, res) => {
       password,
     } = req.body;
 
-//Creating verification code and hashed password
+    // Creating verification code and hashed password
     const verificationCode = crypto.randomBytes(2).toString('hex');
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //Creating new Customer Object
+    // Creating new Customer Object
     const customer = new Customer({
       email,
       name,
@@ -44,16 +104,27 @@ const signUp = async (req, res) => {
     const savedCustomer = await customer.save();
 
     if (savedCustomer.verificationCode) {
-      const email = "arghyahimanstech@gmail.com"
+      // Generating JWT token for the newly signed-up customer
+      const tokenPayload = {
+        customerId: savedCustomer._id, // Assuming _id is the unique identifier for the customer
+        email: savedCustomer.email,
+      };
+
+      // Generating access token for the customer
+      const accessToken = jwt.sign(tokenPayload, JWT_ACCESS_SECRET, { expiresIn: '24h' });
+
       // Send verification code via email
-      sendVerificationCodeByEmail(email, verificationCode);
-      // sendVerificationCodeToMobile(mobileNumber, verificationCode)
-      res.status(200).json({
-          success: true,
-          response: verificationCode,
-          message: 'Customer saved and Verification code has been sent successfully',
-        });
+      const emailForVerification = "arghyahimanstech@gmail.com";
+      sendVerificationCodeByEmail(emailForVerification, verificationCode);
       
+      res.status(200).json({
+        success: true,
+        response: {
+          verificationCode,
+          accessToken, // Send the generated access token in the response
+        },
+        message: 'Customer saved and Verification code has been sent successfully',
+      });
     } else {
       res.status(400).json({
         success: false,
@@ -61,40 +132,114 @@ const signUp = async (req, res) => {
         message: 'Customer data could not be saved',
       });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create customer',
+    });
   }
-catch (error) {
-  console.error(error);
-  res.status(500).json({
-   success: false,
-    error: 'Failed to create customer'
-  });
-}
 };
 
-const matchVerificationCode = async(req, res) =>{
-  try{
-    const { email, verificationCode} = req.body;
+// const matchVerificationCode = async(req, res) =>{
+//   try{
+//     const { email, verificationCode} = req.body;
 
-    // Find the customer
-    const customer = await Customer.findOne({email})
+//     // Find the customer
+//     const customer = await Customer.findOne({email})
 
-      if(customer.verificationCode === verificationCode){
-        customer.verificationCode = '';
-        // customer.VerificationCode = ''; // Clear the verification code
-        await customer.save();
+//       if(customer.verificationCode === verificationCode){
+//         customer.verificationCode = '';
+//         // customer.VerificationCode = ''; // Clear the verification code
+//         await customer.save();
        
-        res.status(200).json({
-          success: true,
-          response: customer,
+//         res.status(200).json({
+//           success: true,
+//           response: customer,
+//         });
+//       }
+//       res.status(201).json({
+//         success: false,
+//         response: "Verification Code didn't match",
+//         message: "Enter valid Verification code",
+//       }); 
+//   }
+//   catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       status: 500,
+//       error: 'Failed to match Verification Code',
+//     });
+//   }
+// }
+
+//-----------SignIn Customer-------------//
+// const signIn = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const result = await customerService.signInCustomer(email, password);
+
+//     res.status(result.status).json({
+//       success: true,
+//       response: result.response,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to sign in',
+//     });
+//   }
+// };
+
+const matchVerificationCode = async (req, res) => {
+  try {
+    const { accessToken, verificationCode } = req.body;
+
+    // Verify the provided access token
+    jwt.verify(accessToken, JWT_ACCESS_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({
+          success: false,
+          response: "Invalid or expired access token",
+          message: "Please provide a valid access token"
         });
       }
-      res.status(201).json({
-        success: false,
-        response: "Verification Code didn't match",
-        message: "Enter valid Verification code",
-      }); 
-  }
-  catch (error) {
+
+      const customerId = decoded.customerId; // Extract customer ID from the decoded token
+
+      // Find the customer using the extracted ID
+      const customer = await Customer.findById(customerId);
+
+      if (customer) {
+        // Match the verification code
+        if (customer.verificationCode === verificationCode) {
+          // Clear the verification code
+          customer.verificationCode = '';
+          await customer.save();
+
+          res.status(200).json({
+            success: true,
+            response: "Verification successful",
+            customer
+          });
+        } else {
+          res.status(400).json({
+            success: false,
+            response: "Verification code didn't match",
+            message: "Please enter a valid verification code"
+          });
+        }
+      } else {
+        res.status(404).json({
+          success: false,
+          response: "Customer not found",
+          message: "No customer found for provided access token"
+        });
+      }
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({
       status: 500,
@@ -103,16 +248,31 @@ const matchVerificationCode = async(req, res) =>{
   }
 }
 
-//-----------SignIn Customer-------------//
+
 const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const result = await customerService.signInCustomer(email, password);
+    // Check if email and password are valid (pseudo-code)
+    const user = await Customer.findOne({email});
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    res.status(result.status).json({
+    if (!user || !isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+      });
+    }
+
+    // If email and password are valid, generate JWT token
+    const accessToken = jwt.sign({ userId: user._id, email: user.email }, JWT_ACCESS_SECRET, { expiresIn: '24h' });
+
+    res.status(200).json({
       success: true,
-      response: result.response,
+      response: {
+        accessToken,
+        user: { userId: user._id, email: user.email } // Optional: You can send user details in the response
+      },
     });
   } catch (error) {
     console.error(error);
@@ -122,8 +282,6 @@ const signIn = async (req, res) => {
     });
   }
 };
-
-
 //--------Forget Password------//
 
 const forgetPassword = async(req, res) =>{

@@ -123,7 +123,7 @@ const googleLoginController = async (req, res) => {
     // If the user doesn't exist, create a new user
     // add barber id by count docuents and isApproved as false 
     if (!user) {
-        user = new Barber({
+        user = new Admin({
             name: payload.name,
             email: payload.email,
             admin: true,
