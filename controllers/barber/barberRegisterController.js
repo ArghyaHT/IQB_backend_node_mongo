@@ -68,8 +68,19 @@ const loginController = async (req, res) => {
       const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
       // Set cookies in the response
-      res.cookie('refreshToken', refreshToken, { httpOnly: true, expires: new Date(Date.now() + 10 * 60 * 1000) }); // 10 minutes
-      res.cookie('accessToken', accessToken, { httpOnly: true, expires: new Date(Date.now() + 20 * 1000) }); // 20 seconds
+      res.cookie('refreshToken', refreshToken, { 
+        httpOnly: true, 
+        expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        secure: true,
+        sameSite: "None"
+      }); 
+
+      res.cookie('accessToken', accessToken, {
+         httpOnly: true, 
+        expires: new Date(Date.now() + 20 * 1000),// 20 seconds
+        secure: true,
+        sameSite: "None" 
+      }); 
 
       res.status(201).json({
           success: true,
@@ -128,8 +139,17 @@ const googleLoginController = async (req, res) => {
 
 
         // Set cookies in the response
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, expires: new Date(Date.now() + 10 * 60 * 1000) }); // 10 minutes
-        res.cookie('accessToken', accessToken, { httpOnly: true, expires: new Date(Date.now() + 20 * 1000) }); // 20 seconds
+        res.cookie('refreshToken', refreshToken, {
+           httpOnly: true, 
+           expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+           secure: true,
+           sameSite: "None"  }); 
+        res.cookie('accessToken', accessToken, { 
+          httpOnly: true,
+           expires: new Date(Date.now() + 20 * 1000), // 20 seconds
+           secure: true,
+           sameSite: "None" 
+           }); 
 
 
         res.status(201).json({ 
@@ -155,7 +175,11 @@ const refreshTokenController = async (req, res) => {
       const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
 
       // Set the new access token as an HTTP-only cookie
-      res.cookie('accessToken', newAccessToken, { httpOnly: true, expires: new Date(Date.now() + 20 * 1000) });
+      res.cookie('accessToken', newAccessToken, {
+         httpOnly: true,
+          expires: new Date(Date.now() + 20 * 1000), // 20 seconds
+          secure: true,
+          sameSite: "None"  });
 
       res.status(201).json({ success: true, message: "New accessToken generated" });
   } catch (error) {
@@ -171,7 +195,7 @@ const handleLogout = async(req,res,next) => {
 
       res.status(200).json({
           success:true,
-          message:"User logged out successfully"
+          message:"Barber logged out successfully"
       })
   } catch (error) {
       res.status(500).json({
