@@ -11,11 +11,20 @@ const customerSchema = new mongoose.Schema({
     customerId:{
         type: Number
     },
-    email:{
+    email: {
         type: String,
-        required: true
     },
-
+    password: {
+        type: String
+    },
+    customer: {
+        type: String,
+        default: false
+    },
+    AuthType: {
+        type: String,
+        default: "local"
+    },
     name:{
         type: String,
         required: true
@@ -37,39 +46,30 @@ const customerSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    password:{
-        type: String,
-        required: true
-    },
-
     verificationCode:{
         type: String,
         // required:true
     },
     profilePic:{
         type: String
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
+}, {timestamps: true})
+customerSchema.methods.getResetPasswordToken = function () {
 
-//     tokens: [{
-//         token:{
-//             type: String,
-//             required : true
-//         }
-//     }]
-//   });
-  
-// customerSchema.methods.generateAuthToken = async function(){
-//     try{
-//         const token = jwt.sign({_id: this._id.toString()}, "thisiismynewjsonwebtokencreationiamdoing");
-//         this.tokens = this.tokens.concat({token: token})
+    //generate token
+    const resetToken = crypto.randomBytes(20).toString("hex")
 
-//         await this.save()
-//     }
-//     catch(error){
-//         console.log(error)
-//     }
-})
+    //Hashing and adding resetPasswordtoken to userSchema
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex")
 
+    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+    console.log('Reset Token:', resetToken);
+    //We return this because when user click then this resetPasswordToken will form .so thast why 
+    return resetToken
+    
+}
   const Customer = mongoose.model('Customer', customerSchema);
   
   module.exports = Customer;

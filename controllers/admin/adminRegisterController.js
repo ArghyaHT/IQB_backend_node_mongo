@@ -215,7 +215,7 @@ const handleForgetPassword = async (req, res, next) => {
         const user = await Admin.findOne({ email: email })
 
         if (!user) {
-            throw createError(404, "User with this email does not exist.Please register first")
+            throw createError(404, "Admin with this email does not exist.Please register first")
         }
 
         //get ResetPassword Token

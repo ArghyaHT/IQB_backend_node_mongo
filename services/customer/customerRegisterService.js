@@ -107,90 +107,94 @@ const signInCustomer = async (email, password) => {
 
 
 //Forget Password
-const enterEmail = async (email) => {
-  try {
-    const customer = await Customer.findOne({ email: email });
-    if (!customer) {
-      return {
-        status: 400,
-        response: 'Email Id did not match',
-      };
-    }
+// const enterEmail = async (email) => {
+//   try {
+//     const user = await Customer.findOne({ email: email });
+//     if (!user) {
+//       return {
+//         status: 404,
+//         response: "Admin with this email does not exist.Please register first",
+//       };
+//     }
 
-    const verificationCode = crypto.randomBytes(2).toString('hex');
+//     const verificationCode = crypto.randomBytes(2).toString('hex');
 
-    customer.verificationCode = verificationCode;
-    await customer.save();
+//     const emailData = {
+//       email,
+//       subject: 'Reset Password Email',
+//       html: `
+//           <h2>Hello ${user.name}!</h2>
+//           <p>Your Password Reset Verification Code is ${verificationCode}
+         
+//       `
+//   };
+//     await user.save();
+//     try {
+//       await sendPasswordResetEmail(emailData)
+//   } catch (error) {
+//       res.status(500).json({
+//           success: false,
+//           message: 'Failed to send reset password email'
+//       })
+//   }
 
-    if (customer.verificationCode) {
-      const email = "bikkihimanstech@gmail.com"
-
-      const resetLink = "`https://gmail.com/reset-password`"
-
-      sendPasswordResetEmail(email, resetLink);
-
-      return {
-        status: 200,
-        response: verificationCode,
-        message: 'Verification code has been sent successfully',
-      };
-    }
-
-    return {
-      status: 400,
-      response: error,
-      message: 'Verification code has not been sent',
-    };
-  } catch (error) {
-    console.error('Failed to enter email:', error);
-    throw new Error('Failed to sign in');
-  }
-};
+//   res.status(200).json({
+//     success: true,
+//     message: `Please go to your ${email} for reseting the password`,
+//     payload: {
+//         resetToken
+//     }
+// })
+//   } catch (error) {
+//     console.error('Failed to enter email:', error);
+//     throw new Error('Failed to sign in');
+//   }
+// };
 
 
-const matchVerificationCodeandResetpassword = async (verificationCode, newPassword, reEnterPassword) => {
-  try {
-    // Find the customer by verification code
-    const customer = await Customer.findOne({ verificationCode: verificationCode });
-    if (!customer) {
-      return {
-        status: 400,
-        response: 'Verification Code did not match',
-      };
-    }
+// const matchVerificationCodeandResetpassword = async (verificationCode, newPassword, reEnterPassword) => {
+//   try {
+//     // Find the customer by verification code
+//     const customer = await Customer.findOne({ verificationCode: verificationCode });
+//     if (!customer) {
+//       return {
+//         status: 400,
+//         response: 'Verification Code did not match',
+//       };
+//     }
 
-    // Check if the new password and re-entered password match
-    if (newPassword.length < 8) {
-      return {
-        status: 400,
-        response: 'Password must be at least 8 characters long',
-      };
-    }
+//     // Check if the new password and re-entered password match
+//     if (newPassword.length < 8) {
+//       return {
+//         status: 400,
+//         response: 'Password must be at least 8 characters long',
+//       };
+//     }
 
-    if (newPassword !== reEnterPassword) {
-      return {
-        status: 400,
-        response: "Passwords do not match"
-      };
-    }
+//     if (newPassword !== reEnterPassword) {
+//       return {
+//         status: 400,
+//         response: "Passwords do not match"
+//       };
+//     }
 
-    // Update the customer's password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    customer.password = hashedPassword;
-    customer.verificationCode = '';
-    // customer.VerificationCode = ''; // Clear the verification code
-    await customer.save();
+//     // Update the customer's password
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     customer.password = hashedPassword;
+//     customer.verificationCode = '';
+//     // customer.VerificationCode = ''; // Clear the verification code
+//     await customer.save();
 
-    // Return success message or any additional data as needed
-    return {
-      status: 200,
-      message: 'Password reset successfully'
-    };
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to reset password');
-  }
-}
+//     // Return success message or any additional data as needed
+//     return {
+//       status: 200,
+//       message: 'Password reset successfully'
+//     };
+//   } catch (error) {
+//     console.error(error);
+//     throw new Error('Failed to reset password');
+//   }
+// }
 
 
 // const getAllCustomers = async () => {
@@ -291,8 +295,8 @@ const sendMail = async(email, subject, text) =>{
 module.exports = {
   // createCustomer,
   signInCustomer,
-  enterEmail,
-  matchVerificationCodeandResetpassword,
+  // enterEmail,
+  // matchVerificationCodeandResetpassword,
   // getAllCustomers,
   deleteCustomer,
   updateCustomer,

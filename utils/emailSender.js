@@ -17,14 +17,12 @@ transporter.verify((err, success) => {
 });
 
 // Function to send the password reset email
-const sendPasswordResetEmail = (email, resetLink) => {
+const sendPasswordResetEmail = (emailData) => {
   const mailOptions = {
     from: 'arghyahimanstech@gmail.com',
-    to: "bikkihimanstech@gmail.com",
-    subject: 'Password Reset Instructions',
-    html: `<p>Dear User,</p>
-           <p>Please click the following link to reset your password:</p>
-           <a href="${resetLink}">Reset Password</a>`,
+    to: emailData.email,
+    subject: emailData.subject,
+    html: emailData.html
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

@@ -84,6 +84,10 @@ const barberSchema = new mongoose.Schema({
     isOnline:{
         type: Boolean
     },
+    isDeleted:{
+        type: Boolean,
+        default: false
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date
 }, { timestamps: true })

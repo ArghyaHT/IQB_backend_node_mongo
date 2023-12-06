@@ -269,6 +269,33 @@ const searchSalonsByNameAndCity = async(req, res) =>{
   }
 }
 
+const deleteSalon = async(req, res) =>{
+  try{
+    const {salonId} = req.body;
+
+    const deletedSalon = await Salon.findOneAndUpdate({salonId}, {isDeleted: true}, {new: true});
+
+    if(!deletedSalon){
+      res.status(404).json({
+        success: true,
+        message: "The Salonw ith the SalonId not found",
+       })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "The Salon has been deleted",
+        response: deletedSalon
+      })
+     }
+     catch (error) {
+      console.log(error.message)
+      return {
+        status: 500,
+        message: error.message,
+      };
+    }
+}
 module.exports = {
   salonSignUp,
   // searchSalonsByCity,
@@ -280,6 +307,7 @@ module.exports = {
   deleteServiceByServiceIdSalonId,
   addServices,
   getAllSalonsByAdmin,
-  searchSalonsByNameAndCity
+  searchSalonsByNameAndCity,
+  deleteSalon,
 
 }

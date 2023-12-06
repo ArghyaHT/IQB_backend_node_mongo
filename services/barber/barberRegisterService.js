@@ -76,7 +76,7 @@ const updateBarberByEmail = async (barberData) => {
 
 const deleteBarberByEmail = async (salonId, email) => {
     try {
-        const deleteBarber = await Barber.findOneAndUpdate({ salonId: salonId, email: email }, { isActive: false }, { new: true });
+        const deleteBarber = await Barber.findOneAndUpdate({ salonId: salonId, email: email }, { isDeleted: true }, { new: true });
 
         return {
             status: 200,

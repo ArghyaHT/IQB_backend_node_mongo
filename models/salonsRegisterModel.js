@@ -129,6 +129,10 @@ const salonsSchema = new mongoose.Schema({
         type: String,
         enum: ["Queuing", "Appointment", "Both"],
     },
+    isDeleted:{
+        type: Boolean,
+        default: false
+    },
     registeredBarber: [{
         barberId: {
             type: Number,
@@ -136,7 +140,8 @@ const salonsSchema = new mongoose.Schema({
         barberEmail: {
             type: String,
         }
-    }]
+    }],
+    
 }, { timestamps: true });
 
 

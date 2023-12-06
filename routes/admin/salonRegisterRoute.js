@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon,  } = require("../../controllers/admin/salonRegisterController")
 
 
 const router = express.Router()
@@ -19,10 +19,14 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 router.route("/updateSalonBySalonIdAndAdminEmail").post(updateSalonBySalonIdAndAdminEmail)
 
+//GET ALL SALON SERVICES
 router.route("/allSalonServices").get(allSalonServices) //api working
 
 router.route("/updateSalonServiceByServiceId").put(updateSalonServiceByServiceId) //api working perfectly
 
 router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSalonId)
+
+//SOFT DELETE SALON
+router.route("/deleteSalon").post(deleteSalon)
 
 module.exports = router 
