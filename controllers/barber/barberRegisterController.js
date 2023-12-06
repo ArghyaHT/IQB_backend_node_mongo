@@ -379,16 +379,14 @@ const insertDetailsByBarber= async (req, res) => {
 
 const getAllBarberbySalonId = async (req, res) => {
   try {
-    // const getAllBarbers = await Barber.find({salonId: salonId})
+    const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query;
+    let query = { isDeleted: false }; // Filter for isDeleted set to false
 
-    const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query
-    let query = {}
-
-    const searchRegExpName = new RegExp('.*' + name + ".*", 'i')
-    const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i')
+    const searchRegExpName = new RegExp('.*' + name + ".*", 'i');
+    const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i');
 
     if (salonId) {
-      query.salonId = salonId
+      query.salonId = salonId;
     }
 
     if (name || email) {
@@ -403,9 +401,9 @@ const getAllBarberbySalonId = async (req, res) => {
       sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
     }
 
-    const skip = Number(page - 1) * Number(limit)
+    const skip = Number(page - 1) * Number(limit);
 
-    const getAllBarbers = await Barber.find(query).sort(sortOptions).skip(skip).limit(Number(limit))
+    const getAllBarbers = await Barber.find(query).sort(sortOptions).skip(skip).limit(Number(limit));
 
     const totalBarbers = await Barber.countDocuments(query);
 
@@ -416,17 +414,15 @@ const getAllBarberbySalonId = async (req, res) => {
       totalPages: Math.ceil(totalBarbers / Number(limit)),
       currentPage: Number(page),
       totalBarbers,
-    })
-
-  }
-  catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      success: false,
       message: error.message,
-    };
+    });
   }
-}
+};
 
 const updateBarber = async (req, res) => {
   const barberData = req.body

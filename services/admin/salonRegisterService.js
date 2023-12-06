@@ -453,7 +453,7 @@ const deleteSalonService = async (salonId, serviceId) => {
 const getSalonsByAdminEmail = async(adminEmail) =>{
 
   try{
-    const salonListByAdminEmail = await Salon.find({adminEmail});
+    const salonListByAdminEmail = await Salon.find({adminEmail, isDeleted: false});
 
     if(!salonListByAdminEmail){
       return ({
