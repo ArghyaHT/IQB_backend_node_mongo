@@ -24,6 +24,8 @@ const salonReports = require("./routes/reports/salonReportGraphRoutes.js")
 
 const appointments = require("./routes/Appointments/appointmentsRoutes.js")
 
+const students = require("./routes/ImageUploadDemo/student.js")
+
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -46,6 +48,30 @@ app.use(cookieParser())
 app.use(rateLimiter)
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({extended:true,limit: '10mb'}))
+
+//Image upload =============
+
+const fileUpload = require("express-fileupload");
+const morgan = require("morgan");
+const dotenv = require("dotenv").config();
+
+console.log(process.env.CLOUDINARY_URL)
+
+const NODE_ENV = "development";
+
+if (NODE_ENV != "production") {
+  app.use(morgan("dev"));
+}
+
+app.use(fileUpload({
+  debug:true,
+  useTempFiles:true,
+  // tempFileDir: path.join(__dirname,"./temp")
+}));
+app.use(express.static("uploads"));
+app.use("/api", students);
+
+//======================
 
 app.use("/api/customer", registerCustomer)
 

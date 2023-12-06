@@ -3,11 +3,11 @@ const mongoose = require("mongoose")
 const coordinatesSchema = new mongoose.Schema({
     longitude: {
         type: Number,
-        required: true,
+        // required: true,
     },
     latitude: {
         type: Number,
-        required: true,
+        // required: true,
     },
 });
 
@@ -17,11 +17,11 @@ const salonsSchema = new mongoose.Schema({
     },
     userName: {
         type: String,
-        required: true
+        // required: true
     },
     salonName: {
         type: String,
-        required: true,
+        // required: true,
     },
     adminEmail: {
         type: String,
@@ -39,28 +39,28 @@ const salonsSchema = new mongoose.Schema({
     },
     address: {
         type: String,
-        required: true
+        // required: true
     },
     city: {
         type: String,
-        required: true
+        // required: true
     },
     country: {
         type: String,
-        required: true
+        // required: true
     },
     postCode: {
         type: String,
-        required: true
+        // required: true
     },
     contactTel: {
         type: Number,
-        required: true
+        // required: true
     },
 
     webLink: {
         type: String,
-        required: true
+        // required: true
     },
     fbLink: {
         type: String,
@@ -78,11 +78,11 @@ const salonsSchema = new mongoose.Schema({
         type: {
             type: String,
             enum: ["Point"],
-            required: true,
+            // required: true,
         },
         coordinates: {
             type: coordinatesSchema,
-            required: true,
+            // required: true,
             index: '2dsphere'
         }
 
@@ -90,7 +90,7 @@ const salonsSchema = new mongoose.Schema({
     services: [{
         serviceId: {
             type: Number,
-            required: true,
+            // required: true,
         },
         serviceCode: {
             type: String,
@@ -141,6 +141,16 @@ const salonsSchema = new mongoose.Schema({
             type: String,
         }
     }],
+    profile:[
+        {
+        public_id:{
+          type:String
+        },
+        url:{
+          type:String,
+        }
+      }
+    ],
     
 }, { timestamps: true });
 

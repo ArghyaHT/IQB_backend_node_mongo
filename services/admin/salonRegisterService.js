@@ -59,8 +59,6 @@ const createSalon = async (salonData) => {
 
   }))
 
-console.log(servicesData)
-
     //Save the Salon
     const salon = new Salon({
       salonId,

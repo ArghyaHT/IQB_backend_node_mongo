@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp,  searchSalonsByCity, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile,  } = require("../../controllers/admin/salonRegisterController")
 
 
 const router = express.Router()
@@ -8,6 +8,9 @@ router.route("/getAllSalonsByAdminEmail").get(getAllSalonsByAdmin) //api integra
 
 //SalonSignUp
 router.route("/createSalon").post(salonSignUp) //api integrated
+
+//Upload Salon Image
+router.route("/uploadSalonImage").post(uploadProfile)
 
 // router.route("/addSalonServices").post(addServices)
 
