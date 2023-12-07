@@ -74,7 +74,8 @@ const singleJoinQueue = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      error: 'Failed to join queue',
+      message: 'Failed to join queue',
+      error: error.message
 
     });
   }
@@ -168,7 +169,8 @@ const groupJoinQueue = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      error: "Failed to join group queue",
+      message: "Failed to join group queue",
+      error: error.message
     });
   }
 };
@@ -209,6 +211,7 @@ const autoJoin = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'No single barber provide the services.',
+        error:error.message
       });
     }
     // // Retrieve the service name from the barber's details
@@ -258,7 +261,8 @@ const autoJoin = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      error: 'Failed to join queue',
+      message: 'Failed to join queue',
+      error: error.message
     });
   }
 }
@@ -282,6 +286,7 @@ const getQueueListBySalonId = async (req, res) => {
       res.status(404).json({
         success: false,
         message: "Salon not found",
+        error: error.message
       });
     }
 
@@ -290,7 +295,8 @@ const getQueueListBySalonId = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      error: 'QList not retrieved',
+      message: 'QList not retrieved',
+      error: error.message
     });
   }
 
@@ -367,16 +373,18 @@ const barberServedQueue = async (req, res) => {
         message: 'Customer served from the queue successfully.',
       });
     } else {
-      res.status(200).json({
-        success: true,
+      res.status(201).json({
+        success: false,
         message: 'No service to be served.',
+        error: error.message
       });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      error: 'There is a problem in the API.',
+      message: 'There is a problem in the API.',
+      error: error.message
     });
   }
 };
