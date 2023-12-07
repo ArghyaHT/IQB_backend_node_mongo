@@ -88,41 +88,28 @@ const createAppointment = async(req, res) => {
     }
 }
 const getAllAppointmentsByBarberId = async(req, res) =>{
-try{
-    const {salonId,barberId} = req.body;
+  try {
+    const { salonId, barberId, appointmentDate } = req.body;
 
-    const appointments = await Appointment.aggregate([
-        {
-          $match: {
-            salonId: salonId
-          }
-        },
-        {
-          $project: {
-            appointments: {
-              $filter: {
-                input: "$appointmentList",
-                as: "appt",
-                cond: { $eq: ["$$appt.barberId", barberId] }
-              }
-            }
-          }
-        }
-      ]);
-   
+    const appointments = await Appointment.find({
+      salonId: salonId,
+      'appointmentList.appointmentDate': appointmentDate,
+      'appointmentList.barberId': barberId,
+    });
+
     res.status(200).json({
-        success: true,
-        message: "Appointment List Retrieved",
-        response: appointments,
-      })
-}
-catch(error){
+      success: true,
+      message: 'Appointment List Retrieved',
+      response: appointments,
+    });
+  } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      error: 'Couldnot retrive the appointments of the barber',
+      error: 'Could not retrieve the appointments of the barber',
     });
-}
+  }
+
 }
 
 const getEngageBarberTimeSlots = async (req, res) => {
