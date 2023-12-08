@@ -1,5 +1,6 @@
 const Appointment = require("../../models/appointmentsModel")
 const Barber = require("../../models/barberRegisterModel")
+const SalonSettings = require("../../models/salonSettingsModel")
 const moment = require("moment")
 
 const createAppointment = async(req, res) => {
@@ -113,57 +114,79 @@ const getAllAppointmentsByBarberId = async(req, res) =>{
 }
 
 const getEngageBarberTimeSlots = async (req, res) => {
-    try {
-      const { salonId, date, barberId } = req.body;
-  
-    //   const appointments = await Appointment.aggregate([
-    //     {
-    //       $match: {
-    //         salonId: salonId,
-    //       }
-    //     },
-    //     {
-    //       $unwind: "$appointmentList"
-    //     },
-    //     {
-    //       $match: {
-    //         "appointmentList.barberId": barberId,
-    //         "appointmentList.appointmentDate": { $eq: new Date(date) }
-    //       }
-    //     },
-    //     {
-    //       $group: {
-    //         _id: null,
-    //         timeSlots: { $push: "$appointmentList.timeSlots" }
-    //       }
-    //     }
-    //   ]);
-    //   const timeSlots = appointments.length > 0 ? appointments[0].timeSlots : [];
-    const appointments = await Appointment.find({
+  try {
+    const { salonId, barberId, date } = req.body;
+
+    // Retrieve appointments for the specified salonId, barberId, and date
+    const appointments = await Appointment.findOne({
         salonId: salonId,
         "appointmentList.barberId": barberId,
         "appointmentList.appointmentDate": new Date(date)
-      });
-  
-      let timeSlots = [];
-      appointments.forEach(appointment => {
-        const barberAppointments = appointment.appointmentList.filter(appt => appt.barberId === barberId && appt.appointmentDate.toDateString() === new Date(date).toDateString());
-        const slots = barberAppointments.map(appt => appt.timeSlots);
-        timeSlots = timeSlots.concat(slots);
-      });
-      res.status(200).json({
-        success: true,
-        message: "Time Slots Retrieved",
-        response: timeSlots,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        error: 'Could not retrieve the time slots for the engaged barber',
-      });
+    });
+
+    let timeSlots = [];
+
+    if (!appointments) {
+        // If there are no appointments for the specified barber, generate time slots as disabled: false
+        const { appointmentSettings } = await SalonSettings.findOne({ salonId });
+        const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+
+        const start = moment(appointmentStartTime, 'HH:mm');
+        const end = moment(appointmentEndTime, 'HH:mm');
+
+        timeSlots = generateTimeSlots(start, end);
+    } else {
+        const appointmentList = appointments.appointmentList;
+
+        const { appointmentSettings } = await SalonSettings.findOne({ salonId });
+        const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+
+        const start = moment(appointmentStartTime, 'HH:mm');
+        const end = moment(appointmentEndTime, 'HH:mm');
+
+        timeSlots = generateTimeSlots(start, end);
+
+        appointmentList.forEach(appointment => {
+            const slotsInRange = appointment.timeSlots.split('-');
+            const rangeStart = moment(slotsInRange[0], 'HH:mm');
+            const rangeEnd = moment(slotsInRange[1], 'HH:mm');
+
+            const rangeStartTime = moment(rangeStart.format('HH:mm'), 'HH:mm');
+            const rangeEndTime = moment(rangeEnd.format('HH:mm'), 'HH:mm');
+
+            timeSlots = timeSlots.map(slot => {
+                if (moment(slot.timeInterval, 'HH:mm').isBetween(rangeStartTime, rangeEndTime, undefined, '[]')) {
+                    return { ...slot, disabled: true };
+                }
+                return slot;
+            });
+        });
     }
-  };
+
+    res.status(200).json({
+        message: "Time slots retrieved and matched successfully",
+        timeSlots: timeSlots
+    });
+} catch (error) {
+    res.status(500).json({
+        error: 'Failed to fetch time slots',
+        details: error.message
+    });
+}
+};
+
+function generateTimeSlots(start, end) {
+  const timeSlots = [];
+  let currentTime = moment(start);
+
+  while (currentTime < end) {
+      const timeInterval = currentTime.format('HH:mm');
+      timeSlots.push({ timeInterval, disabled: false });
+      currentTime.add(30, 'minutes'); // Increment by 30 minutes
+  }
+
+  return timeSlots;
+}
 module.exports = {
     createAppointment,
     getAllAppointmentsByBarberId,
