@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin } = require("../../controllers/barber/barberRegisterController");
 
 
 const router = express.Router();
@@ -31,8 +31,11 @@ router.route("/profile").get(handleProtectedRoute,profileController)
 //CONNECT BARBER TO SALON
 router.route("/connectBarberToSalon").post(connectBarbertoSalon)
 
-//UPDATE BARBER PROFILE
-router.route("/updateBarberDetails").post(insertDetailsByBarber)
+//CREATE BARBER BY ADMIN
+router.route("/createBarberByAdmin").post(createBarberByAdmin)
+
+//UPDATE BARBER BY ADMIN
+router.route("/updateBarberByAdmin").put(updateBarberByAdmin)
 
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integrated
 

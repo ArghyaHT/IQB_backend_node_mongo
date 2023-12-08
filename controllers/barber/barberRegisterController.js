@@ -11,7 +11,7 @@ const Barber = require("../../models/barberRegisterModel.js")
 const JWT_ACCESS_SECRET = "accessToken"
 const JWT_REFRESH_SECRET = "refreshToken"
 
-//DESC:REGISTER A USER 
+//DESC:REGISTER A Barber 
 //====================
 const registerController = async (req, res) => {
   try {
@@ -21,7 +21,7 @@ const registerController = async (req, res) => {
       let user = await Barber.findOne({ email: email });
 
       const barberId = await Barber.countDocuments() + 1;
-      // If the user doesn't exist, create a new user
+      // If the user doesn't exist, create a new Barber
       if (!user) {
           // Hash the password before saving it
           const hashedPassword = await bcrypt.hash(password, 10);
@@ -352,7 +352,6 @@ const profileController = async (req, res) => {
   });
 };
 
-
 const insertDetailsByBarber= async (req, res) => {
   try {
     const barberData = req.body;
@@ -375,6 +374,86 @@ const insertDetailsByBarber= async (req, res) => {
 
     });
   }
+}
+
+
+//DESC Create Barber By Admin
+const createBarberByAdmin = async(req, res) =>{
+  try{
+    const {email, name, userName, mobileNumber, dateOfBirth, password } = req.body;
+
+    //Find the barber if present
+    const barber = await Barber.findOne({email})
+
+    if(barber){
+      res.status(404).json({
+        success:false,
+        message: "Barber with the EmailId already exists. Please enter Other Email"
+      })
+    }
+    else{
+      //Hashing the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      //creating the barberId
+      const barberId = await Barber.countDocuments() + 1;
+      //Creating the barberCode
+      const firstTwoLetters = name.slice(0, 2).toUpperCase();
+      const barberCode = firstTwoLetters + barberId;
+
+      //creating the barber document
+      const barber = new Barber({
+        email,
+        password: hashedPassword,
+        name,
+        userName,
+        mobileNumber,
+        dateOfBirth,
+        isApproved: true,
+        barberCode:barberCode,
+        barberId: barberId,
+        isActive: true
+      })
+
+      //Saving the Salon
+      const savedBarber = await barber.save();
+      res.status(404).json({
+        success:true,
+        message: "Barber SuccessFully Created",
+        response: savedBarber
+      })
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create barber',
+      error: error.message
+    });
+  }
+}
+
+//DESC Update BarberBy Admin
+const updateBarberByAdmin = async(req, res) =>{
+  try{
+  const {email, name, userName, mobileNumber, dateOfBirth } = req.body;
+
+  const updatedBarber = await Barber.findOneAndUpdate({email}, {name, userName, mobileNumber, dateOfBirth}, {new: true});
+
+  res.status(200).json({
+    success:true,
+    message: "Barber has been successfully updated",
+    response: updatedBarber
+  })
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to Update barber',
+      error: error.message
+    });
+  }
+
 }
 
 const getAllBarberbySalonId = async (req, res) => {
@@ -582,6 +661,8 @@ const connectBarbertoSalon = async(req, res) => {
 }
 
 
+
+
 module.exports = {
   insertDetailsByBarber,
   // barberLogin,
@@ -602,7 +683,20 @@ module.exports = {
    handleForgetPassword,
    handleResetPassword,
    googleLoginController,
-   connectBarbertoSalon
+   connectBarbertoSalon,
+   createBarberByAdmin,
+   updateBarberByAdmin
 }
 
 // https://iqb-frontend.netlify.app/
+
+
+//create barberby admin
+//update barberby admin
+//create salonby admin
+//update salonby admin
+//update admin Accounbt details
+//update barber Account details
+//upload adminprofile pic
+//update adminProfile pic
+//delete adminProfile pic 

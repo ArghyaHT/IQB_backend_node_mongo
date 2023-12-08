@@ -1,6 +1,6 @@
 const Admin = require("../../models/adminRegisterModel.js")
 
-// const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt")
 
 const crypto = require("crypto");
 const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
@@ -216,13 +216,17 @@ const deleteAdmin = async(email) =>{
 }
 
 
-
+//Update Admin Account Details
 const updateAdmin = async(adminData) =>{
-  const{salonId, name, gender, email, userName, mobileNumber,dateOfBirth, isActive} = adminData
+  const{salonId, name, gender, email, userName, mobileNumber,dateOfBirth, isActive, password} = adminData
 
   try{
+    //Hashing the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const admin = await Admin.findOneAndUpdate({email: email},
       { name, 
+        password: hashedPassword,
         salonId,
         userName,
         gender, 
@@ -230,6 +234,7 @@ const updateAdmin = async(adminData) =>{
         mobileNumber, 
         isActive},
       {new: true})
+
       return {
         status: 200,
         response: admin,

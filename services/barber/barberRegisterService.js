@@ -18,7 +18,7 @@ const insertBarberDetails = async (barberData) => {
             existingBarber.userName = userName;
             existingBarber.mobileNumber = mobileNumber;
             existingBarber.dateOfBirth = dateOfBirth;
-            existingBarber.salonId = salonId;
+            // existingBarber.salonId = salonId;
             existingBarber.barberServices = barberServices;
       
             const updatedBarber = await existingBarber.save();

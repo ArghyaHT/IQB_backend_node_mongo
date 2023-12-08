@@ -11,6 +11,7 @@ const coordinatesSchema = new mongoose.Schema({
     },
 });
 
+
 const salonsSchema = new mongoose.Schema({
     salonId: {
         type: Number,
@@ -72,7 +73,9 @@ const salonsSchema = new mongoose.Schema({
     instraLink: {
         type: String,
     },
-
+    salonEmail: {
+        type: String
+    },
 
     location: {
         type: {
@@ -108,7 +111,7 @@ const salonsSchema = new mongoose.Schema({
             type: Number,
             // required: true
         },
-        serviceEWT:{
+        serviceEWT: {
             type: Number
         },
         supportedBarbers: [{
@@ -129,7 +132,7 @@ const salonsSchema = new mongoose.Schema({
         type: String,
         enum: ["Queuing", "Appointment", "Both"],
     },
-    isDeleted:{
+    isDeleted: {
         type: Boolean,
         default: false
     },
@@ -141,17 +144,17 @@ const salonsSchema = new mongoose.Schema({
             type: String,
         }
     }],
-    profile:[
+    profile: [
         {
-        public_id:{
-          type:String
-        },
-        url:{
-          type:String,
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
         }
-      }
     ],
-    
+
 }, { timestamps: true });
 
 

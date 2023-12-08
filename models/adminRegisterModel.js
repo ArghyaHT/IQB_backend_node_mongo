@@ -2,10 +2,12 @@ const mongoose = require("mongoose")
 
 const crypto = require("crypto")
 
-
+//User Picture should be added
+//default salonid = 0
 const adminSchema = new mongoose.Schema({
     salonId:{
-        type: String
+        type: String,
+        default: 0
     },
     name: {
         type: String,

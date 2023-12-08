@@ -11,8 +11,8 @@ cloudinary.config({
     api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
 });
 
-// Create a new Salon
-const salonSignUp = async (req, res) => {
+// Create a new Salon By Admin
+const createSalonByAdmin = async (req, res) => {
   try {
     const salonData = req.body;
     const { adminEmail } = req.body
@@ -199,15 +199,13 @@ const getSalonInfo = async (req, res) => {
   }
 }
 
+//Update Salon By Admin
 const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
 
   try {
-
-
     const result = req.body != null ? await salonService.updateSalonBySalonId(req.body) : null;
 
     res.status(result.status).json({
-      status: result.status,
       message: result.message,
       response: result.response
     })
@@ -215,11 +213,13 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
   catch (error) {
     console.error(error);
     res.status(500).json({
-      status: 500,
-      error: 'Failed to Update Salon'
+      message: 'Failed to Update Salon',
+      error: error.message
     });
   }
 }
+
+//Update Salon Image and DeleteSalon Image
 
 const allSalonServices = async (req, res) => {
   const { salonId } = req.query;
@@ -372,7 +372,7 @@ const deleteSalon = async(req, res) =>{
     }
 }
 module.exports = {
-  salonSignUp,
+  createSalonByAdmin,
   // searchSalonsByCity,
   getSalonsByLocation,
   getSalonInfo,

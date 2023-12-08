@@ -371,7 +371,7 @@ const deleteSingleAdmin = async (req, res) => {
     }
 }
 
-const updateAdmin = async (req, res) => {
+const updateAdminAccountDetails = async (req, res) => {
     const adminData = req.body;
     try {
         const result = await adminService.updateAdmin(adminData);
@@ -418,7 +418,7 @@ const approveBarber = async (req, res) => {
 
 module.exports = {
     deleteSingleAdmin,
-    updateAdmin,
+    updateAdminAccountDetails,
     loginController,
     refreshTokenController,
     handleProtectedRoute,

@@ -384,6 +384,7 @@ const updateSalonBySalonId = async (salonData) => {
     return ({
       status: 500,
       message: 'Failed to search salons by The SalonId.',
+      error: error.message
     });
   }
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -23,8 +23,10 @@ router.route("/profile").get(handleProtectedRoute,profileController)
 
 router.route("/deleteAdmin").post( deleteSingleAdmin)
 
-router.route("/updateAdmin").put( updateAdmin)
+//UPDATE ADMIN ACCOUNT DETAILS
+router.route("/updateAdminAcoountDetails").put( updateAdminAccountDetails)
 
+//Approve Barber By Admin
 router.route("/approvedBarber").post(approveBarber)
 
 module.exports = router
