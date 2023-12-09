@@ -6,8 +6,12 @@ const jwt = require("jsonwebtoken")
 const customerSchema = new mongoose.Schema({
 
     salonId:{
-        type: Number
+        type: Number,
+        default: 0
     },
+    connectedSalon: [{
+        type: Number
+    }],
     customerId:{
         type: Number
     },

@@ -60,7 +60,7 @@ const signUp = async (req, res) => {
     } = req.body;
 
  //CREATING THE VERIFICATION CODE 
-    const verificationCode = crypto.randomBytes(2).toString('hex'); //RANDOM 4 DIGHT GENERATED VERIFICATION CODE
+    const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000; //RANDOM 4 DIGHT GENERATED VERIFICATION CODE
     // const hashedPassword = await bcrypt.hash(password, 10);
 
     //Creating new Customer Object
@@ -367,7 +367,7 @@ const forgetPassword = async (req, res) => {
       });
     }
 
-    const verificationCode = crypto.randomBytes(2).toString('hex');
+    const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
     const emailData = {
       email,
       subject: 'Reset Password Email',
