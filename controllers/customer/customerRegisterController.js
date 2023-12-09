@@ -79,8 +79,8 @@ const signUp = async (req, res) => {
     const savedCustomer = await customer.save();
 
     if (savedCustomer.verificationCode) {
-      const email = "arghyahimanstech@gmail.com"
 
+  
       // SEND VERIFICATION CODE TO TO THE REGISTERED EMAIL
       sendVerificationCodeByEmail(email, verificationCode);
 
@@ -210,24 +210,24 @@ const matchVerificationCode = async(req, res) =>{
 }
 
 //-----------SignIn Customer-------------//
-// const signIn = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
+const signIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-//     const result = await customerService.signInCustomer(email, password);
+    const result = await customerService.signInCustomer(email, password);
 
-//     res.status(result.status).json({
-//       success: true,
-//       response: result.response,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       error: 'Failed to sign in',
-//     });
-//   }
-// };
+    res.status(result.status).json({
+      success: true,
+      response: result.response,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sign in',
+    });
+  }
+};
 
 // const matchVerificationCode = async (req, res) => {
 //   try {
@@ -285,47 +285,47 @@ const matchVerificationCode = async(req, res) =>{
 // }
 
 
-//DESC OF LOGIN OF THE CUSTOMER----
-const signIn = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// //DESC OF LOGIN OF THE CUSTOMER----
+// const signIn = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
 
-    const user = await Customer.findOne({ email });
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password',
-      });
-    }
+//     const user = await Customer.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: 'Invalid email or password',
+//       });
+//     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password',
-      });
-    }
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(401).json({
+//         success: false,
+//         message: 'Invalid email or password',
+//       });
+//     }
 
-    const accessToken = jwt.sign({ userId: user._id, email: user.email }, JWT_ACCESS_SECRET, { expiresIn: '20s' });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+//     const accessToken = jwt.sign({ userId: user._id, email: user.email }, JWT_ACCESS_SECRET, { expiresIn: '20s' });
+//     const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
-    return res.status(200).json({
-      success: true,
-      message: "Customer signed in successfully",
-      response: {
-        accessToken,
-        refreshToken,
-        user: { userId: user._id, email: user.email }
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to sign in',
-    });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       message: "Customer signed in successfully",
+//       response: {
+//         accessToken,
+//         refreshToken,
+//         user: { userId: user._id, email: user.email }
+//       },
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       error: 'Failed to sign in',
+//     });
+//   }
+// };
 //--------Forget Password------//
 
 const forgetPassword = async (req, res) => {
