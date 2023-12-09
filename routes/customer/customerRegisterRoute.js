@@ -1,5 +1,5 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, resetpassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword,  } = require("../../controllers/customer/customerRegisterController.js")
+const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 
 
@@ -27,7 +27,7 @@ router.route("/forgetPassword").post(forgetPassword)
 router.route("/verifyPasswordResetCode").post(verifyPasswordResetCode)
 
 //ResetPassword
-router.route("/resetPassword/:token").post(resetpassword)
+router.route("/resetPassword").post(resetPassword)
 
 //GetAllCustomers
 router.route("/getAllCustomers").get(allCustomers)

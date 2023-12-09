@@ -351,8 +351,10 @@ const signIn = async (req, res) => {
 //     });
 //   }
 // };
-//--------Forget Password------//
 
+
+
+//--------Forget Password------//
 const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -361,15 +363,11 @@ const forgetPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        response: "Admin with this email does not exist. Please register first",
+        response: "User with this email does not exist. Please register first",
       });
     }
 
     const verificationCode = crypto.randomBytes(2).toString('hex');
-    const responseToken = crypto.createHash('sha256')
-      .update(email + verificationCode + JWT_REFRESH_SECRET)
-      .digest('hex')
-      .slice(0, 10); 
     const emailData = {
       email,
       subject: 'Reset Password Email',
@@ -395,8 +393,7 @@ const forgetPassword = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Please check your email (${email}) for resetting the password`,
-      verificationCode: verificationCode,
-      token: responseToken
+      verificationCode: verificationCode
     });
   } catch (error) {
     console.error('Failed to handle forget password:', error);
@@ -408,6 +405,7 @@ const forgetPassword = async (req, res) => {
   }
 };
 
+//Verify Password Reset Code
 const verifyPasswordResetCode = async (req, res) => {
   try {
       const { email, verificationCode, } = req.body;
@@ -448,43 +446,39 @@ const verifyPasswordResetCode = async (req, res) => {
   }
 };
 
-
-const resetpassword = async (req, res) => {
+//Reset Password
+const resetPassword = async (req, res) => {
   try {
-    //creating token hash
-    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
+    const { email, newPassword } = req.body;
 
-    const user = await Customer.findOne({
-      resetPasswordToken: resetPasswordToken,
-      resetPasswordExpire: {
-        $gt: Date.now()
-      }
-    })
+    // Find the user by email (assuming Customer is your Mongoose model for users)
+    const user = await Customer.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Reset Password Token is invalid or has been expired"
+        message: "User with this email does not exist",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    // Set the user's password to the new hashed password
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
 
+    // Save the updated user in the database
     await user.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Password reset successfully'
+      message: 'Password reset successfully',
     });
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -738,7 +732,7 @@ catch (error) {
   signUp,
   signIn,
   forgetPassword,
-  resetpassword,
+  resetPassword,
   allCustomers,
   deleteSingleCustomer,
   updateCustomer,
