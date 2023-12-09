@@ -378,12 +378,14 @@ const updateAdminAccountDetails = async (req, res) => {
         res.status(result.status).json({
             success: true,
             response: result.response,
+            error: result.error
         });
     }
     catch (error) {
         console.error(error);
         res.status(500).json({
             message: 'Failed to update admin'
+
         });
     }
 }

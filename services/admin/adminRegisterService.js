@@ -217,38 +217,44 @@ const deleteAdmin = async(email) =>{
 
 
 //Update Admin Account Details
-const updateAdmin = async(adminData) =>{
-  const{salonId, name, gender, email, userName, mobileNumber,dateOfBirth, isActive, password} = adminData
+const updateAdmin = async(adminData) => {
+  const { salonId, name, gender, email, userName, mobileNumber, dateOfBirth, isActive, password } = adminData
 
-  try{
-    //Hashing the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    //Creating an object other than the password field 
+    let updateFields = {
+      name,
+      salonId,
+      userName,
+      gender,
+      dateOfBirth,
+      mobileNumber,
+      isActive
+    };
 
-    const admin = await Admin.findOneAndUpdate({email: email},
-      { name, 
-        password: hashedPassword,
-        salonId,
-        userName,
-        gender, 
-        dateOfBirth,
-        mobileNumber, 
-        isActive},
-      {new: true})
+    //Checking if password is provided then adding the password to the created document
+    if (password) {
+      // Hashing the password if provided
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
 
-      return {
-        status: 200,
-        response: admin,
-      };
-  }
-  catch (error) {
-    console.log(error.message)
+    //Updating the Admin Details
+    const admin = await Admin.findOneAndUpdate({ email: email }, updateFields, { new: true });
+
+    return {
+      status: 200,
+      response: admin,
+    };
+  } catch (error) {
+    console.log(error.message);
     return {
       status: 500,
-      message: 'Failed to Update Admin'
+      message: 'Failed to Update Admin',
+      error: error.message
     };
   }
 }
-
 
 module.exports = {
 // createAdmin,

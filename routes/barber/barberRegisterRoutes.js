@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, updateBarber, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail } = require("../../controllers/barber/barberRegisterController");
 
 
 const router = express.Router();
@@ -37,9 +37,13 @@ router.route("/createBarberByAdmin").post(createBarberByAdmin)
 //UPDATE BARBER BY ADMIN
 router.route("/updateBarberByAdmin").put(updateBarberByAdmin)
 
+//GET BARBER DETAILS BY EMAIL
+router.route("/getBarberDetailsByEmail").post(getBarberDetailsByEmail)
+
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integrated
 
-router.route("/updateBarberByEmail").post( updateBarber)
+//Update Barber Account Details
+router.route("/updateBarberAccountDetails").post( updateBarberAccountDetails)
 
 router.route("/deleteBarberByEmail").post( deleteBarber)
 

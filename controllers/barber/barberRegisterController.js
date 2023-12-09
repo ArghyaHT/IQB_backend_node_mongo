@@ -503,8 +503,8 @@ const getAllBarberbySalonId = async (req, res) => {
   }
 };
 
-const updateBarber = async (req, res) => {
-  const barberData = req.body
+const updateBarberAccountDetails = async (req, res) => {
+  const barberData = req.body;
   try {
     const result = await barberService.updateBarberByEmail(barberData)
 
@@ -661,13 +661,41 @@ const connectBarbertoSalon = async(req, res) => {
 }
 
 
+//Get barberDetails by barberEmail
+const getBarberDetailsByEmail = async(req, res) =>{
+  try{
+    const {email} = req.body;
 
+    const barber = await Barber.findOne({email});
+
+    if (!barber) {
+      return res.status(404).json({
+        success: false,
+        message: "Barber not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Barber is Found",
+      response: barber,
+    });  
+  }
+  catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while connecting Barber to the salon",
+      error: error.message,
+    });
+  }
+}
 
 module.exports = {
   insertDetailsByBarber,
   // barberLogin,
   getAllBarberbySalonId,
-  updateBarber,
+  updateBarberAccountDetails,
   deleteBarber,
   chnageBarberWorkingStatus,
   isBarberOnline,
@@ -685,7 +713,8 @@ module.exports = {
    googleLoginController,
    connectBarbertoSalon,
    createBarberByAdmin,
-   updateBarberByAdmin
+   updateBarberByAdmin,
+   getBarberDetailsByEmail
 }
 
 // https://iqb-frontend.netlify.app/

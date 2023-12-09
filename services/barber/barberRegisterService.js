@@ -1,9 +1,11 @@
 const Barber = require("../../models/barberRegisterModel.js")
 const Salon = require("../../models/salonsRegisterModel.js")
 
+const bcrypt = require("bcrypt")
+
 
 const insertBarberDetails = async (barberData) => {
-    const { email, name, isActive, userName, mobileNumber, dateOfBirth} = barberData
+    const { email, name, isActive, userName, mobileNumber, dateOfBirth } = barberData
 
     try {
         const existingBarber = await Barber.findOne({ email })
@@ -20,19 +22,19 @@ const insertBarberDetails = async (barberData) => {
             existingBarber.dateOfBirth = dateOfBirth;
             // existingBarber.salonId = salonId;
             existingBarber.barberServices = barberServices;
-      
+
             const updatedBarber = await existingBarber.save();
             return {
                 status: 200,
                 message: 'Barber details updated successfully',
                 response: updatedBarber,
-              };
-            } else {
-              return {
+            };
+        } else {
+            return {
                 status: 404,
                 message: 'Barber not found',
-              };
-            }
+            };
+        }
     }
 
     catch (error) {
@@ -46,19 +48,28 @@ const insertBarberDetails = async (barberData) => {
 
 const updateBarberByEmail = async (barberData) => {
 
-    const { salonId, name, email, userName, mobileNumber, dateOfBirth, barberServices } = barberData
+    const { name, email, userName, mobileNumber, dateOfBirth, gender, password } = barberData
     try {
 
-        const barber = await Barber.findOneAndUpdate({ email: email },
-            {
-                name: name,
-                salonId: salonId,
-                userName: userName,
-                mobileNumber: mobileNumber,
-                dateOfBirth: dateOfBirth,
-                barberServices: barberServices,
-            },
-            { new: true })
+        //Creating an object other than the password field 
+        let updateFields = {
+            name,
+            userName,
+            gender,
+            dateOfBirth,
+            mobileNumber,
+        };
+
+        //Checking if password is provided then adding the password to the created document
+        if (password) {
+            // Hashing the password if provided
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields.password = hashedPassword;
+        }
+
+        //Updating the Barber Document
+        const barber = await Barber.findOneAndUpdate({ email: email }, updateFields, { new: true }).select("-password");
+
         return {
             status: 200,
             response: barber,

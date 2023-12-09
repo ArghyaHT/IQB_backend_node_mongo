@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 const crypto = require("crypto")
 
 const barberSchema = new mongoose.Schema({
-  
+
     name: {
         type: String,
         // required:true
@@ -25,6 +25,9 @@ const barberSchema = new mongoose.Schema({
         type: String,
         // required: true,
     },
+    gender: {
+        type: String
+    },
 
     mobileNumber: {
         type: Number,
@@ -46,14 +49,14 @@ const barberSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    isApproved:{
+    isApproved: {
         type: Boolean,
         default: false
     },
-    profilePic:{
+    profilePic: {
         type: String
     },
-    isOnline:{
+    isOnline: {
         type: Boolean
     },
     barberServices: [{
@@ -66,25 +69,25 @@ const barberSchema = new mongoose.Schema({
         serviceName: {
             type: String
         },
-        serviceEWT:{
+        serviceEWT: {
             type: Number
         }
 
     }],
-       // total time waiting
-       barberEWT:{
+    // total time waiting
+    barberEWT: {
         type: Number,
         default: 0,
     },
     //populate this field with the count 
-    queueCount:{
-        type: Number, 
+    queueCount: {
+        type: Number,
         default: 0
     },
-    isOnline:{
+    isOnline: {
         type: Boolean
     },
-    isDeleted:{
+    isDeleted: {
         type: Boolean,
         default: false
     },
