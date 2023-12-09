@@ -8,70 +8,70 @@ const { sendPasswordResetEmail, sendCustomerMail, sendVerificationCodeByEmail } 
 
 
 //----------SignUp For customer-----------------//
-const createCustomer = async (customerData) => {
-  try {
-    const {
-      salonId,
-      email,
-      name,
-      userName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      password,
-    } = customerData;
+// const createCustomer = async (customerData) => {
+//   try {
+//     const {
+//       salonId,
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password,
+//     } = customerData;
 
-    const verificationCode = crypto.randomBytes(2).toString('hex');
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     const verificationCode = crypto.randomBytes(2).toString('hex');
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const customer = new Customer({
-      salonId,
-      email,
-      name,
-      userName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      password: hashedPassword,
-      verificationCode,
-    });
+//     const customer = new Customer({
+//       salonId,
+//       email,
+//       name,
+//       userName,
+//       gender,
+//       dateOfBirth,
+//       mobileNumber,
+//       password: hashedPassword,
+//       verificationCode,
+//     });
 
-    const savedCustomer = await customer.save();
+//     const savedCustomer = await customer.save();
 
-    if (savedCustomer) {
-      const email = "arghyahimanstech@gmail.com"
-      // Send verification code via email
-      const emailSent = sendVerificationCodeByEmail(email, verificationCode);
+//     if (savedCustomer) {
+//       const email = "arghyahimanstech@gmail.com"
+//       // Send verification code via email
+//       const emailSent = sendVerificationCodeByEmail(email, verificationCode);
 
-      if (emailSent) {
-        return {
-          status: 200,
-          response: verificationCode,
-          message: 'Verification code has been sent successfully',
-        };
-      } else {
-        return {
-          status: 500,
-          response: 'Failed to send verification code',
-          message: 'Verification code has not been sent',
-        };
-      }
-    } else {
-      return {
-        status: 400,
-        response: 'Failed to save customer',
-        message: 'Customer data could not be saved',
-      };
-    }
-  }
-  catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      error: 'Failed to create customer'
-    };
-  }
-}
+//       if (emailSent) {
+//         return {
+//           status: 200,
+//           response: verificationCode,
+//           message: 'Verification code has been sent successfully',
+//         };
+//       } else {
+//         return {
+//           status: 500,
+//           response: 'Failed to send verification code',
+//           message: 'Verification code has not been sent',
+//         };
+//       }
+//     } else {
+//       return {
+//         status: 400,
+//         response: 'Failed to save customer',
+//         message: 'Customer data could not be saved',
+//       };
+//     }
+//   }
+//   catch (error) {
+//     console.log(error.message)
+//     return {
+//       status: 500,
+//       error: 'Failed to create customer'
+//     };
+//   }
+// }
 
 
 //----------SignIn For customer-----------------//

@@ -61,7 +61,7 @@ const signUp = async (req, res) => {
 
  //CREATING THE VERIFICATION CODE 
     const verificationCode = crypto.randomBytes(2).toString('hex'); //RANDOM 4 DIGHT GENERATED VERIFICATION CODE
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     //Creating new Customer Object
     const customer = new Customer({
@@ -71,7 +71,7 @@ const signUp = async (req, res) => {
       gender,
       dateOfBirth,
       mobileNumber,
-      password: hashedPassword,
+      // password: hashedPassword,
       verificationCode,
       customer: true
     });
@@ -205,6 +205,31 @@ const matchVerificationCode = async(req, res) =>{
     res.status(500).json({
       status: 500,
       error: 'Failed to match Verification Code',
+    });
+  }
+}
+
+//Save Password
+const savePassword = async(req, res) => {
+  try{
+    const {email, password} = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const customer = await Customer.findOneAndUpdate({email}, {password: hashedPassword}, {new: true});
+
+    res.status(200).json({
+      success: true,
+      message: "Password Saved Successfully",
+      response: customer
+    })
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal Server Error. Password didnot got saved',
+      error: error.message
     });
   }
 }
@@ -724,5 +749,6 @@ catch (error) {
   customerConnectSalon,
   googleLoginControllerCustomer,
   verifyPasswordResetCode,
-  getCustomerDetails
+  getCustomerDetails,
+  savePassword
   }
