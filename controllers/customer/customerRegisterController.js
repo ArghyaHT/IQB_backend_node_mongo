@@ -210,29 +210,39 @@ const matchVerificationCode = async(req, res) =>{
 }
 
 //Save Password
-const savePassword = async(req, res) => {
-  try{
-    const {email, password} = req.body;
+const savePassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const customer = await Customer.findOneAndUpdate({email}, {password: hashedPassword}, {new: true});
+    const customer = await Customer.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found"
+      });
+    }
 
     res.status(200).json({
       success: true,
-      message: "Password Saved Successfully",
+      message: "Password saved successfully",
       response: customer
-    })
-  }
-  catch (error) {
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({
       status: 500,
-      message: 'Internal Server Error. Password didnot got saved',
+      message: 'Internal Server Error. Password did not get saved',
       error: error.message
     });
   }
-}
+};
 
 //-----------SignIn Customer-------------//
 const signIn = async (req, res) => {
