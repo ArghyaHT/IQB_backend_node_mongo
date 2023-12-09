@@ -307,6 +307,7 @@ const updateSalonBySalonId = async (salonData) => {
     contactTel,
     webLink,
     fblink,
+    salonEmail,
     twitterLink,
     instraLink,
     services,
@@ -367,7 +368,8 @@ const updateSalonBySalonId = async (salonData) => {
         fblink,
         twitterLink,
         instraLink,
-        services
+        services,
+        salonEmail
       },
       {
         new: true

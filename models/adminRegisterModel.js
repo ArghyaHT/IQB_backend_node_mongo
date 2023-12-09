@@ -33,9 +33,16 @@ const adminSchema = new mongoose.Schema({
         type:String,
     },
 
-    profilePic:{
-        type:String
-    },
+    profile: [
+        {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }
+    ],
 
     dateOfBirth:{
         type: Date,

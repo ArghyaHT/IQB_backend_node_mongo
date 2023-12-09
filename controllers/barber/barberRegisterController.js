@@ -526,11 +526,131 @@ const uploadBarberprofilePic = async(req, res) => {
       })
       .catch((err) => {
         console.error(err);
-        res.status(500).json({ message: "Cloudinary upload failed" });
+        res.status(500).json({
+           message: "Cloudinary upload failed" ,
+           err: err.message});
       });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ 
+      message: "Internal Server Error",
+      error: error.message
+   });
+  }
+}
+
+//Update Barber Profile Picture
+const updateBarberProfilePic = async(req, res) =>{
+  try {
+    const id = req.body.id;
+
+    const barberProfile = await Barber.findOne({ "profile._id": id }, { "profile.$": 1 })
+
+    const public_imgid = req.body.public_imgid; 
+    const profile = req.files.profile;
+
+    // Validate Image
+    const fileSize = profile.size / 1000;
+    const fileExt = profile.name.split(".")[1];
+
+    if (fileSize > 500) {
+      return res.status(400).json({ message: "File size must be lower than 500kb" });
+    }
+
+    if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
+      return res.status(400).json({ message: "File extension must be jpg or png" });
+    }
+
+    // Generate a unique public_id based on the original file name
+    const public_id = `${profile.name.split(".")[0]}`;
+
+    cloudinary.uploader.upload(profile.tempFilePath, {
+      public_id: public_id,
+      folder: "students",
+    })
+      .then(async (image) => {
+
+        const result = await cloudinary.uploader.destroy(public_imgid);
+
+        if (result.result === 'ok') {
+          console.log("cloud img deleted")
+    
+        } else {
+          res.status(500).json({ 
+            message: 'Failed to delete image.' });
+        }
+
+        // Delete the temporary file after uploading to Cloudinary
+        fs.unlink(profile.tempFilePath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+
+        const updatedBarber = await Barber.findOneAndUpdate(
+          { "profile._id": id }, 
+          { 
+            $set: { 
+              'profile.$.public_id': image.public_id,
+              'profile.$.url': image.url
+            } 
+          }, 
+          { new: true } 
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "Files Updated successfully",
+          updatedBarber
+        });
+        
+      })
+
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      message: "Internal Server Error",
+      error: error.message
+   });
+  }
+}
+
+//Delete Barber Profile Picture
+const deleteBarberProfilePicture = async(req, res) => {
+  try {
+    const public_id = req.body.public_id
+    const img_id = req.body.img_id
+
+    const result = await cloudinary.uploader.destroy(public_id);
+
+    if (result.result === 'ok') {
+      console.log("cloud img deleted")
+
+    } else {
+      res.status(500).json({ message: 'Failed to delete image.' });
+    }
+
+    const updatedBarber = await Barber.findOneAndUpdate(
+      { 'profile._id': img_id },
+      { $pull: { profile: { _id: img_id } } },
+      { new: true }
+    );
+
+    if (updatedBarber) {
+      res.status(200).json({
+        success: false,
+        message: "Image successfully deleted"
+      })
+    } else {
+      res.status(404).json({ message: 'Image not found in the student profile' });
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({
+       message: 'Internal server error.', 
+      error: error.message});
   }
 }
 
@@ -793,7 +913,9 @@ module.exports = {
    createBarberByAdmin,
    updateBarberByAdmin,
    getBarberDetailsByEmail,
-   uploadBarberprofilePic
+   uploadBarberprofilePic,
+   updateBarberProfilePic,
+   deleteBarberProfilePicture
 }
 
 // https://iqb-frontend.netlify.app/

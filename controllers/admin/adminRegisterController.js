@@ -13,6 +13,17 @@ const bcrypt = require("bcrypt")
 const JWT_ACCESS_SECRET = "accessToken"
 const JWT_REFRESH_SECRET = "refreshToken"
 
+//Upload Profile Picture Config
+const path = require("path");
+const fs = require('fs');
+const cloudinary = require('cloudinary').v2
+
+cloudinary.config({
+    cloud_name: 'dfrw3aqyp',
+    api_key: '574475359946326',
+    api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
+});
+
 
 //DESC:REGISTER A USER 
 //====================
@@ -417,6 +428,190 @@ const approveBarber = async (req, res) => {
     }
 }
 
+//Upload Barber profile Picture
+const uploadAdminprofilePic = async(req, res) => {
+    try {
+      let profiles = req.files.profile;
+      const email = req.body.email;
+  
+      // Ensure that profiles is an array, even for single uploads
+      if (!Array.isArray(profiles)) {
+        profiles = [profiles];
+      }
+  
+      const uploadPromises = [];
+  
+      for (const profile of profiles) {
+        uploadPromises.push(
+          new Promise((resolve, reject) => {
+            const public_id = `${profile.name.split(".")[0]}`;
+  
+            cloudinary.uploader.upload(profile.tempFilePath, {
+              public_id: public_id,
+              folder: "students",
+            })
+              .then((image) => {
+                resolve({
+                  public_id: image.public_id,
+                  url: image.secure_url, // Store the URL
+                });
+              })
+              .catch((err) => {
+                reject(err);
+              })
+              .finally(() => {
+                // Delete the temporary file after uploading
+                fs.unlink(profile.tempFilePath, (unlinkError) => {
+                  if (unlinkError) {
+                    console.error('Failed to delete temporary file:', unlinkError);
+                  }
+                });
+              });
+          })
+        );
+      }
+  
+      Promise.all(uploadPromises)
+        .then(async (profileimg) => {
+          console.log(profileimg);
+  
+          const adminImage = await Admin.findOneAndUpdate({email},{ profile: profileimg}, {new: true});
+  
+          res.status(200).json({
+            success: true,
+            message: "Files Uploaded successfully",
+           adminImage
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).json({
+             message: "Cloudinary upload failed" ,
+             err: err.message});
+        });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ 
+        message: "Internal Server Error",
+        error: error.message
+     });
+    }
+  }
+  
+  //Update Barber Profile Picture
+  const updateAdminProfilePic = async(req, res) =>{
+    try {
+      const id = req.body.id;
+  
+      const adminProfile = await Admin.findOne({ "profile._id": id }, { "profile.$": 1 })
+  
+      const public_imgid = req.body.public_imgid; 
+      const profile = req.files.profile;
+  
+      // Validate Image
+      const fileSize = profile.size / 1000;
+      const fileExt = profile.name.split(".")[1];
+  
+      if (fileSize > 500) {
+        return res.status(400).json({ message: "File size must be lower than 500kb" });
+      }
+  
+      if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
+        return res.status(400).json({ message: "File extension must be jpg or png" });
+      }
+  
+      // Generate a unique public_id based on the original file name
+      const public_id = `${profile.name.split(".")[0]}`;
+  
+      cloudinary.uploader.upload(profile.tempFilePath, {
+        public_id: public_id,
+        folder: "students",
+      })
+        .then(async (image) => {
+  
+          const result = await cloudinary.uploader.destroy(public_imgid);
+  
+          if (result.result === 'ok') {
+            console.log("cloud img deleted")
+      
+          } else {
+            res.status(500).json({ 
+              message: 'Failed to delete image.' });
+          }
+  
+          // Delete the temporary file after uploading to Cloudinary
+          fs.unlink(profile.tempFilePath, (err) => {
+            if (err) {
+              console.error(err);
+            }
+          });
+  
+          const updatedBarber = await Barber.findOneAndUpdate(
+            { "profile._id": id }, 
+            { 
+              $set: { 
+                'profile.$.public_id': image.public_id,
+                'profile.$.url': image.url
+              } 
+            }, 
+            { new: true } 
+          );
+  
+          res.status(200).json({
+            success: true,
+            message: "Files Updated successfully",
+            updatedBarber
+          });
+          
+        })
+  
+  
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ 
+        message: "Internal Server Error",
+        error: error.message
+     });
+    }
+  }
+  
+  //Delete Barber Profile Picture
+  const deleteAdminProfilePicture = async(req, res) => {
+    try {
+      const public_id = req.body.public_id
+      const img_id = req.body.img_id
+  
+      const result = await cloudinary.uploader.destroy(public_id);
+  
+      if (result.result === 'ok') {
+        console.log("cloud img deleted")
+  
+      } else {
+        res.status(500).json({ message: 'Failed to delete image.' });
+      }
+  
+      const updatedAdmin = await Admin.findOneAndUpdate(
+        { 'profile._id': img_id },
+        { $pull: { profile: { _id: img_id } } },
+        { new: true }
+      );
+  
+      if (updatedAdmin) {
+        res.status(200).json({
+          success: false,
+          message: "Image successfully deleted"
+        })
+      } else {
+        res.status(404).json({ message: 'Image not found in the student profile' });
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      res.status(500).json({
+         message: 'Internal server error.', 
+        error: error.message});
+    }
+  }
 
 module.exports = {
     deleteSingleAdmin,
@@ -430,7 +625,8 @@ module.exports = {
     handleForgetPassword,
     handleResetPassword,
     googleLoginController,
-    approveBarber
-
-
+    approveBarber,
+    uploadAdminprofilePic,
+    updateAdminProfilePic,
+    deleteAdminProfilePicture,
 }

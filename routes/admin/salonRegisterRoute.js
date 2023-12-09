@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages,  } = require("../../controllers/admin/salonRegisterController")
 
 
 const router = express.Router()
@@ -12,12 +12,18 @@ router.route("/createSalonByAdmin").post(createSalonByAdmin) //api integrated
 //UPLOAD SALON IMAGE
 router.route("/uploadSalonImage").post(uploadProfile)
 
+//UPDATE SALON IMAGES
+router.route("/updateSalonImages").put(updateSalonImages)
+
+//DELETE SALON IMAGES
+router.route("/deleteSalonImages").delete(deleteSalonImages)
+
 //UPDATE SALON BY ADMIN EMAIL AND SALON ID
 router.route("/updateSalonBySalonIdAndAdminEmail").put(updateSalonBySalonIdAndAdminEmail)
 
 // router.route("/addSalonServices").post(addServices)
 
-router.route("/searchByCity").post(searchSalonsByNameAndCity)
+router.route("/searchByNameAndCity").post(searchSalonsByNameAndCity)
 
 router.route("/getSalonsByLocation").get(getSalonsByLocation) //api working
 

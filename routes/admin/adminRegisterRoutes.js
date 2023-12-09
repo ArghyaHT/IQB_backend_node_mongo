@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -22,6 +22,16 @@ router.route("/profile").get(handleProtectedRoute,profileController)
 // router.route("/getAllAdmins").get(allAdmins)
 
 router.route("/deleteAdmin").post( deleteSingleAdmin)
+
+//Upload Admin Profile Picture
+router.route("/uploadAdminProfilePicture").post(uploadAdminprofilePic)
+
+//UPDATE BARBER PROFILE PICTURE
+router.route("/updateAdminProfilePicture").put(updateAdminProfilePic)
+
+//DELETE BARBER PROFILE PICTURE
+router.route("/deleteAdminProfilePicture").delete(deleteAdminProfilePicture)
+
 
 //UPDATE ADMIN ACCOUNT DETAILS
 router.route("/updateAdminAcoountDetails").put( updateAdminAccountDetails)
