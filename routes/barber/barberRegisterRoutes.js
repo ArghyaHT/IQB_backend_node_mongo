@@ -43,7 +43,7 @@ router.route("/getBarberDetailsByEmail").post(getBarberDetailsByEmail)
 router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integrated
 
 //Update Barber Account Details
-router.route("/updateBarberAccountDetails").post( updateBarberAccountDetails)
+router.route("/updateBarberAccountDetails").put( updateBarberAccountDetails)
 
 router.route("/deleteBarberByEmail").post( deleteBarber)
 
