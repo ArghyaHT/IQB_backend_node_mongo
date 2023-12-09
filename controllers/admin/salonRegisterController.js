@@ -3,6 +3,8 @@ const salonService = require("../../services/admin/salonRegisterService")
 const Salon = require("../../models/salonsRegisterModel")
 const Barber = require("../../models/barberRegisterModel")
 
+const path = require("path");
+const fs = require('fs');
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({

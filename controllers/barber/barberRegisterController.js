@@ -8,8 +8,21 @@ const bcrypt = require("bcrypt")
 
 const Barber = require("../../models/barberRegisterModel.js")
 
+
 const JWT_ACCESS_SECRET = "accessToken"
 const JWT_REFRESH_SECRET = "refreshToken"
+
+//Upload Profile Picture Config
+const path = require("path");
+const fs = require('fs');
+const cloudinary = require('cloudinary').v2
+
+cloudinary.config({
+    cloud_name: 'dfrw3aqyp',
+    api_key: '574475359946326',
+    api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
+});
+
 
 //DESC:REGISTER A Barber 
 //====================
@@ -456,6 +469,71 @@ const updateBarberByAdmin = async(req, res) =>{
 
 }
 
+//Upload Barber profile Picture
+const uploadBarberprofilePic = async(req, res) => {
+  try {
+    let profiles = req.files.profile;
+    const email = req.body.email;
+
+    // Ensure that profiles is an array, even for single uploads
+    if (!Array.isArray(profiles)) {
+      profiles = [profiles];
+    }
+
+    const uploadPromises = [];
+
+    for (const profile of profiles) {
+      uploadPromises.push(
+        new Promise((resolve, reject) => {
+          const public_id = `${profile.name.split(".")[0]}`;
+
+          cloudinary.uploader.upload(profile.tempFilePath, {
+            public_id: public_id,
+            folder: "students",
+          })
+            .then((image) => {
+              resolve({
+                public_id: image.public_id,
+                url: image.secure_url, // Store the URL
+              });
+            })
+            .catch((err) => {
+              reject(err);
+            })
+            .finally(() => {
+              // Delete the temporary file after uploading
+              fs.unlink(profile.tempFilePath, (unlinkError) => {
+                if (unlinkError) {
+                  console.error('Failed to delete temporary file:', unlinkError);
+                }
+              });
+            });
+        })
+      );
+    }
+
+    Promise.all(uploadPromises)
+      .then(async (profileimg) => {
+        console.log(profileimg);
+
+        const barberImage = await Barber.findOneAndUpdate({email},{ profile: profileimg}, {new: true});
+
+        res.status(200).json({
+          success: true,
+          message: "Files Uploaded successfully",
+          barberImage
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Cloudinary upload failed" });
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 const getAllBarberbySalonId = async (req, res) => {
   try {
     const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query;
@@ -661,7 +739,7 @@ const connectBarbertoSalon = async(req, res) => {
 }
 
 
-//Get barberDetails by barberEmail
+//Get BarberDetails by barberEmail
 const getBarberDetailsByEmail = async(req, res) =>{
   try{
     const {email} = req.body;
@@ -714,7 +792,8 @@ module.exports = {
    connectBarbertoSalon,
    createBarberByAdmin,
    updateBarberByAdmin,
-   getBarberDetailsByEmail
+   getBarberDetailsByEmail,
+   uploadBarberprofilePic
 }
 
 // https://iqb-frontend.netlify.app/

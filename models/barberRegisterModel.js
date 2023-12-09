@@ -53,9 +53,16 @@ const barberSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    profilePic: {
-        type: String
-    },
+    profile: [
+        {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }
+    ],
     isOnline: {
         type: Boolean
     },

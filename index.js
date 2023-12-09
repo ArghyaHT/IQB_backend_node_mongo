@@ -27,8 +27,8 @@ const appointments = require("./routes/Appointments/appointmentsRoutes.js")
 const students = require("./routes/ImageUploadDemo/student.js")
 
 const rateLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	windowMs: 20 * 1000, // 15 minutes
+	limit: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   message: 'Too many request from this IP.Please try again later',
 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers

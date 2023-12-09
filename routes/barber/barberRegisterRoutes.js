@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic } = require("../../controllers/barber/barberRegisterController");
 
 
 const router = express.Router();
@@ -44,6 +44,9 @@ router.route("/getAllBarberBySalonId").post(getAllBarberbySalonId) //api integra
 
 //Update Barber Account Details
 router.route("/updateBarberAccountDetails").put( updateBarberAccountDetails)
+
+//Upload Barber Profile Picture
+router.route("/uploadBarberProfilePicture").post(uploadBarberprofilePic)
 
 router.route("/deleteBarberByEmail").post( deleteBarber)
 
