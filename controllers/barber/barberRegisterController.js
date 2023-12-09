@@ -640,7 +640,7 @@ const deleteBarberProfilePicture = async(req, res) => {
 
     if (updatedBarber) {
       res.status(200).json({
-        success: false,
+        success: true,
         message: "Image successfully deleted"
       })
     } else {

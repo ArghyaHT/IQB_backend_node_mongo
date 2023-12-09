@@ -546,7 +546,7 @@ const uploadAdminprofilePic = async(req, res) => {
             }
           });
   
-          const updatedBarber = await Barber.findOneAndUpdate(
+          const updatedAdmin = await Admin.findOneAndUpdate(
             { "profile._id": id }, 
             { 
               $set: { 
@@ -560,7 +560,7 @@ const uploadAdminprofilePic = async(req, res) => {
           res.status(200).json({
             success: true,
             message: "Files Updated successfully",
-            updatedBarber
+            updatedAdmin
           });
           
         })
@@ -599,7 +599,7 @@ const uploadAdminprofilePic = async(req, res) => {
   
       if (updatedAdmin) {
         res.status(200).json({
-          success: false,
+          success: true,
           message: "Image successfully deleted"
         })
       } else {
