@@ -34,6 +34,13 @@ const registerController = async (req, res) => {
 
         let user = await Admin.findOne({ email: email });
 
+        if(user){
+            return res.status(400).json({
+                success:false,
+                message:"User already exist"
+            })
+        }
+
         // If the user doesn't exist, create a new user
         if (!user) {
             // Hash the password before saving it
@@ -45,13 +52,33 @@ const registerController = async (req, res) => {
                 admin: true
             });
             await user.save();
+
+            // Generate tokens
+            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+
+            // Set cookies in the response
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                expires: new Date(Date.now() + 40 * 1000), //10 min
+                secure: true,
+                sameSite: "None"
+            });
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                expires: new Date(Date.now() + 20 * 1000), //20 seconds
+                secure: true,
+                sameSite: "None"
+            });
+
+            res.status(200).json({
+                success: true,
+                message: "Admin registered successfully",
+                user
+            })
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Admin registered successfully",
-            user
-        })
+        
     } catch (error) {
         res.status(400).json({
             success: false,
@@ -75,12 +102,9 @@ const loginController = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid Credentials" });
         }
 
-         // Omitting the password field from the user object
-         const { password: omitPassword, ...userWithoutPassword } = user.toObject();
-
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
@@ -99,7 +123,6 @@ const loginController = async (req, res) => {
         res.status(201).json({
             success: true,
             message: "Admin signed in successfully",
-            user: userWithoutPassword
         });
     } catch (error) {
         res.status(500).json({
@@ -147,8 +170,8 @@ const googleLoginController = async (req, res) => {
     }
 
     else if (user) {
-        const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+        const accessToken = jwt.sign({ user: { name: user.name, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
 
         // Set cookies in the response
@@ -169,8 +192,7 @@ const googleLoginController = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Admin signed in successfully",
-            user
+            message: "Admin signed in successfully"
         })
     } else {
         res.status(401).json({ success: false, message: "Invalid Credentials" })
@@ -191,7 +213,7 @@ const refreshTokenController = async (req, res) => {
         const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
 
         // Set the new access token as an HTTP-only cookie
-        res.cookie('accessToken', newAccessToken, { 
+        res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
             expires: new Date(Date.now() + 20 * 1000),
             secure: true,
@@ -207,8 +229,8 @@ const refreshTokenController = async (req, res) => {
 //DESC:LOGOUT A USER ========================
 const handleLogout = async (req, res, next) => {
     try {
-        res.clearCookie('accessToken',{httpOnly:true,secure:true,sameSite:"None"})
-        res.clearCookie('refreshToken',{httpOnly:true,secure:true,sameSite:"None"})
+        res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: "None" })
+        res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: "None" })
 
         res.status(200).json({
             success: true,
@@ -318,7 +340,7 @@ const handleResetPassword = async (req, res, next) => {
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 
-const isLogginMiddleware = async(req,res) => {
+const isLogginMiddleware = async (req, res) => {
     try {
         const accessToken = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
@@ -341,11 +363,11 @@ const isLogginMiddleware = async(req,res) => {
         }
 
         return res.status(200).json({
-                success:true,
-                message:"Admin already logged in",
-                user:decodeToken.user
+            success: true,
+            message: "Admin already logged in",
+            user: decodeToken.user
         })
-    
+
     } catch (error) {
         return res.json({
             success: false,
@@ -358,19 +380,13 @@ const isLoggedOutMiddleware = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
 
-        
+
         if (!refreshToken) {
             return res.status(403).json({
                 success: false,
                 message: "Refresh Token not present.Please Login Again",
             });
         }
-
-        // return res.status(200).json({
-        //     success:true,
-        //     message:"User already logged in"
-        // })
-
     } catch (error) {
         return res.json({
             success: false,
@@ -422,15 +438,15 @@ const handleProtectedRoute = async (req, res, next) => {
 };
 
 //PROETCTED ROUTE =============================
-const profileController = async (req, res) => {
-    const user = req.user;
+// const profileController = async (req, res) => {
+//     const user = req.user;
 
-    res.status(200).json({
-        success: true,
-        message: "Protected Resources accessed successfully.",
-        user,
-    });
-};
+//     res.status(200).json({
+//         success: true,
+//         message: "Protected Resources accessed successfully.",
+//         user,
+//     });
+// };
 
 const deleteSingleAdmin = async (req, res) => {
     const { email } = req.body;
@@ -496,189 +512,192 @@ const approveBarber = async (req, res) => {
 }
 
 //Upload Barber profile Picture
-const uploadAdminprofilePic = async(req, res) => {
+const uploadAdminprofilePic = async (req, res) => {
     try {
-      let profiles = req.files.profile;
-      const email = req.body.email;
-  
-      // Ensure that profiles is an array, even for single uploads
-      if (!Array.isArray(profiles)) {
-        profiles = [profiles];
-      }
-  
-      const uploadPromises = [];
-  
-      for (const profile of profiles) {
-        uploadPromises.push(
-          new Promise((resolve, reject) => {
-            const public_id = `${profile.name.split(".")[0]}`;
-  
-            cloudinary.uploader.upload(profile.tempFilePath, {
-              public_id: public_id,
-              folder: "students",
+        let profiles = req.files.profile;
+        const email = req.body.email;
+
+        // Ensure that profiles is an array, even for single uploads
+        if (!Array.isArray(profiles)) {
+            profiles = [profiles];
+        }
+
+        const uploadPromises = [];
+
+        for (const profile of profiles) {
+            uploadPromises.push(
+                new Promise((resolve, reject) => {
+                    const public_id = `${profile.name.split(".")[0]}`;
+
+                    cloudinary.uploader.upload(profile.tempFilePath, {
+                        public_id: public_id,
+                        folder: "students",
+                    })
+                        .then((image) => {
+                            resolve({
+                                public_id: image.public_id,
+                                url: image.secure_url, // Store the URL
+                            });
+                        })
+                        .catch((err) => {
+                            reject(err);
+                        })
+                        .finally(() => {
+                            // Delete the temporary file after uploading
+                            fs.unlink(profile.tempFilePath, (unlinkError) => {
+                                if (unlinkError) {
+                                    console.error('Failed to delete temporary file:', unlinkError);
+                                }
+                            });
+                        });
+                })
+            );
+        }
+
+        Promise.all(uploadPromises)
+            .then(async (profileimg) => {
+                console.log(profileimg);
+
+                const adminImage = await Admin.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
+
+                res.status(200).json({
+                    success: true,
+                    message: "Files Uploaded successfully",
+                    adminImage
+                });
             })
-              .then((image) => {
-                resolve({
-                  public_id: image.public_id,
-                  url: image.secure_url, // Store the URL
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({
+                    message: "Cloudinary upload failed",
+                    err: err.message
                 });
-              })
-              .catch((err) => {
-                reject(err);
-              })
-              .finally(() => {
-                // Delete the temporary file after uploading
-                fs.unlink(profile.tempFilePath, (unlinkError) => {
-                  if (unlinkError) {
-                    console.error('Failed to delete temporary file:', unlinkError);
-                  }
-                });
-              });
-          })
-        );
-      }
-  
-      Promise.all(uploadPromises)
-        .then(async (profileimg) => {
-          console.log(profileimg);
-  
-          const adminImage = await Admin.findOneAndUpdate({email},{ profile: profileimg}, {new: true});
-  
-          res.status(200).json({
-            success: true,
-            message: "Files Uploaded successfully",
-           adminImage
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.status(500).json({
-             message: "Cloudinary upload failed" ,
-             err: err.message});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error.message
         });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ 
-        message: "Internal Server Error",
-        error: error.message
-     });
     }
-  }
-  
-  //Update Barber Profile Picture
-  const updateAdminProfilePic = async(req, res) =>{
+}
+
+//Update Barber Profile Picture
+const updateAdminProfilePic = async (req, res) => {
     try {
-      const id = req.body.id;
-  
-      const adminProfile = await Admin.findOne({ "profile._id": id }, { "profile.$": 1 })
-  
-      const public_imgid = req.body.public_imgid; 
-      const profile = req.files.profile;
-  
-      // Validate Image
-      const fileSize = profile.size / 1000;
-      const fileExt = profile.name.split(".")[1];
-  
-      if (fileSize > 500) {
-        return res.status(400).json({ message: "File size must be lower than 500kb" });
-      }
-  
-      if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
-        return res.status(400).json({ message: "File extension must be jpg or png" });
-      }
-  
-      // Generate a unique public_id based on the original file name
-      const public_id = `${profile.name.split(".")[0]}`;
-  
-      cloudinary.uploader.upload(profile.tempFilePath, {
-        public_id: public_id,
-        folder: "students",
-      })
-        .then(async (image) => {
-  
-          const result = await cloudinary.uploader.destroy(public_imgid);
-  
-          if (result.result === 'ok') {
+        const id = req.body.id;
+
+        const adminProfile = await Admin.findOne({ "profile._id": id }, { "profile.$": 1 })
+
+        const public_imgid = req.body.public_imgid;
+        const profile = req.files.profile;
+
+        // Validate Image
+        const fileSize = profile.size / 1000;
+        const fileExt = profile.name.split(".")[1];
+
+        if (fileSize > 500) {
+            return res.status(400).json({ message: "File size must be lower than 500kb" });
+        }
+
+        if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
+            return res.status(400).json({ message: "File extension must be jpg or png" });
+        }
+
+        // Generate a unique public_id based on the original file name
+        const public_id = `${profile.name.split(".")[0]}`;
+
+        cloudinary.uploader.upload(profile.tempFilePath, {
+            public_id: public_id,
+            folder: "students",
+        })
+            .then(async (image) => {
+
+                const result = await cloudinary.uploader.destroy(public_imgid);
+
+                if (result.result === 'ok') {
+                    console.log("cloud img deleted")
+
+                } else {
+                    res.status(500).json({
+                        message: 'Failed to delete image.'
+                    });
+                }
+
+                // Delete the temporary file after uploading to Cloudinary
+                fs.unlink(profile.tempFilePath, (err) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                });
+
+                const updatedAdmin = await Admin.findOneAndUpdate(
+                    { "profile._id": id },
+                    {
+                        $set: {
+                            'profile.$.public_id': image.public_id,
+                            'profile.$.url': image.url
+                        }
+                    },
+                    { new: true }
+                );
+
+                res.status(200).json({
+                    success: true,
+                    message: "Files Updated successfully",
+                    updatedAdmin
+                });
+
+            })
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error.message
+        });
+    }
+}
+
+//Delete Barber Profile Picture
+const deleteAdminProfilePicture = async (req, res) => {
+    try {
+        const public_id = req.body.public_id
+        const img_id = req.body.img_id
+
+        const result = await cloudinary.uploader.destroy(public_id);
+
+        if (result.result === 'ok') {
             console.log("cloud img deleted")
-      
-          } else {
-            res.status(500).json({ 
-              message: 'Failed to delete image.' });
-          }
-  
-          // Delete the temporary file after uploading to Cloudinary
-          fs.unlink(profile.tempFilePath, (err) => {
-            if (err) {
-              console.error(err);
-            }
-          });
-  
-          const updatedAdmin = await Admin.findOneAndUpdate(
-            { "profile._id": id }, 
-            { 
-              $set: { 
-                'profile.$.public_id': image.public_id,
-                'profile.$.url': image.url
-              } 
-            }, 
-            { new: true } 
-          );
-  
-          res.status(200).json({
-            success: true,
-            message: "Files Updated successfully",
-            updatedAdmin
-          });
-          
-        })
-  
-  
-  
+
+        } else {
+            res.status(500).json({ message: 'Failed to delete image.' });
+        }
+
+        const updatedAdmin = await Admin.findOneAndUpdate(
+            { 'profile._id': img_id },
+            { $pull: { profile: { _id: img_id } } },
+            { new: true }
+        );
+
+        if (updatedAdmin) {
+            res.status(200).json({
+                success: true,
+                message: "Image successfully deleted"
+            })
+        } else {
+            res.status(404).json({ message: 'Image not found in the student profile' });
+        }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ 
-        message: "Internal Server Error",
-        error: error.message
-     });
+        console.error('Error deleting image:', error);
+        res.status(500).json({
+            message: 'Internal server error.',
+            error: error.message
+        });
     }
-  }
-  
-  //Delete Barber Profile Picture
-  const deleteAdminProfilePicture = async(req, res) => {
-    try {
-      const public_id = req.body.public_id
-      const img_id = req.body.img_id
-  
-      const result = await cloudinary.uploader.destroy(public_id);
-  
-      if (result.result === 'ok') {
-        console.log("cloud img deleted")
-  
-      } else {
-        res.status(500).json({ message: 'Failed to delete image.' });
-      }
-  
-      const updatedAdmin = await Admin.findOneAndUpdate(
-        { 'profile._id': img_id },
-        { $pull: { profile: { _id: img_id } } },
-        { new: true }
-      );
-  
-      if (updatedAdmin) {
-        res.status(200).json({
-          success: true,
-          message: "Image successfully deleted"
-        })
-      } else {
-        res.status(404).json({ message: 'Image not found in the student profile' });
-      }
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      res.status(500).json({
-         message: 'Internal server error.', 
-        error: error.message});
-    }
-  }
+}
 
 module.exports = {
     deleteSingleAdmin,
@@ -686,7 +705,7 @@ module.exports = {
     loginController,
     refreshTokenController,
     handleProtectedRoute,
-    profileController,
+    // profileController,
     handleLogout,
     isLogginMiddleware,
     isLoggedOutMiddleware,

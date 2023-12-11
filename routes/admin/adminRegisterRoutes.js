@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.route("/loggedoutmiddleware").get(handleProtectedRoute,isLoggedOutMiddlew
 router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware)
 
 //ALL PROTECTED ROUTES
-router.route("/profile").get(handleProtectedRoute,profileController)
+// router.route("/profile").get(handleProtectedRoute,profileController)
 // router.route("/getAllAdmins").get(allAdmins)
 
 router.route("/deleteAdmin").post( deleteSingleAdmin)

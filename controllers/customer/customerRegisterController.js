@@ -681,12 +681,14 @@ const getAppointmentForCustomer =  async(req, res)=> {
 };
 
 //CUSTOMER CONNECT SALON AFTER LOGIN
-const customerConnectSalon = async(req, res) =>{
-  try{
-    const {email, salonId} = req.body;
-//Find the Customer by emailId and add salon
-    const customer = await Customer.findOneAndUpdate({email}, {salonId:salonId}, {new: true})
-    //If customer is not found
+const customerConnectSalon = async (req, res) => {
+  try {
+    const { email, salonId } = req.body;
+
+    // Find the Customer by emailId
+    const customer = await Customer.findOne({ email });
+
+    // If customer is not found
     if (!customer) {
       return res.status(404).json({
         success: false,
@@ -694,21 +696,34 @@ const customerConnectSalon = async(req, res) =>{
       });
     }
 
+    // Check if the salonId is already present in the connectedSalon array
+    const salonExists = customer.connectedSalon.includes(salonId);
+
+    if (!salonExists) {
+      // If salonId is not present, push it into the connectedSalon array
+      customer.connectedSalon.push(salonId);
+    }
+
+    // Update the salonId for this connection time
+    customer.salonId = salonId;
+
+    // Save the changes
+    await customer.save();
+
     res.status(200).json({
       success: true,
       message: "Customer is added to the salon",
       response: customer,
     });
-}
-catch (error) {
-  // Handle errors that might occur during the operation
-  res.status(500).json({
-    success: false,
-    message: "An error occurred while connecting customer to the salon",
-    error: error.message,
-  });
-}
-}
+  } catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while connecting customer to the salon",
+      error: error.message,
+    });
+  }
+};
 
 const getCustomerDetails = async(req, res) => {
 try{
