@@ -6,7 +6,7 @@ const crypto = require("crypto")
 //default salonid = 0
 const adminSchema = new mongoose.Schema({
     salonId:{
-        type: String,
+        type: Number,
         default: 0
     },
     name: {
