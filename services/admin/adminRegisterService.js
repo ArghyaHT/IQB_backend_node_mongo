@@ -231,12 +231,14 @@ const updateAdmin = async (adminData) => {
       isActive,
     };
 
+    console.log(email)
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateFields.password = hashedPassword;
     }
 
-    const admin = await Admin.findOneAndUpdate({ email: email }, updateFields, { new: true });
+    const admin = await Admin.findOneAndUpdate({ email }, updateFields, { new: true }).select("-password");
 
     if (!admin) {
       console.log("Admin not found or no changes made.");
