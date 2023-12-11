@@ -54,8 +54,8 @@ const registerController = async (req, res) => {
             await user.save();
 
             // Generate tokens
-            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
             // Set cookies in the response
             res.cookie('refreshToken', refreshToken, {
@@ -103,8 +103,8 @@ const loginController = async (req, res) => {
         }
 
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
@@ -169,8 +169,8 @@ const googleLoginController = async (req, res) => {
         await user.save()
 
          // Generate tokens
-         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
          // Set cookies in the response
          res.cookie('refreshToken', refreshToken, {
@@ -193,8 +193,8 @@ const googleLoginController = async (req, res) => {
     }
 
     else if (user) {
-        const accessToken = jwt.sign({ user: { name: user.name, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+        const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
 
         // Set cookies in the response
@@ -378,6 +378,8 @@ const isLogginMiddleware = async (req, res) => {
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
+        const loggedinUser = await Admin.find(decodeToken.user.email)
+
         if (!decodeToken) {
             return res.status(401).json({
                 success: false,
@@ -388,7 +390,7 @@ const isLogginMiddleware = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Admin already logged in",
-            user: decodeToken.user
+            user: loggedinUser
         })
 
     } catch (error) {
