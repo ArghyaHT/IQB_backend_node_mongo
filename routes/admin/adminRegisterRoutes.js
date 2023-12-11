@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -17,8 +17,11 @@ router.route("/google-login").post(googleLoginController)
 //FOR REFRESHING NEW ACCESS TOKEN
 router.route("/refresh-token").post(refreshTokenController)
 
-//LOGOUT MIDDLEWARE
+//ISLOGOUT MIDDLEWARE
 router.route("/loggedoutmiddleware").get(handleProtectedRoute,isLoggedOutMiddleware)
+
+//ISLOGIN MIDDLEWARE
+router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware)
 
 //ALL PROTECTED ROUTES
 router.route("/profile").get(handleProtectedRoute,profileController)

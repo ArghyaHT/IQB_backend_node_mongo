@@ -318,7 +318,43 @@ const handleResetPassword = async (req, res, next) => {
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 
-const isLoggedOutMiddleware = async (req, res, next) => {
+const isLogginMiddleware = async(req,res) => {
+    try {
+        const accessToken = req.cookies.accessToken;
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "Refresh Token not present.Please Login Again",
+            });
+        }
+
+        // Verify old refresh token
+        const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+        if (!decodeToken) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid Access Token. UnAuthorize User",
+            });
+        }
+
+        return res.status(200).json({
+                success:true,
+                message:"Admin already logged in",
+                user:decodeToken.user
+        })
+    
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: error,
+        });
+    }
+}
+
+const isLoggedOutMiddleware = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
 
@@ -330,10 +366,10 @@ const isLoggedOutMiddleware = async (req, res, next) => {
             });
         }
 
-        return res.status(200).json({
-            success:true,
-            message:"User already logged in"
-        })
+        // return res.status(200).json({
+        //     success:true,
+        //     message:"User already logged in"
+        // })
 
     } catch (error) {
         return res.json({
@@ -652,6 +688,7 @@ module.exports = {
     handleProtectedRoute,
     profileController,
     handleLogout,
+    isLogginMiddleware,
     isLoggedOutMiddleware,
     registerController,
     handleForgetPassword,
