@@ -378,7 +378,7 @@ const isLogginMiddleware = async (req, res) => {
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-        const loggedinUser = await Admin.find(decodeToken.user.email)
+        const loggedinUser = await Admin.find({email:decodeToken.user.email})
 
         if (!decodeToken) {
             return res.status(401).json({
