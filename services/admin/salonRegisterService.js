@@ -85,9 +85,6 @@ const createSalon = async (salonData) => {
     const savedSalon = await salon.save();
 
     await savedSalon.save();
-
-
-
     return {
       status: 200,
       response: savedSalon,
@@ -99,8 +96,6 @@ const createSalon = async (salonData) => {
     return {
       status: 500,
       message: error.message,
-
-
     };
 
   }
