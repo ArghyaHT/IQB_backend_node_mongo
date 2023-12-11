@@ -4,14 +4,14 @@ const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterC
 
 const router = express.Router()
 
-router.route("/singleJoinQueue").post(singleJoinQueue)
+router.route("/singleJoinQueue").post(handleProtectedRoute,singleJoinQueue)
 
-router.route("/groupJoinQueue").post(groupJoinQueue)
+router.route("/groupJoinQueue").post(handleProtectedRoute,groupJoinQueue)
 
 router.route("/getQListBySalonId").get(handleProtectedRoute,getQueueListBySalonId)
 
-router.route("/autoJoin").post(autoJoin),
+router.route("/autoJoin").post(handleProtectedRoute,autoJoin),
 
-router.route("/barberServedQueue").post(barberServedQueue)
+router.route("/barberServedQueue").post(handleProtectedRoute,barberServedQueue)
 
 module.exports = router

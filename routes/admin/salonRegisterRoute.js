@@ -8,19 +8,19 @@ const router = express.Router()
 router.route("/getAllSalonsByAdminEmail").get(handleProtectedRoute,getAllSalonsByAdmin) //api integrated
 
 //CREATE SALON BY ADMIN
-router.route("/createSalonByAdmin").post(createSalonByAdmin) //api integrated
+router.route("/createSalonByAdmin").post(handleProtectedRoute,createSalonByAdmin) //api integrated
 
 //UPLOAD SALON IMAGE
-router.route("/uploadSalonImage").post(uploadProfile)
+router.route("/uploadSalonImage").post(handleProtectedRoute,uploadProfile)
 
 //UPDATE SALON IMAGES
-router.route("/updateSalonImages").put(updateSalonImages)
+router.route("/updateSalonImages").put(handleProtectedRoute,updateSalonImages)
 
 //DELETE SALON IMAGES
-router.route("/deleteSalonImages").delete(deleteSalonImages)
+router.route("/deleteSalonImages").delete(handleProtectedRoute,deleteSalonImages)
 
 //UPDATE SALON BY ADMIN EMAIL AND SALON ID
-router.route("/updateSalonBySalonIdAndAdminEmail").put(updateSalonBySalonIdAndAdminEmail)
+router.route("/updateSalonBySalonIdAndAdminEmail").put(handleProtectedRoute,updateSalonBySalonIdAndAdminEmail)
 
 // router.route("/addSalonServices").post(addServices)
 

@@ -1,5 +1,6 @@
 const express = require("express");
-const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, handleProtectedRoute, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture } = require("../../controllers/barber/barberRegisterController");
+const { isLoggedOutMiddleware, isLogginMiddleware, handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 
 
 const router = express.Router();
@@ -26,44 +27,52 @@ router.route("/google-login").post(googleLoginController)
 router.route("/refresh-token").post(refreshTokenController)
 
 //ALL PROTECTED ROUTES
-router.route("/profile").get(handleProtectedRoute,profileController)
+// router.route("/profile").get(handleProtectedRoute,profileController)
+
+
+//ISLOGOUT MIDDLEWARE
+router.route("/loggedoutmiddleware").get(handleProtectedRoute,isLoggedOutMiddleware)
+
+//ISLOGIN MIDDLEWARE
+router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware)
+
 
 //CONNECT BARBER TO SALON
-router.route("/connectBarberToSalon").post(connectBarbertoSalon)
+router.route("/connectBarberToSalon").post(handleProtectedRoute,connectBarbertoSalon)
 
 //CREATE BARBER BY ADMIN
-router.route("/createBarberByAdmin").post(createBarberByAdmin)
+router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdmin)
 
 //UPDATE BARBER BY ADMIN
-router.route("/updateBarberByAdmin").put(updateBarberByAdmin)
+router.route("/updateBarberByAdmin").put(handleProtectedRoute,updateBarberByAdmin)
 
 //GET BARBER DETAILS BY EMAIL
-router.route("/getBarberDetailsByEmail").post(getBarberDetailsByEmail)
+router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,getBarberDetailsByEmail)
 
 router.route("/getAllBarberBySalonId").post(handleProtectedRoute ,getAllBarberbySalonId) //api integrated
 
 //Update Barber Account Details
-router.route("/updateBarberAccountDetails").put( updateBarberAccountDetails)
+router.route("/updateBarberAccountDetails").put(handleProtectedRoute,updateBarberAccountDetails)
 
 //Upload Barber Profile Picture
-router.route("/uploadBarberProfilePicture").post(uploadBarberprofilePic)
+router.route("/uploadBarberProfilePicture").post(handleProtectedRoute,uploadBarberprofilePic)
 
 //UPDATE BARBER PROFILE PICTURE
-router.route("/updateBarberProfilePicture").put(updateBarberProfilePic)
+router.route("/updateBarberProfilePicture").put(handleProtectedRoute,updateBarberProfilePic)
 
 //DELETE BARBER PROFILE PICTURE
-router.route("/deleteBarberProfilePicture").delete(deleteBarberProfilePicture)
+router.route("/deleteBarberProfilePicture").delete(handleProtectedRoute,deleteBarberProfilePicture)
 
 
 
-router.route("/deleteBarberByEmail").post( deleteBarber)
+router.route("/deleteBarberByEmail").post(handleProtectedRoute,deleteBarber)
 
 
-router.route("/changeBarberWorkingStatus").post(chnageBarberWorkingStatus) //api working
+router.route("/changeBarberWorkingStatus").post(handleProtectedRoute,chnageBarberWorkingStatus) //api working
 
-router.route("/getAllBarbersByServiceId").get(getAllBarbersByServiceId)
+router.route("/getAllBarbersByServiceId").get(handleProtectedRoute,getAllBarbersByServiceId)
 
-router.route("/getBarberServicesByBarberId").get(getBarberServicesByBarberId)
+router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
 
 // router.route("/changeBarberOnlineStatus").put(isBarberOnline)
 

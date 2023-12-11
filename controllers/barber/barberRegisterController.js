@@ -313,46 +313,46 @@ const handleResetPassword = async (req, res, next) => {
 
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
-const handleProtectedRoute = async (req, res, next) => {
-  try {
-      const accessToken = req.cookies.accessToken;
-      const refreshToken = req.cookies.refreshToken;
+// const handleProtectedRoute = async (req, res, next) => {
+//   try {
+//       const accessToken = req.cookies.accessToken;
+//       const refreshToken = req.cookies.refreshToken;
 
-      if(!refreshToken){
-          return res.status(403).json({
-              success: false,
-              message: "Refresh Token not present.Please Login Again",
-          });
-      }
+//       if(!refreshToken){
+//           return res.status(403).json({
+//               success: false,
+//               message: "Refresh Token not present.Please Login Again",
+//           });
+//       }
 
-      // Verify old refresh token
-      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+//       // Verify old refresh token
+//       const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-      if (!decodeToken) {
-          return res.status(401).json({
-              success: false,
-              message: "Invalid Access Token. UnAuthorize User",
-          });
-      }
+//       if (!decodeToken) {
+//           return res.status(401).json({
+//               success: false,
+//               message: "Invalid Access Token. UnAuthorize User",
+//           });
+//       }
 
-      req.user = decodeToken.user;
-      next();
-  } catch (error) {
-      //This Error is for access Token getting expired or JWT must be provided
-      if(error.message == "jwt must be provided"){
-          res.status(500).json({
-              success: false,
-              message: error,
-          });
-      }else{
-          return res.json({
-              success: false,
-              message: error,
-          });
-      }  
-  }
+//       req.user = decodeToken.user;
+//       next();
+//   } catch (error) {
+//       //This Error is for access Token getting expired or JWT must be provided
+//       if(error.message == "jwt must be provided"){
+//           res.status(500).json({
+//               success: false,
+//               message: error,
+//           });
+//       }else{
+//           return res.json({
+//               success: false,
+//               message: error,
+//           });
+//       }  
+//   }
 
-};
+// };
 
 //PROETCTED ROUTE =============================
 const profileController = async (req, res) => {
@@ -902,7 +902,7 @@ module.exports = {
   // addServicesTobarbers,
   loginController, 
   refreshTokenController,
-   handleProtectedRoute,
+  //  handleProtectedRoute,
    profileController,
    handleLogout,
    registerController,

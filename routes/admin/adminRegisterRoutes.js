@@ -27,22 +27,22 @@ router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware
 // router.route("/profile").get(handleProtectedRoute,profileController)
 // router.route("/getAllAdmins").get(allAdmins)
 
-router.route("/deleteAdmin").post( deleteSingleAdmin)
+router.route("/deleteAdmin").post(handleProtectedRoute,deleteSingleAdmin)
 
 //Upload Admin Profile Picture
-router.route("/uploadAdminProfilePicture").post(uploadAdminprofilePic)
+router.route("/uploadAdminProfilePicture").post(handleProtectedRoute,uploadAdminprofilePic)
 
 //UPDATE BARBER PROFILE PICTURE
-router.route("/updateAdminProfilePicture").put(updateAdminProfilePic)
+router.route("/updateAdminProfilePicture").put(handleProtectedRoute,updateAdminProfilePic)
 
 //DELETE BARBER PROFILE PICTURE
-router.route("/deleteAdminProfilePicture").delete(deleteAdminProfilePicture)
+router.route("/deleteAdminProfilePicture").delete(handleProtectedRoute,deleteAdminProfilePicture)
 
 
 //UPDATE ADMIN ACCOUNT DETAILS
-router.route("/updateAdminAcoountDetails").put( updateAdminAccountDetails)
+router.route("/updateAdminAcoountDetails").put(handleProtectedRoute,updateAdminAccountDetails)
 
 //Approve Barber By Admin
-router.route("/approvedBarber").post(approveBarber)
+router.route("/approvedBarber").post(handleProtectedRoute,approveBarber)
 
 module.exports = router
