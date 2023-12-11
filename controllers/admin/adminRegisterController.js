@@ -60,7 +60,7 @@ const registerController = async (req, res) => {
             // Set cookies in the response
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                expires: new Date(Date.now() + 40 * 1000), //10 min
+                expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
                 secure: true,
                 sameSite: "None"
             });
@@ -109,7 +109,7 @@ const loginController = async (req, res) => {
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 40 * 1000), //10 min
+            expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
             secure: true,
             sameSite: "None"
         });
@@ -166,7 +166,30 @@ const googleLoginController = async (req, res) => {
             admin: true,
             AuthType: "google"
         });
-        await user.save();
+        await user.save()
+
+         // Generate tokens
+         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, salonId: user.salonId, profile: user.profile } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+
+         // Set cookies in the response
+         res.cookie('refreshToken', refreshToken, {
+             httpOnly: true,
+             expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
+             secure: true,
+             sameSite: "None"
+         });
+         res.cookie('accessToken', accessToken, {
+             httpOnly: true,
+             expires: new Date(Date.now() + 20 * 1000), //20 seconds
+             secure: true,
+             sameSite: "None"
+         });
+
+         res.status(200).json({
+             success: true,
+             message: "Admin registered successfully"
+         })
     }
 
     else if (user) {
@@ -178,7 +201,7 @@ const googleLoginController = async (req, res) => {
         res.cookie('refreshToken',
             refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 40 * 1000), // 10 minutes
+            expires: new Date(Date.now() + 1 * 60 * 1000), // 1 minutes
             secure: true,
             sameSite: "None"
         });
