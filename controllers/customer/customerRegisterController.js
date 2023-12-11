@@ -59,11 +59,16 @@ const signUp = async (req, res) => {
       password,
     } = req.body;
 
- //CREATING THE VERIFICATION CODE 
-    const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000; //RANDOM 4 DIGHT GENERATED VERIFICATION CODE
-    // const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
 
-    //Creating new Customer Object
+    const existingCustomer = await Customer.findOne({ email });
+    if (existingCustomer) {
+      return res.status(400).json({
+        success: false,
+        message: "Customer with the email already exists",
+      });
+    }
+
     const customer = new Customer({
       email,
       name,
@@ -71,41 +76,33 @@ const signUp = async (req, res) => {
       gender,
       dateOfBirth,
       mobileNumber,
-      // password: hashedPassword,
       verificationCode,
-      customer: true
+      customer: true,
     });
 
     const savedCustomer = await customer.save();
 
     if (savedCustomer.verificationCode) {
-
-  
-      // SEND VERIFICATION CODE TO TO THE REGISTERED EMAIL
       sendVerificationCodeByEmail(email, verificationCode);
-
-      // sendVerificationCodeToMobile(mobileNumber, verificationCode)
-      res.status(200).json({
-          success: true,
-          response: verificationCode,
-          message: 'Customer saved and Verification code has been sent successfully',
-        });
-      
+      return res.status(200).json({
+        success: true,
+        response: verificationCode,
+        message: 'Customer saved and verification code sent successfully',
+      });
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         response: 'Failed to save customer and send verification code',
         message: 'Customer data could not be saved',
       });
     }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create customer',
+    });
   }
-catch (error) {
-  console.error(error);
-  res.status(500).json({
-   success: false,
-    error: 'Failed to create customer'
-  });
-}
 };
 
 // const signUp = async (req, res) => {
