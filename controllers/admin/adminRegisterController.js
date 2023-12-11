@@ -60,7 +60,7 @@ const registerController = async (req, res) => {
             // Set cookies in the response
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
+                expires: new Date(Date.now() + 2 * 60 * 1000), //1 min
                 secure: true,
                 sameSite: "None"
             });
@@ -109,7 +109,7 @@ const loginController = async (req, res) => {
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
+            expires: new Date(Date.now() + 2 * 60 * 1000), //1 min
             secure: true,
             sameSite: "None"
         });
@@ -175,7 +175,7 @@ const googleLoginController = async (req, res) => {
          // Set cookies in the response
          res.cookie('refreshToken', refreshToken, {
              httpOnly: true,
-             expires: new Date(Date.now() + 1 * 60 * 1000), //1 min
+             expires: new Date(Date.now() + 2 * 60 * 1000), //1 min
              secure: true,
              sameSite: "None"
          });
@@ -201,7 +201,7 @@ const googleLoginController = async (req, res) => {
         res.cookie('refreshToken',
             refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 1 * 60 * 1000), // 1 minutes
+            expires: new Date(Date.now() + 2 * 60 * 1000), // 1 minutes
             secure: true,
             sameSite: "None"
         });
