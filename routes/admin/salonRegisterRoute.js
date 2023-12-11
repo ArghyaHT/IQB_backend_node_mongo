@@ -1,10 +1,11 @@
 const express = require("express")
 const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages,  } = require("../../controllers/admin/salonRegisterController")
+const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 
 const router = express.Router()
 
-router.route("/getAllSalonsByAdminEmail").get(getAllSalonsByAdmin) //api integrated
+router.route("/getAllSalonsByAdminEmail").get(handleProtectedRoute,getAllSalonsByAdmin) //api integrated
 
 //CREATE SALON BY ADMIN
 router.route("/createSalonByAdmin").post(createSalonByAdmin) //api integrated

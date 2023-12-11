@@ -75,6 +75,9 @@ const loginController = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid Credentials" });
         }
 
+         // Omitting the password field from the user object
+         const { password: omitPassword, ...userWithoutPassword } = user.toObject();
+
         // Generate tokens
         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
@@ -82,7 +85,7 @@ const loginController = async (req, res) => {
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 10 * 60 * 1000), //10 min
+            expires: new Date(Date.now() + 40 * 1000), //10 min
             secure: true,
             sameSite: "None"
         });
@@ -93,10 +96,10 @@ const loginController = async (req, res) => {
             sameSite: "None"
         });
 
-
         res.status(201).json({
             success: true,
-            message: "Admin signed in successfully"
+            message: "Admin signed in successfully",
+            user: userWithoutPassword
         });
     } catch (error) {
         res.status(500).json({
@@ -152,7 +155,7 @@ const googleLoginController = async (req, res) => {
         res.cookie('refreshToken',
             refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+            expires: new Date(Date.now() + 40 * 1000), // 10 minutes
             secure: true,
             sameSite: "None"
         });
@@ -166,7 +169,8 @@ const googleLoginController = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Admin signed in successfully"
+            message: "Admin signed in successfully",
+            user
         })
     } else {
         res.status(401).json({ success: false, message: "Invalid Credentials" })
@@ -203,8 +207,8 @@ const refreshTokenController = async (req, res) => {
 //DESC:LOGOUT A USER ========================
 const handleLogout = async (req, res, next) => {
     try {
-        res.clearCookie('accessToken')
-        res.clearCookie('refreshToken')
+        res.clearCookie('accessToken',{httpOnly:true,secure:true,sameSite:"None"})
+        res.clearCookie('refreshToken',{httpOnly:true,secure:true,sameSite:"None"})
 
         res.status(200).json({
             success: true,
@@ -311,6 +315,33 @@ const handleResetPassword = async (req, res, next) => {
     }
 }
 
+
+//MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
+
+const isLoggedOutMiddleware = async (req, res, next) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        
+        if (!refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "Refresh Token not present.Please Login Again",
+            });
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"User already logged in"
+        })
+
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: error,
+        });
+    }
+}
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 const handleProtectedRoute = async (req, res, next) => {
@@ -621,6 +652,7 @@ module.exports = {
     handleProtectedRoute,
     profileController,
     handleLogout,
+    isLoggedOutMiddleware,
     registerController,
     handleForgetPassword,
     handleResetPassword,
