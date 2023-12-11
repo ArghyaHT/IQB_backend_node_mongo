@@ -66,7 +66,7 @@ const registerController = async (req, res) => {
             });
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                expires: new Date(Date.now() + 20 * 1000), //10 mins
+                maxAge: 1 * 60 * 1000, //1 mins
                 secure: true,
                 sameSite: "None"
             });
@@ -115,7 +115,7 @@ const loginController = async (req, res) => {
         });
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 20 * 1000), //10 mins
+            maxAge: 1 * 60 * 1000, //1 mins
             secure: true,
             sameSite: "None"
         });
@@ -181,7 +181,7 @@ const googleLoginController = async (req, res) => {
          });
          res.cookie('accessToken', accessToken, {
              httpOnly: true,
-             expires: new Date(Date.now() + 20 * 1000), //10 mins
+             maxAge: 1 * 60 * 1000, //1 mins
              secure: true,
              sameSite: "None"
          });
@@ -207,7 +207,7 @@ const googleLoginController = async (req, res) => {
         });
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 20 * 1000), //10 mins
+            maxAge: 1 * 60 * 1000, //1 mins
             secure: true,
             sameSite: "None"
         });
