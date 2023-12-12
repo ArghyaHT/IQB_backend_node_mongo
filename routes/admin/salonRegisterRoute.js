@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages,  } = require("../../controllers/admin/salonRegisterController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 
@@ -12,6 +12,9 @@ router.route("/createSalonByAdmin").post(handleProtectedRoute,createSalonByAdmin
 
 //UPLOAD SALON IMAGE
 router.route("/uploadSalonImage").post(handleProtectedRoute,uploadProfile)
+
+//UPLOAD MORE IMAGES TO THE EXISTING ARRAY OF IMAGES
+router.route("/uploadMoreImages").post(uploadMoreProfileImages)
 
 //UPDATE SALON IMAGES
 router.route("/updateSalonImages").put(handleProtectedRoute,updateSalonImages)

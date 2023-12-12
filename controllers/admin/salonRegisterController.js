@@ -104,6 +104,70 @@ const uploadProfile = async(req, res) =>{
   }
 }
 
+const uploadMoreProfileImages = async (req, res) => {
+  try {
+    let profiles = req.files.profile;
+    let salonId = req.body.salonId;
+
+    // Ensure that profiles is an array, even for single uploads
+    if (!Array.isArray(profiles)) {
+      profiles = [profiles];
+    }
+
+    const uploadPromises = profiles.map(profile => {
+      return new Promise((resolve, reject) => {
+        const public_id = `${profile.name.split(".")[0]}`;
+
+        cloudinary.uploader.upload(profile.tempFilePath, {
+          public_id: public_id,
+          folder: "students",
+        })
+        .then((image) => {
+          resolve({
+            public_id: image.public_id,
+            url: image.secure_url,
+          });
+        })
+        .catch((err) => {
+          reject(err);
+        })
+        .finally(() => {
+          fs.unlink(profile.tempFilePath, (unlinkError) => {
+            if (unlinkError) {
+              console.error('Failed to delete temporary file:', unlinkError);
+            }
+          });
+        });
+      });
+    });
+
+    const uploadedImages = await Promise.all(uploadPromises);
+
+    const updatedSalon = await Salon.findOneAndUpdate(
+      { salonId },
+      { $push: { profile: { $each: uploadedImages } } },
+      { new: true }
+    );
+
+    if (!updatedSalon) {
+      return res.status(404).json({ message: "Salon not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Files Uploaded successfully",
+      salon: updatedSalon,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success:false,
+      message: "Internal Server Error",
+     error: error.message 
+  });
+  }
+};
+
 //Update Salon  Images
 const updateSalonImages = async(req, res) =>{
   try {
@@ -215,6 +279,8 @@ const deleteSalonImages = async(req, res) =>{
     res.status(500).json({ message: 'Internal server error.' });
   }
 }
+
+
 
 const addServices = async (req, res) => {
   try {
@@ -500,5 +566,6 @@ module.exports = {
   deleteSalon,
   uploadProfile,
   updateSalonImages,
-  deleteSalonImages
+  deleteSalonImages,
+  uploadMoreProfileImages
 }
