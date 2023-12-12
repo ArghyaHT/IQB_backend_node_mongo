@@ -18,9 +18,9 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
-    cloud_name: 'dfrw3aqyp',
-    api_key: '574475359946326',
-    api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
+  cloud_name: 'dfrw3aqyp',
+  api_key: '574475359946326',
+  api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
 });
 
 
@@ -28,83 +28,83 @@ cloudinary.config({
 //====================
 const registerController = async (req, res) => {
   try {
-      const email = req.body.email
-      const password = req.body.password
+    const email = req.body.email
+    const password = req.body.password
 
-      let user = await Barber.findOne({ email: email });
+    let user = await Barber.findOne({ email: email });
 
-      const barberId = await Barber.countDocuments() + 1;
-      // If the user doesn't exist, create a new Barber
-      if (!user) {
-          // Hash the password before saving it
-          const hashedPassword = await bcrypt.hash(password, 10);
+    const barberId = await Barber.countDocuments() + 1;
+    // If the user doesn't exist, create a new Barber
+    if (!user) {
+      // Hash the password before saving it
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-          user = new Barber({
-              email: email,
-              password: hashedPassword,
-              barberId: barberId,
-              barber: true
-          });
-          await user.save();
-      }
+      user = new Barber({
+        email: email,
+        password: hashedPassword,
+        barberId: barberId,
+        barber: true
+      });
+      await user.save();
+    }
 
-      res.status(200).json({
-          success: true,
-          message: "User registered successfully",
-          user
-      })
+    res.status(200).json({
+      success: true,
+      message: "User registered successfully",
+      user
+    })
   } catch (error) {
-      res.status(400).json({
-          success: false,
-          message: "Failed to create user",
-          error: error.message
-      })
+    res.status(400).json({
+      success: false,
+      message: "Failed to create user",
+      error: error.message
+    })
   }
 }
 
 //DESC:LOGIN A USER =========================
 const loginController = async (req, res) => {
   try {
-      const email = req.body.email;
-      const password = req.body.password;
+    const email = req.body.email;
+    const password = req.body.password;
 
-      // Find user by email in the MongoDB database
-      const user = await Barber.findOne({ email: email });
+    // Find user by email in the MongoDB database
+    const user = await Barber.findOne({ email: email });
 
-      // If user not found or password is incorrect, return unauthorized
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-          return res.status(401).json({ success: false, message: "Invalid Credentials" });
-      }
+    // If user not found or password is incorrect, return unauthorized
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ success: false, message: "Invalid Credentials" });
+    }
 
-      // Generate tokens
-      const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-      const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+    // Generate tokens
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
-      // Set cookies in the response
-      res.cookie('refreshToken', refreshToken, { 
-        httpOnly: true, 
-        expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-        secure: true,
-        sameSite: "None"
-      }); 
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      secure: true,
+      sameSite: "None"
+    });
 
-      res.cookie('accessToken', accessToken, {
-         httpOnly: true, 
-        expires: new Date(Date.now() + 20 * 1000),// 20 seconds
-        secure: true,
-        sameSite: "None" 
-      }); 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 20 * 1000),// 20 seconds
+      secure: true,
+      sameSite: "None"
+    });
 
-      res.status(201).json({
-          success: true,
-          message: "Barber signed in successfully"
-      });
+    res.status(201).json({
+      success: true,
+      message: "Barber signed in successfully"
+    });
   } catch (error) {
-      res.status(500).json({
-          success: false,
-          message: "Internal Server Error",
-          error: error.message
-      });
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 };
 
@@ -115,7 +115,7 @@ const googleLoginController = async (req, res) => {
   const token = req.body.token;
 
   if (!token) {
-      res.json({ message: "UnAuthorized User or Invalid User" })
+    res.json({ message: "UnAuthorized User or Invalid User" })
   }
 
   const client = new OAuth2Client(CLIENT_ID);
@@ -123,54 +123,55 @@ const googleLoginController = async (req, res) => {
   // Call the verifyIdToken to
   // varify and decode it
   const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: CLIENT_ID,
+    idToken: token,
+    audience: CLIENT_ID,
   });
 
   // Get the JSON with all the user info
   const payload = ticket.getPayload();
 
-  let user = await Barber.findOne({ email: payload.email,AuthType:"google"});
+  let user = await Barber.findOne({ email: payload.email, AuthType: "google" });
 
   const barberId = await Barber.countDocuments() + 1;
   // If the user doesn't exist, create a new user
   // add barber id by count docuents and isApproved as false 
   if (!user) {
-      user = new Barber({
-          name: payload.name,
-          email: payload.email,
-          barberId: barberId,
-          barber:true,
-          AuthType:"google"
-      });
-      await user.save();
+    user = new Barber({
+      name: payload.name,
+      email: payload.email,
+      barberId: barberId,
+      barber: true,
+      AuthType: "google"
+    });
+    await user.save();
   }
 
   else if (user) {
-      const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-      const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
 
-        // Set cookies in the response
-        res.cookie('refreshToken', refreshToken, {
-           httpOnly: true, 
-           expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-           secure: true,
-           sameSite: "None"  }); 
-        res.cookie('accessToken', accessToken, { 
-          httpOnly: true,
-           expires: new Date(Date.now() + 20 * 1000), // 20 seconds
-           secure: true,
-           sameSite: "None" 
-           }); 
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      secure: true,
+      sameSite: "None"
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 20 * 1000), // 20 seconds
+      secure: true,
+      sameSite: "None"
+    });
 
 
-        res.status(201).json({ 
-          success:true,
-          message:"User signed in successfully" 
-      })
+    res.status(201).json({
+      success: true,
+      message: "User signed in successfully"
+    })
   } else {
-      res.status(401).json({ success: false, message: "Invalid Credentials" })
+    res.status(401).json({ success: false, message: "Invalid Credentials" })
   }
 }
 
@@ -179,94 +180,95 @@ const refreshTokenController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-      return res.status(401).json({ success: false, message: "Refresh token not provided." });
+    return res.status(401).json({ success: false, message: "Refresh token not provided." });
   }
 
   try {
-      const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
 
-      const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+    const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
 
-      // Set the new access token as an HTTP-only cookie
-      res.cookie('accessToken', newAccessToken, {
-         httpOnly: true,
-          expires: new Date(Date.now() + 20 * 1000), // 20 seconds
-          secure: true,
-          sameSite: "None"  });
+    // Set the new access token as an HTTP-only cookie
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 20 * 1000), // 20 seconds
+      secure: true,
+      sameSite: "None"
+    });
 
-      res.status(201).json({ success: true, message: "New accessToken generated" });
+    res.status(201).json({ success: true, message: "New accessToken generated" });
   } catch (error) {
-      return res.status(401).json({ success: false, message: "Invalid refresh token." });
+    return res.status(401).json({ success: false, message: "Invalid refresh token." });
   }
 }
 
 //DESC:LOGOUT A USER ========================
-const handleLogout = async(req,res,next) => {
+const handleLogout = async (req, res, next) => {
   try {
-      res.clearCookie('accessToken')
-      res.clearCookie('refreshToken')
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToken')
 
-      res.status(200).json({
-          success:true,
-          message:"Barber logged out successfully"
-      })
+    res.status(200).json({
+      success: true,
+      message: "Barber logged out successfully"
+    })
   } catch (error) {
-      res.status(500).json({
-          success:false,
-          message:error
-      })
+    res.status(500).json({
+      success: false,
+      message: error
+    })
   }
 }
 
 //DESC:FORGOT PASSWORD SENDING EMAIL TO USER ===========
 const handleForgetPassword = async (req, res, next) => {
   try {
-      const { email } = req.body
+    const { email } = req.body
 
-      const user = await Barber.findOne({ email: email })
+    const user = await Barber.findOne({ email: email })
 
-      if (!user) {
-          throw createError(404, "User with this email does not exist.Please register first")
-      }
+    if (!user) {
+      throw createError(404, "User with this email does not exist.Please register first")
+    }
 
-      //get ResetPassword Token
-      const resetToken = user.getResetPasswordToken()
+    //get ResetPassword Token
+    const resetToken = user.getResetPasswordToken()
 
-      await user.save({ validatebeforeSave: false })
+    await user.save({ validatebeforeSave: false })
 
-      const CLIENT_URL = "http://localhost:5173"
+    const CLIENT_URL = "http://localhost:5173"
 
-      //prepare email
-      const emailData = {
-          email,
-          subject: 'Reset Password Email',
-          html: `
+    //prepare email
+    const emailData = {
+      email,
+      subject: 'Reset Password Email',
+      html: `
               <h2>Hello ${user.name}!</h2>
               <p>Please click here to link <a style="background-color: #c2e7ff; padding: 8px 12px; border-radius: 15px; color: white; text-decoration: none; border: none; margin-left:10px;color:black;font-weigth:bold" href="http://localhost:5173/resetpassword/${resetToken}" target="_blank">Reset your password</a></p>
           `
-      };
+    };
 
-      try {
-          await emailWithNodeMail(emailData)
-      } catch (error) {
-          res.status(500).json({
-              success: false,
-              message: 'Failed to send reset password email'
-          })
-      }
-
-      res.status(200).json({
-          success: true,
-          message: `Please go to your ${email} for reseting the password`,
-          payload: {
-              resetToken
-          }
-      })
-  } catch (error) {
+    try {
+      await emailWithNodeMail(emailData)
+    } catch (error) {
       res.status(500).json({
-          success: false,
-          message: error.message
+        success: false,
+        message: 'Failed to send reset password email'
       })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Please go to your ${email} for reseting the password`,
+      payload: {
+        resetToken
+      }
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
   }
 }
 
@@ -274,40 +276,40 @@ const handleForgetPassword = async (req, res, next) => {
 //DESC:RESET PASSWORD =================================
 const handleResetPassword = async (req, res, next) => {
   try {
-      //creating token hash
-      const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
+    //creating token hash
+    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
 
-      const user = await Barber.findOne({
-          resetPasswordToken: resetPasswordToken, resetPasswordExpire: {
-              $gt: Date.now()
-          }
-      })
-
-      if (!user) {
-          res.status(404).json({
-              success: false,
-              message: "Reset Password Token is invalid or has been expired"
-          })
+    const user = await Barber.findOne({
+      resetPasswordToken: resetPasswordToken, resetPasswordExpire: {
+        $gt: Date.now()
       }
+    })
 
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-      user.password = hashedPassword;
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpire = undefined;
-
-      await user.save()
-
-      res.status(200).json({
-          success: true,
-          message: 'Password reset successfully'
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "Reset Password Token is invalid or has been expired"
       })
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save()
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully'
+    })
 
   } catch (error) {
-      res.status(500).json({
-          success: false,
-          message: error.message
-      })
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
   }
 }
 
@@ -359,13 +361,13 @@ const profileController = async (req, res) => {
   const user = req.user;
 
   res.status(200).json({
-      success: true,
-      message: "Protected Resources accessed successfully.",
-      user,
+    success: true,
+    message: "Protected Resources accessed successfully.",
+    user,
   });
 };
 
-const insertDetailsByBarber= async (req, res) => {
+const insertDetailsByBarber = async (req, res) => {
   try {
     const barberData = req.body;
 
@@ -458,47 +460,47 @@ const createBarberByAdmin = async (req, res) => {
 };
 
 //DESC Update BarberBy Admin
-const updateBarberByAdmin = async(req, res) =>{
-  try{
-  const {email, name, userName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
-
-  const updatedBarber = await Barber.findOneAndUpdate({email}, {name, userName, mobileNumber, dateOfBirth}, {new: true});
-
-if(!updatedBarber){
-  res.status(404).json({
-    success: false,
-    message: 'Barber With the email not found',
-  });
-}
+const updateBarberByAdmin = async (req, res) => {
+  try {
+    const { email, name, userName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
 
-//If barberServices is present for updating
-if(barberServices && barberServices.length > 0){
-  //Update the services accordingly
-  for (const service of barberServices) {
-    const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
-  
-    await Barber.findOneAndUpdate(
-      { email, salonId, 'barberServices.serviceId': serviceId },
-      {
-        $set: {
-          'barberServices.$.serviceName': serviceName,
-          'barberServices.$.serviceCode': serviceCode, 
-          'barberServices.$.barberServiceEWT': barberServiceEWT, // Update other fields if needed
-        }
-      },
-      { new: true }
-    );
-  }
-  
-}
+    //If barberServices is present for updating
+    if (barberServices && barberServices.length > 0) {
+      //Update the services accordingly
+      for (const service of barberServices) {
+        const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
+
+        await Barber.findOneAndUpdate(
+          { email, salonId, 'barberServices.serviceId': serviceId },
+          {
+            $set: {
+              'barberServices.$.serviceName': serviceName,
+              'barberServices.$.serviceCode': serviceCode,
+              'barberServices.$.barberServiceEWT': barberServiceEWT, // Update other fields if needed
+            }
+          },
+          { new: true }
+        );
+      }
+
+    }
 
 
-  res.status(200).json({
-    success:true,
-    message: "Barber has been successfully updated",
-    response: updatedBarber
-  })
+    const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, userName, mobileNumber, dateOfBirth }, { new: true });
+
+    if (!updatedBarber) {
+      res.status(404).json({
+        success: false,
+        message: 'Barber With the email not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Barber has been successfully updated",
+      response: updatedBarber
+    })
   }
   catch (error) {
     console.error(error);
@@ -512,7 +514,7 @@ if(barberServices && barberServices.length > 0){
 }
 
 //Upload Barber profile Picture
-const uploadBarberprofilePic = async(req, res) => {
+const uploadBarberprofilePic = async (req, res) => {
   try {
     let profiles = req.files.profile;
     const email = req.body.email;
@@ -558,7 +560,7 @@ const uploadBarberprofilePic = async(req, res) => {
       .then(async (profileimg) => {
         console.log(profileimg);
 
-        const barberImage = await Barber.findOneAndUpdate({email},{ profile: profileimg}, {new: true});
+        const barberImage = await Barber.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
 
         res.status(200).json({
           success: true,
@@ -569,26 +571,27 @@ const uploadBarberprofilePic = async(req, res) => {
       .catch((err) => {
         console.error(err);
         res.status(500).json({
-           message: "Cloudinary upload failed" ,
-           err: err.message});
+          message: "Cloudinary upload failed",
+          err: err.message
+        });
       });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Internal Server Error",
       error: error.message
-   });
+    });
   }
 }
 
 //Update Barber Profile Picture
-const updateBarberProfilePic = async(req, res) =>{
+const updateBarberProfilePic = async (req, res) => {
   try {
     const id = req.body.id;
 
     const barberProfile = await Barber.findOne({ "profile._id": id }, { "profile.$": 1 })
 
-    const public_imgid = req.body.public_imgid; 
+    const public_imgid = req.body.public_imgid;
     const profile = req.files.profile;
 
     // Validate Image
@@ -616,10 +619,11 @@ const updateBarberProfilePic = async(req, res) =>{
 
         if (result.result === 'ok') {
           console.log("cloud img deleted")
-    
+
         } else {
-          res.status(500).json({ 
-            message: 'Failed to delete image.' });
+          res.status(500).json({
+            message: 'Failed to delete image.'
+          });
         }
 
         // Delete the temporary file after uploading to Cloudinary
@@ -630,14 +634,14 @@ const updateBarberProfilePic = async(req, res) =>{
         });
 
         const updatedBarber = await Barber.findOneAndUpdate(
-          { "profile._id": id }, 
-          { 
-            $set: { 
+          { "profile._id": id },
+          {
+            $set: {
               'profile.$.public_id': image.public_id,
               'profile.$.url': image.url
-            } 
-          }, 
-          { new: true } 
+            }
+          },
+          { new: true }
         );
 
         res.status(200).json({
@@ -645,22 +649,22 @@ const updateBarberProfilePic = async(req, res) =>{
           message: "Files Updated successfully",
           updatedBarber
         });
-        
+
       })
 
 
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Internal Server Error",
       error: error.message
-   });
+    });
   }
 }
 
 //Delete Barber Profile Picture
-const deleteBarberProfilePicture = async(req, res) => {
+const deleteBarberProfilePicture = async (req, res) => {
   try {
     const public_id = req.body.public_id
     const img_id = req.body.img_id
@@ -691,8 +695,9 @@ const deleteBarberProfilePicture = async(req, res) => {
   } catch (error) {
     console.error('Error deleting image:', error);
     res.status(500).json({
-       message: 'Internal server error.', 
-      error: error.message});
+      message: 'Internal server error.',
+      error: error.message
+    });
   }
 }
 
@@ -764,12 +769,12 @@ const updateBarberAccountDetails = async (req, res) => {
 
 const deleteBarber = async (req, res) => {
   const { salonId } = req.query;
-  const {email} = req.body
+  const { email } = req.body
   try {
     const result = await barberService.deleteBarberByEmail(salonId, email);
 
     res.status(result.status).json({
-      success:true,
+      success: true,
       response: result.response,
     });
   }
@@ -782,7 +787,7 @@ const deleteBarber = async (req, res) => {
   }
 }
 
-const chnageBarberWorkingStatus = async(req, res) => {
+const chnageBarberWorkingStatus = async (req, res) => {
   try {
     const { barberId } = req.params;
     const { isActive } = req.body;
@@ -799,96 +804,98 @@ const chnageBarberWorkingStatus = async(req, res) => {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
-  
+
 }
 
-const isBarberOnline = async(req, res) =>{
+const isBarberOnline = async (req, res) => {
   try {
-      const { barberId, salonId } = req.query;
-      const { isOnline } = req.body;
-  
-      const updatedBarber = await Barber.findOneAndUpdate({barberId: barberId, salonId:salonId}, { isOnline }, { new: true });
-  
-      if (!updatedBarber) {
-        return res.status(404).json({ message: "Barber not found" });
-      }
-  
-      return res.status(200).json(updatedBarber);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+    const { barberId, salonId } = req.query;
+    const { isOnline } = req.body;
+
+    const updatedBarber = await Barber.findOneAndUpdate({ barberId: barberId, salonId: salonId }, { isOnline }, { new: true });
+
+    if (!updatedBarber) {
+      return res.status(404).json({ message: "Barber not found" });
     }
+
+    return res.status(200).json(updatedBarber);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 
-const getAllBarbersByServiceId = async(req, res) => {
-try{
-  const {serviceId} = req.query;
+const getAllBarbersByServiceId = async (req, res) => {
+  try {
+    const { serviceId } = req.query;
 
-  const barbers = await Barber.find({"barberServices.serviceId": serviceId})
+    const barbers = await Barber.find({ "barberServices.serviceId": serviceId })
 
-  if (!barbers || barbers.length === 0) {
-    return res.status(404).json({ message: "No barbers found for the given serviceId" });
+    if (!barbers || barbers.length === 0) {
+      return res.status(404).json({ message: "No barbers found for the given serviceId" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      response: barbers
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+
+
 }
 
-return res.status(200).json({
-  success: true,
-  response: barbers});
-}
-catch (error) {
-  console.error(error);
-  return res.status(500).json({ message: "Internal Server Error" });
-}
-  
 
+const getBarberServicesByBarberId = async (req, res) => {
+  try {
+    const { barberId } = req.query;
 
-}
+    const barbers = await Barber.findOne({ barberId })
 
-
-const getBarberServicesByBarberId = async(req, res) => {
-  try{
-    const {barberId} = req.query;
-
-    const barbers = await Barber.findOne({barberId})
-    
     const barberServices = barbers.barberServices;
 
     if (!barbers) {
       return res.status(404).json({ message: "No barbers found for the geiven BarberId" });
-  }
+    }
 
-  return res.status(200).json({
-    success: true,
-    response: barberServices});
-}
-catch (error) {
-  console.error(error);
-  return res.status(500).json({ message: "Internal Server Error" });
-}
+    return res.status(200).json({
+      success: true,
+      response: barberServices
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 
 }
 
 
 //CONNECT BARBER TO SALON API
-const connectBarbertoSalon = async(req, res) => {
-  try{
-    const {email, salonId, barberServices} = req.body;
+const connectBarbertoSalon = async (req, res) => {
+  try {
+    const { email, salonId, barberServices } = req.body;
 
-    const barber = await Barber.findOneAndUpdate({email},
-      {salonId:salonId, barberServices: barberServices}, {new: true});
-    
-      if (!barber) {
-        return res.status(404).json({
-          success: false,
-          message: "Barber not found",
-        });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: "Barber is added to the salon",
-        response: barber,
-      });  
+    const barber = await Barber.findOneAndUpdate({ email },
+      { salonId: salonId, barberServices: barberServices }, { new: true });
+
+    if (!barber) {
+      return res.status(404).json({
+        success: false,
+        message: "Barber not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Barber is added to the salon",
+      response: barber,
+    });
   }
   catch (error) {
     // Handle errors that might occur during the operation
@@ -902,11 +909,11 @@ const connectBarbertoSalon = async(req, res) => {
 
 
 //Get BarberDetails by barberEmail
-const getBarberDetailsByEmail = async(req, res) =>{
-  try{
-    const {email} = req.body;
+const getBarberDetailsByEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-    const barber = await Barber.findOne({email});
+    const barber = await Barber.findOne({ email });
 
     if (!barber) {
       return res.status(404).json({
@@ -919,7 +926,7 @@ const getBarberDetailsByEmail = async(req, res) =>{
       success: true,
       message: "Barber is Found",
       response: barber,
-    });  
+    });
   }
   catch (error) {
     // Handle errors that might occur during the operation
@@ -942,22 +949,22 @@ module.exports = {
   getAllBarbersByServiceId,
   getBarberServicesByBarberId,
   // addServicesTobarbers,
-  loginController, 
+  loginController,
   refreshTokenController,
   //  handleProtectedRoute,
-   profileController,
-   handleLogout,
-   registerController,
-   handleForgetPassword,
-   handleResetPassword,
-   googleLoginController,
-   connectBarbertoSalon,
-   createBarberByAdmin,
-   updateBarberByAdmin,
-   getBarberDetailsByEmail,
-   uploadBarberprofilePic,
-   updateBarberProfilePic,
-   deleteBarberProfilePicture
+  profileController,
+  handleLogout,
+  registerController,
+  handleForgetPassword,
+  handleResetPassword,
+  googleLoginController,
+  connectBarbertoSalon,
+  createBarberByAdmin,
+  updateBarberByAdmin,
+  getBarberDetailsByEmail,
+  uploadBarberprofilePic,
+  updateBarberProfilePic,
+  deleteBarberProfilePicture
 }
 
 // https://iqb-frontend.netlify.app/
