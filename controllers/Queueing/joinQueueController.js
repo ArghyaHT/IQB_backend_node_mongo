@@ -12,7 +12,7 @@ const singleJoinQueue = async (req, res) => {
     let serviceNames = "";
 
     for (const service of services) {
-      totalServiceEWT += service.serviceEWT;
+      totalServiceEWT += service.barberServiceEWT;
       if (serviceIds) {
         serviceIds += "-";
       }
@@ -107,7 +107,7 @@ const groupJoinQueue = async (req, res) => {
       let serviceNames = "";
 
       for (const service of member.services) {
-        totalServiceEWT += service.serviceEWT;
+        totalServiceEWT += service.barberServiceEWT;
         if (serviceIds) {
           serviceIds += "-";
         }
@@ -187,7 +187,7 @@ const autoJoin = async (req, res) => {
     let serviceNames = "";
 
     for (const service of services) {
-      totalServiceEWT += service.serviceEWT;
+      totalServiceEWT += service.barberServiceEWT;
       if (serviceNames) {
         serviceNames += ",";
       }
