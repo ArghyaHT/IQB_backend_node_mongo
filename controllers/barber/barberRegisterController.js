@@ -471,7 +471,7 @@ const updateBarberByAdmin = async (req, res) => {
       for (const service of barberServices) {
         const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
 
-        await Barber.findOneAndUpdate(
+       const updateService =  await Barber.findOneAndUpdate(
           { email, salonId, 'barberServices.serviceId': serviceId },
           {
             $set: {
@@ -482,9 +482,24 @@ const updateBarberByAdmin = async (req, res) => {
           },
           { new: true }
         );
+
+          // If BarberServices Not Present
+        if (!updateService) {
+          const newService = {
+            serviceId,
+            serviceName,
+            serviceCode,
+            barberServiceEWT
+          };
+          await Barber.findOneAndUpdate(
+            { email, salonId },
+            { $addToSet: { barberServices: newService } },
+            { new: true }
+          );
       }
 
     }
+  }
 
 
     const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, userName, mobileNumber, dateOfBirth }, { new: true });
