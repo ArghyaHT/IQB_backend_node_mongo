@@ -460,7 +460,7 @@ const createBarberByAdmin = async (req, res) => {
 //DESC Update BarberBy Admin
 const updateBarberByAdmin = async(req, res) =>{
   try{
-  const {email, name, userName, mobileNumber, dateOfBirth, barberServices } = req.body;
+  const {email, name, userName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
   const updatedBarber = await Barber.findOneAndUpdate({email}, {name, userName, mobileNumber, dateOfBirth}, {new: true});
 
@@ -476,14 +476,14 @@ if(!updatedBarber){
 if(barberServices && barberServices.length > 0){
   //Update the services accordingly
   for (const service of barberServices) {
-    const { serviceId, serviceName, serviceDesc, barberServiceEWT } = service;
+    const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
   
     await Barber.findOneAndUpdate(
-      { email, 'barberServices.serviceId': serviceId },
+      { email, salonId, 'barberServices.serviceId': serviceId },
       {
         $set: {
           'barberServices.$.serviceName': serviceName,
-          'barberServices.$.serviceDesc': serviceDesc, // Ensure correct field name here
+          'barberServices.$.serviceCode': serviceCode, 
           'barberServices.$.barberServiceEWT': barberServiceEWT, // Update other fields if needed
         }
       },
