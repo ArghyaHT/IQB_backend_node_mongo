@@ -76,7 +76,7 @@ const barberSchema = new mongoose.Schema({
         serviceName: {
             type: String
         },
-        serviceEWT: {
+        barberServiceEWT: {
             type: Number
         }
 

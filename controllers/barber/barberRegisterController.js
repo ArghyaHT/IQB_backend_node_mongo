@@ -391,50 +391,62 @@ const insertDetailsByBarber= async (req, res) => {
 
 
 //DESC Create Barber By Admin
-const createBarberByAdmin = async(req, res) =>{
-  try{
-    const {email, name, userName, mobileNumber, dateOfBirth, password } = req.body;
+const createBarberByAdmin = async (req, res) => {
+  try {
+    const {
+      email,
+      name,
+      userName,
+      mobileNumber,
+      salonId,
+      dateOfBirth,
+      password,
+      barberServices // Array of service objects containing serviceId, serviceCode, serviceName, serviceEWT
+    } = req.body;
 
-    //Find the barber if present
-    const barber = await Barber.findOne({email})
+    // Check if the barber with the provided email already exists
+    const barber = await Barber.findOne({ email });
 
-    if(barber){
-      res.status(404).json({
-        success:false,
-        message: "Barber with the EmailId already exists. Please enter Other Email"
-      })
+    if (barber) {
+      return res.status(400).json({
+        success: false,
+        message: "Barber with the EmailId already exists. Please enter another Email"
+      });
     }
-    else{
-      //Hashing the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      //creating the barberId
-      const barberId = await Barber.countDocuments() + 1;
-      //Creating the barberCode
-      const firstTwoLetters = name.slice(0, 2).toUpperCase();
-      const barberCode = firstTwoLetters + barberId;
 
-      //creating the barber document
-      const barber = new Barber({
-        email,
-        password: hashedPassword,
-        name,
-        userName,
-        mobileNumber,
-        dateOfBirth,
-        isApproved: true,
-        barberCode:barberCode,
-        barberId: barberId,
-        isActive: true
-      })
+    // Hashing the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      //Saving the Salon
-      const savedBarber = await barber.save();
-      res.status(404).json({
-        success:true,
-        message: "Barber SuccessFully Created",
-        response: savedBarber
-      })
-    }
+    // Creating the barberId and barberCode
+    const barberId = await Barber.countDocuments() + 1;
+    const firstTwoLetters = name.slice(0, 2).toUpperCase();
+    const barberCode = firstTwoLetters + barberId;
+
+    // Create a new barber document
+    const newBarber = new Barber({
+      email,
+      password: hashedPassword,
+      name,
+      userName,
+      salonId,
+      mobileNumber,
+      dateOfBirth,
+      barber: true,
+      isApproved: true,
+      barberCode,
+      barberId,
+      isActive: true,
+      barberServices // Assigning the received services array
+    });
+
+    // Save the new barber to the database
+    const savedBarber = await newBarber.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Barber Successfully Created",
+      response: savedBarber
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -443,14 +455,44 @@ const createBarberByAdmin = async(req, res) =>{
       error: error.message
     });
   }
-}
+};
 
 //DESC Update BarberBy Admin
 const updateBarberByAdmin = async(req, res) =>{
   try{
-  const {email, name, userName, mobileNumber, dateOfBirth } = req.body;
+  const {email, name, userName, mobileNumber, dateOfBirth, barberServices } = req.body;
 
   const updatedBarber = await Barber.findOneAndUpdate({email}, {name, userName, mobileNumber, dateOfBirth}, {new: true});
+
+if(!updatedBarber){
+  res.status(404).json({
+    success: false,
+    message: 'Barber With the email not found',
+  });
+}
+
+
+//If barberServices is present for updating
+if(barberServices && barberServices.length > 0){
+  //Update the services accordingly
+  for (const service of barberServices) {
+    const { serviceId, serviceName, serviceDesc, barberServiceEWT } = service;
+  
+    await Barber.findOneAndUpdate(
+      { email, 'barberServices.serviceId': serviceId },
+      {
+        $set: {
+          'barberServices.$.serviceName': serviceName,
+          'barberServices.$.serviceDesc': serviceDesc, // Ensure correct field name here
+          'barberServices.$.barberServiceEWT': barberServiceEWT, // Update other fields if needed
+        }
+      },
+      { new: true }
+    );
+  }
+  
+}
+
 
   res.status(200).json({
     success:true,
