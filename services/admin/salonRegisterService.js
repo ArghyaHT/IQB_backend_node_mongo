@@ -18,6 +18,7 @@ const createSalon = async (salonData) => {
     postCode,
     contactTel,
     webLink,
+    salonEmail,
     fblink,
     twitterLink,
     instraLink,
@@ -76,6 +77,7 @@ const createSalon = async (salonData) => {
       contactTel,
       webLink,
       fblink,
+      salonEmail,
       twitterLink,
       instraLink,
       services:servicesData
