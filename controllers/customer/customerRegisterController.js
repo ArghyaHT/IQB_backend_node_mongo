@@ -76,6 +76,7 @@ const signUp = async (req, res) => {
       gender,
       dateOfBirth,
       mobileNumber,
+      password,
       verificationCode,
       customer: true,
     });
