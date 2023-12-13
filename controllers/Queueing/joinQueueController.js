@@ -211,7 +211,6 @@ const autoJoin = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'No single barber provide the services.',
-        error:error.message
       });
     }
     // // Retrieve the service name from the barber's details

@@ -73,6 +73,6 @@ router.route("/getAllBarbersByServiceId").get(handleProtectedRoute,getAllBarbers
 
 router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
 
-// router.route("/changeBarberOnlineStatus").put(isBarberOnline)
+router.route("/changeBarberOnlineStatus").post(isBarberOnline)
 
 module.exports = router;

@@ -926,10 +926,13 @@ const chnageBarberWorkingStatus = async (req, res) => {
 
 const isBarberOnline = async (req, res) => {
   try {
-    const { barberId, salonId } = req.query;
-    const { isOnline } = req.body;
+    const { barberId, salonId, isOnline } = req.body;
 
-    const updatedBarber = await Barber.findOneAndUpdate({ barberId: barberId, salonId: salonId }, { isOnline }, { new: true });
+    const updatedBarber = await Barber.findOneAndUpdate(
+      { barberId: barberId, salonId: salonId },
+      { isOnline: isOnline }, // Update the isOnline field in the database
+      { new: true }
+    );
 
     if (!updatedBarber) {
       return res.status(404).json({ message: "Barber not found" });
@@ -940,7 +943,7 @@ const isBarberOnline = async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 
 
 const getAllBarbersByServiceId = async (req, res) => {
