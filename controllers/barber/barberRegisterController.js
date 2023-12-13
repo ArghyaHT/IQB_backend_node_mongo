@@ -359,6 +359,63 @@ const handleResetPassword = async (req, res, next) => {
 
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
+
+const isBarberLogginMiddleware = async (req, res) => {
+  try {
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+          return res.status(403).json({
+              success: false,
+              message: "Refresh Token not present.Please Login Again",
+          });
+      }
+
+      // Verify old refresh token
+      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+      const loggedinUser = await Barber.find({email:decodeToken.user.email})
+
+      if (!decodeToken) {
+          return res.status(401).json({
+              success: false,
+              message: "Invalid Access Token. UnAuthorize User",
+          });
+      }
+
+      return res.status(200).json({
+          success: true,
+          message: "User already logged in",
+          user: loggedinUser
+      })
+
+  } catch (error) {
+      return res.json({
+          success: false,
+          message: error,
+      });
+  }
+}
+
+const isBarberLoggedOutMiddleware = async (req, res) => {
+  try {
+      const refreshToken = req.cookies.refreshToken;
+
+
+      if (!refreshToken) {
+          return res.status(403).json({
+              success: false,
+              message: "Refresh Token not present.Please Login Again",
+          });
+      }
+  } catch (error) {
+      return res.json({
+          success: false,
+          message: error,
+      });
+  }
+}
 // const handleProtectedRoute = async (req, res, next) => {
 //   try {
 //       const accessToken = req.cookies.accessToken;
@@ -399,6 +456,7 @@ const handleResetPassword = async (req, res, next) => {
 //   }
 
 // };
+
 
 //PROETCTED ROUTE =============================
 const profileController = async (req, res) => {
@@ -1023,7 +1081,9 @@ module.exports = {
   getBarberDetailsByEmail,
   uploadBarberprofilePic,
   updateBarberProfilePic,
-  deleteBarberProfilePicture
+  deleteBarberProfilePicture,
+  isBarberLogginMiddleware,
+ isBarberLoggedOutMiddleware,
 }
 
 // https://iqb-frontend.netlify.app/

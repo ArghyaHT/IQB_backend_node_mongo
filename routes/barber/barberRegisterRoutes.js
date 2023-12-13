@@ -1,6 +1,6 @@
 const express = require("express");
-const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture } = require("../../controllers/barber/barberRegisterController");
-const { isLoggedOutMiddleware, isLogginMiddleware, handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware } = require("../../controllers/barber/barberRegisterController");
+const {  handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 
 
 const router = express.Router();
@@ -26,15 +26,14 @@ router.route("/google-login").post(googleLoginController)
 //FOR REFRESHING NEW ACCESS TOKEN
 router.route("/refresh-token").post(refreshTokenController)
 
-//ALL PROTECTED ROUTES
-// router.route("/profile").get(handleProtectedRoute,profileController)
-
-
 //ISLOGOUT MIDDLEWARE
-router.route("/loggedoutmiddleware").get(handleProtectedRoute,isLoggedOutMiddleware)
+router.route("/barberLoggedoutmiddleware").get(handleProtectedRoute,isBarberLoggedOutMiddleware)
 
 //ISLOGIN MIDDLEWARE
-router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware)
+router.route("/barberLoggedinmiddleware").get(handleProtectedRoute, isBarberLogginMiddleware)
+
+//ALL PROTECTED ROUTES
+// router.route("/profile").get(handleProtectedRoute,profileController)
 
 
 //CONNECT BARBER TO SALON
