@@ -68,7 +68,7 @@ const registerController = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "User registered successfully",
+      message: "Barber registered successfully",
       user
     })
   } catch (error) {
@@ -947,7 +947,7 @@ const getAllBarbersByServiceId = async (req, res) => {
   try {
     const { serviceId } = req.query;
 
-    const barbers = await Barber.find({ "barberServices.serviceId": serviceId })
+    const barbers = await Barber.find({ "barberServices.serviceId": serviceId, isDeleted: false })
 
     if (!barbers || barbers.length === 0) {
       return res.status(404).json({ message: "No barbers found for the given serviceId" });
