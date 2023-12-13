@@ -48,6 +48,24 @@ const registerController = async (req, res) => {
       await user.save();
     }
 
+    // Generate tokens
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 40 * 1000, // 40secs
+      secure: true,
+      sameSite: "None"
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      maxAge: 20 * 1000, //20 secs
+      secure: true,
+      sameSite: "None"
+    });
+
     res.status(200).json({
       success: true,
       message: "User registered successfully",
@@ -77,20 +95,20 @@ const loginController = async (req, res) => {
     }
 
     // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      maxAge: 40 * 1000, // 2 days // 10 minutes
       secure: true,
       sameSite: "None"
     });
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 20 * 1000),// 20 seconds
+      maxAge: 20 * 1000, // 2 days// 20 seconds
       secure: true,
       sameSite: "None"
     });
@@ -144,23 +162,49 @@ const googleLoginController = async (req, res) => {
       AuthType: "google"
     });
     await user.save();
-  }
 
-  else if (user) {
-    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+
+    //Generate Tokens
+    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      maxAge: 40 * 1000,  // 40 secs
       secure: true,
       sameSite: "None"
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 20 * 1000), // 20 seconds
+      maxAge: 20 * 1000,  // 20 seconds
+      secure: true,
+      sameSite: "None"
+    });
+
+
+    res.status(201).json({
+      success: true,
+      message: "Barber registered in successfully"
+    })
+  }
+
+  else if (user) {
+    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 40 * 1000,  // 40 secs
+      secure: true,
+      sameSite: "None"
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      maxAge: 20 * 1000,  // 20 seconds
       secure: true,
       sameSite: "None"
     });
@@ -205,8 +249,8 @@ const refreshTokenController = async (req, res) => {
 //DESC:LOGOUT A USER ========================
 const handleLogout = async (req, res, next) => {
   try {
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+    res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: "None" })
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: "None" })
 
     res.status(200).json({
       success: true,
@@ -471,7 +515,7 @@ const updateBarberByAdmin = async (req, res) => {
       for (const service of barberServices) {
         const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
 
-       const updateService =  await Barber.findOneAndUpdate(
+        const updateService = await Barber.findOneAndUpdate(
           { email, salonId, 'barberServices.serviceId': serviceId },
           {
             $set: {
@@ -483,7 +527,7 @@ const updateBarberByAdmin = async (req, res) => {
           { new: true }
         );
 
-          // If BarberServices Not Present
+        // If BarberServices Not Present
         if (!updateService) {
           const newService = {
             serviceId,
@@ -496,10 +540,10 @@ const updateBarberByAdmin = async (req, res) => {
             { $addToSet: { barberServices: newService } },
             { new: true }
           );
-      }
+        }
 
+      }
     }
-  }
 
 
     const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, userName, mobileNumber, dateOfBirth }, { new: true });
