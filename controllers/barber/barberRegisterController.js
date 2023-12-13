@@ -288,7 +288,7 @@ const handleForgetPassword = async (req, res, next) => {
       subject: 'Reset Password Email',
       html: `
               <h2>Hello ${user.name}!</h2>
-              <p>Please click here to link <a style="background-color: #c2e7ff; padding: 8px 12px; border-radius: 15px; color: white; text-decoration: none; border: none; margin-left:10px;color:black;font-weigth:bold" href="http://localhost:5173/resetpassword/${resetToken}" target="_blank">Reset your password</a></p>
+              <p>Please click here to link <a style="background-color: #c2e7ff; padding: 8px 12px; border-radius: 15px; color: white; text-decoration: none; border: none; margin-left:10px;color:black;font-weigth:bold" href="${CLIENT_URL}/barber-resetpassword/${resetToken}" target="_blank">Reset your password</a></p>
           `
     };
 
