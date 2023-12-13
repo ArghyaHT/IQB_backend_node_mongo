@@ -226,14 +226,14 @@ const savePassword = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Password saved successfully",
       response: customer
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 500,
       message: 'Internal Server Error. Password did not get saved',
       error: error.message
