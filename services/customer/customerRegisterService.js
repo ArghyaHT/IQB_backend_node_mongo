@@ -20,15 +20,14 @@ const signInCustomer = async (email, password) => {
 
     const isPasswordValid = await bcrypt.compare(password, customer.password);
 
-    // const token = await customer.generateAuthToken();
-    // console.log("the token part" + token)
-
     if (!isPasswordValid) {
       return {
         status: 400,
-        response: 'Password did not match ',
-      }
+        response: 'Password did not match',
+      };
     }
+
+    // If both email and password are valid, return customer details
     return {
       status: 200,
       response: customer,
