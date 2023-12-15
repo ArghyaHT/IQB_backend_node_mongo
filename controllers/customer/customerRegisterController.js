@@ -177,38 +177,38 @@ const signUp = async (req, res) => {
 //   }
 // };
 
-const matchVerificationCode = async(req, res) =>{
-  try{
-    const { email, verificationCode} = req.body;
+const matchVerificationCode = async (req, res) => {
+  try {
+    const { email, verificationCode } = req.body;
 
     // FIND THE CUSTOMER 
-    const customer = await Customer.findOne({email})
+    const customer = await Customer.findOne({ email });
 
-    //MATCH THE VERIFICATION CODE AND CLEAR IT FROM THE DATABASE IF MATCHED
-      if(customer.verificationCode === verificationCode){
-        customer.verificationCode = '';
-        // customer.VerificationCode = ''; // Clear the verification code
-        await customer.save();
-       
-        res.status(200).json({
-          success: true,
-          response: customer,
-        });
-      }
-      res.status(201).json({
-        success: false,
-        response: "Verification Code didn't match",
-        message: "Enter valid Verification code",
-      }); 
-  }
-  catch (error) {
+    if (customer && customer.verificationCode === verificationCode) {
+      // If verification code matches, clear it from the database
+      customer.verificationCode = '';
+      await customer.save();
+
+      return res.status(200).json({
+        success: true,
+        response: customer,
+      });
+    }
+
+    // If verification code doesn't match or customer not found
+    return res.status(201).json({
+      success: false,
+      response: "Verification Code didn't match",
+      message: "Enter a valid Verification code",
+    });
+  } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 500,
       error: 'Failed to match Verification Code',
     });
   }
-}
+};
 
 //Save Password
 const savePassword = async (req, res) => {
