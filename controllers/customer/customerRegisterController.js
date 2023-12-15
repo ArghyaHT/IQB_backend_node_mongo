@@ -69,6 +69,9 @@ const signUp = async (req, res) => {
       });
     }
 
+    //Hashing the Password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const customer = new Customer({
       email,
       name,
@@ -76,7 +79,7 @@ const signUp = async (req, res) => {
       gender,
       dateOfBirth,
       mobileNumber,
-      password,
+      password: hashedPassword,
       verificationCode,
       customer: true,
     });
