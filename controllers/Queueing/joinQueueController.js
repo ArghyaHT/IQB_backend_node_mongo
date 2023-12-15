@@ -24,10 +24,18 @@ const singleJoinQueue = async (req, res) => {
     }
     // Update the barberEWT and queueCount For the Barber
     const updatedBarber = await Barber.findOneAndUpdate(
-      { salonId: salonId, barberId: barberId },
+      { salonId: salonId, barberId: barberId, isOnline: true },
       { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
       { new: true }
     );
+
+    if(!updatedBarber){
+      res.status(400).json({
+        success: false,
+        message: "The Barber Is not online",
+      });
+    }
+
 
     //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
@@ -120,7 +128,7 @@ const groupJoinQueue = async (req, res) => {
 
       // Update the barberEWT and queueCount for the Barber
       const updatedBarber = await Barber.findOneAndUpdate(
-        { salonId: salonId, barberId: member.barberId },
+        { salonId: salonId, barberId: member.barberId, isOnline: true },
         {
           $inc: {
             barberEWT: totalServiceEWT,
@@ -129,6 +137,13 @@ const groupJoinQueue = async (req, res) => {
         },
         { new: true }
       );
+
+      if(!updatedBarber){
+        res.status(400).json({
+          success: false,
+          message: "The Barber Is not online",
+        });
+      }
 
       // Generate a unique groupJoinCode by combining qPosition and barberId
       const groupJoinCode = `${updatedBarber.queueCount}-${member.barberId}`;
