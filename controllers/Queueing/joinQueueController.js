@@ -3,6 +3,7 @@ const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel")
 
 
+//Single Join queue api
 const singleJoinQueue = async (req, res) => {
   try {
     const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, services } = req.body;
@@ -24,7 +25,7 @@ const singleJoinQueue = async (req, res) => {
     }
     // Update the barberEWT and queueCount For the Barber
     const updatedBarber = await Barber.findOneAndUpdate(
-      { salonId: salonId, barberId: barberId, isOnline: true },
+      { salonId: salonId, barberId: barberId, isOnline: true, isActive: true },
       { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
       { new: true }
     );
@@ -44,7 +45,7 @@ const singleJoinQueue = async (req, res) => {
       name,
       userName,
       joinedQ: true,
-      joinedQType,
+      joinedQType: "Single-join",
       qPosition: updatedBarber.queueCount,
       dateJoinedQ: new Date(),
       timeJoinedQ: new Date().toLocaleTimeString(),
@@ -89,6 +90,7 @@ const singleJoinQueue = async (req, res) => {
   }
 }
 
+//Group Join Queue api
 const groupJoinQueue = async (req, res) => {
   try {
     const { salonId, groupInfo } = req.body;
@@ -128,7 +130,7 @@ const groupJoinQueue = async (req, res) => {
 
       // Update the barberEWT and queueCount for the Barber
       const updatedBarber = await Barber.findOneAndUpdate(
-        { salonId: salonId, barberId: member.barberId, isOnline: true },
+        { salonId: salonId, barberId: member.barberId, isOnline: true, isActive: true },
         {
           $inc: {
             barberEWT: totalServiceEWT,
@@ -191,6 +193,7 @@ const groupJoinQueue = async (req, res) => {
 };
 
 
+//Auto join queue api
 const autoJoin = async (req, res) => {
 
   try {
@@ -213,6 +216,7 @@ const autoJoin = async (req, res) => {
       {
         salonId: salonId,
         isOnline: true,
+        isActive: true,
         'barberServices.serviceId': { $all: serviceIds },
       },
       {
@@ -238,7 +242,7 @@ const autoJoin = async (req, res) => {
       name,
       userName,
       joinedQ: true,
-      joinedQType,
+      joinedQType: "Auto-Join",
       qPosition: availableBarber.queueCount,
       dateJoinedQ: new Date(),
       timeJoinedQ: new Date().toLocaleTimeString(),
@@ -281,6 +285,7 @@ const autoJoin = async (req, res) => {
   }
 }
 
+//Get Queue List By SalonId
 const getQueueListBySalonId = async (req, res) => {
 
   try {
@@ -316,6 +321,8 @@ const getQueueListBySalonId = async (req, res) => {
 
 }
 
+
+//Barber Served Queue Api
 const barberServedQueue = async (req, res) => {
   try {
     const { salonId, barberId, serviceId, _id } = req.body;
@@ -389,8 +396,7 @@ const barberServedQueue = async (req, res) => {
     } else {
       res.status(201).json({
         success: false,
-        message: 'No service to be served.',
-        error: error.message
+        message: 'No service to be served.'
       });
     }
   } catch (error) {
@@ -404,10 +410,81 @@ const barberServedQueue = async (req, res) => {
 };
 
 
+//Get Available barbers for Queue
+const getAvailableBarbersForQ = async(req, res) =>{
+try{
+ const {salonId} = req.query;
+  //
+  const availableBarbers = await Barber.find({salonId, isActive: true, isOnline: true});
+
+  if(!availableBarbers){
+    res.status(201).json({
+      success: false,
+      message: 'No available Barbers founf at this moment.'
+    });
+  }
+  else{
+    res.status(200).json({
+      success: true,
+      message: 'All Barbers retrieved',
+      response: availableBarbers
+    });
+  }
+}
+catch (error) {
+  console.error(error);
+  res.status(500).json({
+    success: false,
+    message: 'Internal Server Error',
+    error: error.message
+  });
+}
+}
+
+const getBarberByMultipleServiceId = async (req, res) => {
+  try {
+    const { salonId, serviceIds } = req.query; // Assuming serviceIds are passed as query parameters, e.g., /barbers?serviceIds=1,2,3
+
+    if (!serviceIds) {
+      return res.status(400).json({ error: 'Service IDs are required' });
+    }
+
+    const serviceIdsArray = serviceIds.split(',').map((id) => Number(id)); // Split string into an array of service IDs
+
+    const barbers = await Barber.find({
+      salonId,
+      isOnline: true,
+      isActive: true,
+      'barberServices.serviceId': { $all: serviceIdsArray }, // Query barbers with serviceIds present in the serviceIdsArray
+    });
+
+    if (!barbers || barbers.length === 0) {
+      return res.status(404).json({ 
+        success: false,
+        response: 'No barbers found for the provided Services' });
+    }
+
+    return res.status(200).json({ 
+      success: true,
+      message: "Barbers retrieved for the particular Services",
+      response: barbers });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ 
+      success: false,
+     message : 'Failed to fetch barbers by Services',
+     error: error.message
+     });
+  }
+};
+
 module.exports = {
   singleJoinQueue,
   groupJoinQueue,
   getQueueListBySalonId,
   autoJoin,
   barberServedQueue,
+  getAvailableBarbersForQ,
+  getBarberByMultipleServiceId
 }

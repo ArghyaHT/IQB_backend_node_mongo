@@ -72,6 +72,7 @@ const signUp = async (req, res) => {
     //Hashing the Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    //Creating the Customer Object
     const customer = new Customer({
       email,
       name,
@@ -84,8 +85,11 @@ const signUp = async (req, res) => {
       customer: true,
     });
 
+    //Saving the Customer
     const savedCustomer = await customer.save();
 
+
+//Sending the verification Code to Customer Registered Email
     if (savedCustomer.verificationCode) {
       sendVerificationCodeByEmail(email, verificationCode);
       return res.status(200).json({
@@ -109,74 +113,8 @@ const signUp = async (req, res) => {
   }
 };
 
-// const signUp = async (req, res) => {
-//   try {
-//     const {
-//       email,
-//       name,
-//       userName,
-//       gender,
-//       dateOfBirth,
-//       mobileNumber,
-//       password,
-//     } = req.body;
 
-//     // Creating verification code and hashed password
-//     const verificationCode = crypto.randomBytes(2).toString('hex');
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Creating new Customer Object
-//     const customer = new Customer({
-//       email,
-//       name,
-//       userName,
-//       gender,
-//       dateOfBirth,
-//       mobileNumber,
-//       password: hashedPassword,
-//       verificationCode,
-//     });
-
-//     const savedCustomer = await customer.save();
-
-//     if (savedCustomer.verificationCode) {
-//       // Generating JWT token for the newly signed-up customer
-//       const tokenPayload = {
-//         customerId: savedCustomer._id, // Assuming _id is the unique identifier for the customer
-//         email: savedCustomer.email,
-//       };
-
-//       // Generating access token for the customer
-//       const accessToken = jwt.sign(tokenPayload, JWT_ACCESS_SECRET, { expiresIn: '24h' });
-
-//       // Send verification code via email
-//       const emailForVerification = "arghyahimanstech@gmail.com";
-//       sendVerificationCodeByEmail(emailForVerification, verificationCode);
-      
-//       res.status(200).json({
-//         success: true,
-//         response: {
-//           verificationCode,
-//           accessToken, // Send the generated access token in the response
-//         },
-//         message: 'Customer saved and Verification code has been sent successfully',
-//       });
-//     } else {
-//       res.status(400).json({
-//         success: false,
-//         response: 'Failed to save customer and send verification code',
-//         message: 'Customer data could not be saved',
-//       });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       error: 'Failed to create customer',
-//     });
-//   }
-// };
-
+//MATCH VERIFICATION CODE FOR NEW CUSTOMER
 const matchVerificationCode = async (req, res) => {
   try {
     const { email, verificationCode } = req.body;
@@ -494,6 +432,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
+
 const googleLoginControllerCustomer = async (req, res) => {
   try {
       const CLIENT_ID = process.env.CLIENT_ID;
@@ -534,10 +473,10 @@ const googleLoginControllerCustomer = async (req, res) => {
 };
 
 
+//GET ALL CUSTOMER FOR A SALON
 const allCustomers = async(req, res) => {
   try {
-    // const getAllBarbers = await Barber.find({salonId: salonId})
-
+  
     const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query
     let query = {}
 
@@ -585,9 +524,9 @@ const allCustomers = async(req, res) => {
   }
 }
 
+//UPDATE CUSTOMER PROFILE
 const updateCustomer = async(req, res) =>{
   const customerData = req.body;
-  validateSignUp[req]
   try {
       const result = await customerService.updateCustomer(customerData);
       res.status(result.status).json({

@@ -56,6 +56,7 @@ const deleteCustomer = async (email) => {
   }
 }
 
+//UPDATE CUSTOMER PROFILE
 const updateCustomer = async (customerData) => {
   const {
     email,
@@ -63,12 +64,17 @@ const updateCustomer = async (customerData) => {
     lastName,
     gender,
     dateOfBirth,
+    password,
     mobileNumber,
   } = customerData;
 
   try {
+
+      //Hashing the Password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
     const findCustomer = await Customer.findOneAndUpdate({ email },
-      { firstName, lastName, gender, dateOfBirth, mobileNumber },
+      { firstName, lastName, gender, password:hashedPassword, dateOfBirth, mobileNumber },
       { new: true })
     return {
       status: 200,
@@ -85,6 +91,7 @@ const updateCustomer = async (customerData) => {
 }
 
 
+//Send Mail to the Customer
 const sendMail = async(email, subject, text) =>{
 
   try{

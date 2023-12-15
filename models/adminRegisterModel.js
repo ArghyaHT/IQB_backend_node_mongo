@@ -9,6 +9,9 @@ const adminSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    registeredSalons: [{
+        type: Number
+    }],
     name: {
         type: String,
     },
