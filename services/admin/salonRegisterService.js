@@ -103,60 +103,7 @@ const createSalon = async (salonData) => {
   }
 }
 
-// const addSalonServices = async (serviceName, serviceDesc, servicePrice, salonId) => {
-
-//   const name = serviceName;
-//   const desc = serviceDesc;
-//   const price = servicePrice
-//   const searchSalonById = salonId;
-
-
-//   try {
-
-//       const salon = await Salon.findOne({ salonId: searchSalonById })
-
-//       if (!salon) {
-//           return ({
-//               status: 404,
-//               message: 'Salon not found'
-
-//           });
-//       }
-
-
-//       const nextServiceId = `${searchSalonById}${salon.services.length + 1}`;
-//       const firstTwoLetters = name.slice(0, 2).toUpperCase();
-
-//       const serviceCode = firstTwoLetters + nextServiceId;
-
-//       const newService = {
-//           serviceId: nextServiceId,
-//           serviceName: name,
-//           serviceCode: serviceCode,
-//           serviceDesc: desc,
-//           servicePrice: price,
-//       };
-
-//       // Push the new service to the existing salon's Services array
-//       salon.services.push(newService);
-
-//       const savedSalonService = await salon.save();
-
-//       return {
-//           status: 200,
-//           response: savedSalonService,
-//       }
-//   }
-
-//   catch (error) {
-//       console.log(error.message)
-//       return {
-//           status: 500,
-//           message: error.message,
-//       };
-//   }
-// }
-
+//Search Salons By City
 const searchSalonsByCity = async (city) => {
   try {
     const salons = await Salon.find({ city })
@@ -185,6 +132,8 @@ const searchSalonsByCity = async (city) => {
   }
 }
 
+
+//Search Salons By Location
 const searchSalonsByLocation = async (longitude, latitude) => {
   let salons = [];
 
@@ -227,38 +176,7 @@ const searchSalonsByLocation = async (longitude, latitude) => {
   // };
 };
 
-// const getSalonInfoBySalonId = async (salonId) => {
-//   try {
-//     // Find salon information by salonId
-//     const salonInfo = await Salon.findOne({ salonId });
-
-//     if (!salonInfo) {
-//       return {
-//         status: 404,
-//         message: 'No salons found for the particular SalonId.',
-//       };
-//     }
-
-//     // Find associated barbers using salonId
-//     const barbers = await Barber.find({ salonId });
-
-//     return {
-//       status: 200,
-//       message: 'Salon and barbers found successfully.',
-//       response: {
-//         salonInfo: salonInfo,
-//         barbers: barbers,
-//       },
-//     };
-//   } catch (error) {
-//     console.error(error);
-//     return {
-//       status: 500,
-//       message: 'Failed to search salons and barbers by the SalonId.',
-//     };
-//   }
-// }
-
+//Get All Salon Services
 const getAllSalonServices = async (salonId) => {
   try {
     const salon = await Salon.findOne({ salonId })
@@ -289,6 +207,7 @@ const getAllSalonServices = async (salonId) => {
 }
 
 
+//Update Salon By SalonId
 const updateSalonBySalonId = async (salonData) => {
   const {
     userName,
@@ -390,7 +309,7 @@ const updateSalonBySalonId = async (salonData) => {
 }
 
 
-
+//Update Salon Service
 const updateSalonService = async (salonId, serviceId, newServiceData) => {
   const {
     serviceName,
@@ -423,6 +342,7 @@ const updateSalonService = async (salonId, serviceId, newServiceData) => {
   }
 }
 
+//Delete Salon Service
 const deleteSalonService = async (salonId, serviceId) => {
   try {
     const updatedSalon = await Salon.findOneAndUpdate(
@@ -450,6 +370,7 @@ const deleteSalonService = async (salonId, serviceId) => {
   }
 }
 
+//Get Salons By Admin Email
 const getSalonsByAdminEmail = async(adminEmail) =>{
 
   try{
@@ -483,12 +404,10 @@ module.exports = {
   createSalon,
   searchSalonsByCity,
   searchSalonsByLocation,
-  // getSalonInfoBySalonId,
   updateSalonBySalonId,
   getAllSalonServices,
   updateSalonService,
   deleteSalonService,
   getSalonsByAdminEmail
-  // addSalonServices,
 }
 

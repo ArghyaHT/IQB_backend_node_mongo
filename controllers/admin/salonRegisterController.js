@@ -301,28 +301,7 @@ const addServices = async (req, res) => {
   }
 }
 
-// const searchSalonsByCity = async (req, res) => {
-
-//   try {
-//     const { city } = req.body
-//     const result = await salonService.searchSalonsByCity(city)
-
-//     res.status(result.status).json({
-//       success: true,
-//       response: result.response,
-//       message: result.message,
-
-//     })
-//   }
-//   catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       error: 'Failed to search Salons'
-//     });
-//   }
-// }
-
+//SEARCH SALONS BY LOCATION
 const getSalonsByLocation = async (req, res) => {
 
   try {
@@ -344,7 +323,7 @@ const getSalonsByLocation = async (req, res) => {
   }
 }
 
-
+//GET SALON INFO
 const getSalonInfo = async (req, res) => {
   const { salonId } = req.query;
   try {
@@ -466,7 +445,7 @@ const deleteServiceByServiceIdSalonId = async (req, res) => {
 }
 
 
-
+//GET ALL SALONS BY ADMIN EMAIL
 const getAllSalonsByAdmin = async (req, res) => {
 
   try {
@@ -490,21 +469,28 @@ const getAllSalonsByAdmin = async (req, res) => {
 }
 
 
+//SEARCH SALONS BY NAME AND CITY
 const searchSalonsByNameAndCity = async(req, res) =>{
   try{
     const {salonName, city, limit = 3, sortField, sortOrder} = req.query;
+
     let query = {};
+
+    //Creating the RegExp For salonName and City
     const searchRegExpName = new RegExp('.*' + salonName + ".*", 'i')
-    const searchRegExpEmail = new RegExp('.*' + city + ".*", 'i')
+    const searchRegExpCity = new RegExp('.*' + city + ".*", 'i')
     
+    //Query for searching salonName and City
     if (salonName || city) {
       query.$or = [
         { salonName: { $regex: searchRegExpName } },
-        { city: { $regex: searchRegExpEmail } }
+        { city: { $regex: searchRegExpCity } }
       ];
     }
 
     const sortOptions = {};
+
+    //Creating sorting options
     if (sortField && sortOrder) {
       sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
     }
@@ -524,6 +510,7 @@ const searchSalonsByNameAndCity = async(req, res) =>{
   }
 }
 
+//Delete Salon
 const deleteSalon = async(req, res) =>{
   try{
     const {salonId} = req.body;

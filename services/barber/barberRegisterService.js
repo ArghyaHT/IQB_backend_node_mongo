@@ -46,6 +46,7 @@ const insertBarberDetails = async (barberData) => {
     }
 }
 
+//Update Barber By Email
 const updateBarberByEmail = async (barberData) => {
 
     const { name, email, userName, mobileNumber, dateOfBirth, gender, password } = barberData
@@ -85,6 +86,7 @@ const updateBarberByEmail = async (barberData) => {
     }
 }
 
+//Delete Barber
 const deleteBarberByEmail = async (salonId, email) => {
     try {
         const deleteBarber = await Barber.findOneAndUpdate({ salonId: salonId, email: email }, { isDeleted: true }, { new: true });

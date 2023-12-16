@@ -564,6 +564,7 @@ const deleteSingleCustomer = async(req, res) =>{
 }
 
 
+//Sending Mail to Customer
 const sendMailToCustomer = async(req, res) =>{
   const { email, subject, text } = req.body;
 
@@ -586,7 +587,7 @@ catch (error) {
 }
 
 
-
+//Get Appointments for Customer
 const getAppointmentForCustomer =  async(req, res)=> {
   try {
     const { customerEmail } = req.body;
@@ -668,6 +669,7 @@ const customerConnectSalon = async (req, res) => {
   }
 };
 
+//Get Customer Details
 const getCustomerDetails = async(req, res) => {
 try{
   const {email} = req.body;

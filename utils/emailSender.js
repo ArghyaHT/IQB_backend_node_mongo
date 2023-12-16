@@ -35,6 +35,7 @@ const sendPasswordResetEmail = (emailData) => {
 };
 
 
+//Function to send email to customer 
 const sendCustomerMail = (email,subject, text) => {
   const mailOptions = {
     from: 'arghyahimanstech@gmail.com',
@@ -53,6 +54,7 @@ const sendCustomerMail = (email,subject, text) => {
   });
 }
 
+//Send Verification Code Email To Customer 
 const sendVerificationCodeByEmail = (email,verificationCode) => {
   const mailOptions = {
     from: 'arghyahimanstech@gmail.com',

@@ -3,6 +3,8 @@ const Barber = require("../../models/barberRegisterModel")
 const SalonSettings = require("../../models/salonSettingsModel")
 const moment = require("moment")
 
+
+//Creating Appointment
 const createAppointment = async(req, res) => {
     try{
         const {salonId, barberId, serviceId, appointmentDate, startTime, customerEmail, customerName, customerType, methodUsed} = req.body;
@@ -88,10 +90,13 @@ const createAppointment = async(req, res) => {
         });
     }
 }
+
+//Get All Appointments By BarberId
 const getAllAppointmentsByBarberId = async(req, res) =>{
   try {
     const { salonId, barberId, appointmentDate } = req.body;
 
+    //finding the appointments according to the barberId and appointmentDate
     const appointments = await Appointment.find({
       salonId: salonId,
       'appointmentList.appointmentDate': appointmentDate,
@@ -113,6 +118,7 @@ const getAllAppointmentsByBarberId = async(req, res) =>{
 
 }
 
+//Get Engage BarberTimeSLots Api
 const getEngageBarberTimeSlots = async (req, res) => {
   try {
     const { salonId, barberId, date } = req.body;
@@ -136,6 +142,7 @@ const getEngageBarberTimeSlots = async (req, res) => {
 
         timeSlots = generateTimeSlots(start, end);
     } else {
+      // If there are appointments for the specified barber, generate time slots as disabled: true
         const appointmentList = appointments.appointmentList;
 
         const { appointmentSettings } = await SalonSettings.findOne({ salonId });
@@ -175,6 +182,8 @@ const getEngageBarberTimeSlots = async (req, res) => {
 }
 };
 
+
+//Function to generate TimeSlots of 30 mins
 function generateTimeSlots(start, end) {
   const timeSlots = [];
   let currentTime = moment(start);

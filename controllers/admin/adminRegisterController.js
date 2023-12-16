@@ -25,7 +25,7 @@ cloudinary.config({
 });
 
 
-//DESC:REGISTER A USER 
+//DESC:REGISTER A ADMIN 
 //====================
 const registerController = async (req, res) => {
     try {
@@ -490,6 +490,8 @@ const deleteSingleAdmin = async (req, res) => {
     }
 }
 
+
+//TO UPDATE ADMIN ACCOUNT DETAILS
 const updateAdminAccountDetails = async (req, res) => {
     const adminData = req.body;
     try {
@@ -509,6 +511,8 @@ const updateAdminAccountDetails = async (req, res) => {
     }
 }
 
+
+//APPROVE BARBER API
 const approveBarber = async (req, res) => {
     try {
         const { salonId, email, isApproved } = req.body;

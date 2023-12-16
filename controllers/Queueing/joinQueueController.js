@@ -12,6 +12,7 @@ const singleJoinQueue = async (req, res) => {
     let serviceIds = "";
     let serviceNames = "";
 
+    //Code for storing the services names and serviceIds and calculating the ServiceEWT
     for (const service of services) {
       totalServiceEWT += service.barberServiceEWT;
       if (serviceIds) {
@@ -291,6 +292,8 @@ const getQueueListBySalonId = async (req, res) => {
   try {
     const { salonId } = req.query;
     console.log(salonId)
+
+    //To find the queueList according to salonId
     const getSalon = await SalonQueueList.findOne({ salonId })
 
     if (getSalon) {
@@ -414,7 +417,8 @@ const barberServedQueue = async (req, res) => {
 const getAvailableBarbersForQ = async(req, res) =>{
 try{
  const {salonId} = req.query;
-  //
+ 
+ //To find the available barbers for the queue
   const availableBarbers = await Barber.find({salonId, isActive: true, isOnline: true});
 
   if(!availableBarbers){
@@ -441,6 +445,7 @@ catch (error) {
 }
 }
 
+//To find the Barber with the Multiple ServiceIds
 const getBarberByMultipleServiceId = async (req, res) => {
   try {
     const { salonId, serviceIds } = req.query; // Assuming serviceIds are passed as query parameters, e.g., /barbers?serviceIds=1,2,3

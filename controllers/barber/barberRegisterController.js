@@ -818,6 +818,7 @@ const deleteBarberProfilePicture = async (req, res) => {
   }
 }
 
+//Get all barber By SalonId
 const getAllBarberbySalonId = async (req, res) => {
   try {
     const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query;
@@ -865,6 +866,7 @@ const getAllBarberbySalonId = async (req, res) => {
   }
 };
 
+//Update Barber Account Details
 const updateBarberAccountDetails = async (req, res) => {
   const barberData = req.body;
   try {
@@ -904,6 +906,7 @@ const deleteBarber = async (req, res) => {
   }
 }
 
+//Change Barber Working Status
 const chnageBarberWorkingStatus = async (req, res) => {
   try {
     const { barberId } = req.params;
@@ -924,6 +927,7 @@ const chnageBarberWorkingStatus = async (req, res) => {
 
 }
 
+//To Check If The Barber Is Online 
 const isBarberOnline = async (req, res) => {
   try {
     const { barberId, salonId, isOnline } = req.body;
@@ -945,7 +949,7 @@ const isBarberOnline = async (req, res) => {
   }
 };
 
-
+//Get All Barbers By Service Id
 const getAllBarbersByServiceId = async (req, res) => {
   try {
     const { serviceId } = req.query;
