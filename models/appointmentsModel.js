@@ -11,10 +11,16 @@ appointmentList:[{
     serviceId:{
         type: String
     },
+    appointmentName:{
+        type: String
+    },
     appointmentDate:{
         type: Date
     },
     startTime:{
+        type: String
+    },
+    endTime:{
         type: String
     },
     timeSlots:{

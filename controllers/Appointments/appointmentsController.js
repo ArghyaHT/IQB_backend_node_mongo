@@ -5,31 +5,38 @@ const moment = require("moment")
 
 
 //Creating Appointment
-const createAppointment = async(req, res) => {
-    try{
-        const {salonId, barberId, serviceId, appointmentDate, startTime, customerEmail, customerName, customerType, methodUsed} = req.body;
+const createAppointment = async (req, res) => {
+  try {
+      const { salonId, barberId, serviceId, appointmentDate, appointmentName, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
-        const barber = await Barber.findOne({ barberId: barberId });
-      
-    // Calculate total serviceEWT for all provided serviceIds
-    let totalServiceEWT = 0;
-    let serviceIds = "";
-    if (barber && barber.barberServices) {
-        // Convert single serviceId to an array if it's not already an array
-        const services = Array.isArray(serviceId) ? serviceId : [serviceId];
-      
-        services.forEach(id => {
-          const service = barber.barberServices.find(service => service.serviceId === id);
-          if (service) {
-            totalServiceEWT += service.serviceEWT || 0;
-      
-            if (serviceIds) {
-              serviceIds += "-";
-            }
-            serviceIds += service.serviceId.toString();
-          }
-        });
+      // Assuming you have your models imported (Barber, Appointment) and other necessary dependencies
+
+      // Fetch barber information
+      const barber = await Barber.findOne({ barberId: barberId });
+    
+      // Calculate total serviceEWT for all provided serviceIds
+      let totalServiceEWT = 0;
+      let serviceIds = "";
+      if (barber && barber.barberServices) {
+          // Convert single serviceId to an array if it's not already an array
+          const services = Array.isArray(serviceId) ? serviceId : [serviceId];
+        
+          services.forEach(id => {
+              const service = barber.barberServices.find(service => service.serviceId === id);
+              if (service) {
+                  totalServiceEWT += service.barberServiceEWT || 0;
+            
+                  if (serviceIds) {
+                      serviceIds += "-";
+                  }
+                  serviceIds += service.serviceId.toString();
+              }
+          });
       }
+
+      // Convert appointmentDate to ISO format (YYYY-MM-DD)
+      const [day, month, year] = appointmentDate.split('-');
+      const isoFormattedDate = `${year}-${month}-${day}`;
 
       // Calculate totalServiceEWT in hours and minutes
       const hours = Math.floor(totalServiceEWT / 60);
@@ -37,59 +44,59 @@ const createAppointment = async(req, res) => {
 
       const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
 
-     // Parse formattedTime into hours and minutes
-    const [formattedHours, formattedMinutes] = formattedTime.split(':').map(Number);
+      // Parse startTime from the request body into hours and minutes
+      const [startHours, startMinutes] = startTime.split(':').map(Number);
 
-    // Parse startTime from the request body into hours and minutes
-    const [startHours, startMinutes] = startTime.split(':').map(Number);
+      // Calculate endTime by adding formattedTime to startTime using Moment.js
+      const startTimeMoment = moment(`${isoFormattedDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
+      const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
+      const endTime = endTimeMoment.format('HH:mm');
 
-   // Calculate endTime by adding formattedTime to startTime using Moment.js
-   const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
-   const formattedTimeMoment = moment().startOf('day').add(formattedHours, 'hours').add(formattedMinutes, 'minutes');
-   const endTimeMoment = startTimeMoment.clone().add(formattedTimeMoment.hours(), 'hours').add(formattedTimeMoment.minutes(), 'minutes');
-   const endTime = endTimeMoment.format('HH:mm');
-    
-        const exitingAppointmentList = await Appointment.findOne({salonId});
-        const newAppointment = {
-            barberId,
-            serviceId: serviceIds, 
-            appointmentDate, 
-            startTime,
-            timeSlots: `${startTime}-${endTime}`, 
-            customerEmail,
-            customerName, 
-            customerType,
-            methodUsed,
-        }
-        if(exitingAppointmentList){
-            exitingAppointmentList.appointmentList.push(newAppointment);
-            await exitingAppointmentList.save();
-            res.status(200).json({
-                success: true,
-                message: "Appointment Confirmed",
-                response: exitingAppointmentList,
-              });
-        }else{
-            const newAppointmentData = new Appointment({
-                salonId: salonId,
-                appointmentList: [newAppointment]
-            })
-            const savedAppointment = await newAppointmentData.save();
-            res.status(200).json({
-                success: true,
-                message: "Appointment Confirmed",
-                response: savedAppointment,
-              })
-        }
+      const existingAppointmentList = await Appointment.findOne({ salonId });
+      const newAppointment = {
+          barberId,
+          serviceId: serviceIds, 
+          appointmentDate: isoFormattedDate, 
+          startTime,
+          endTime,
+          appointmentName,
+          timeSlots: `${startTime}-${endTime}`, 
+          customerEmail,
+          customerName, 
+          customerType,
+          methodUsed,
+      };
 
-    }catch(error){
-        console.log(error);
-        res.status(500).json({
+      if (existingAppointmentList) {
+          existingAppointmentList.appointmentList.push(newAppointment);
+          await existingAppointmentList.save();
+          res.status(200).json({
+              success: true,
+              message: "Appointment Confirmed",
+              response: existingAppointmentList,
+          });
+      } else {
+          const newAppointmentData = new Appointment({
+              salonId: salonId,
+              appointmentList: [newAppointment],
+          });
+          const savedAppointment = await newAppointmentData.save();
+          res.status(200).json({
+              success: true,
+              message: "Appointment Confirmed",
+              response: savedAppointment,
+          });
+      }
+
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({
           success: false,
-          error: 'Your appointment is not done. Please Try Again',
-        });
-    }
-}
+          message: 'Your appointment is not done. Please Try Again',
+          error: error.message,
+      });
+  }
+};
 
 //Get All Appointments By BarberId
 const getAllAppointmentsByBarberId = async(req, res) =>{
@@ -196,8 +203,157 @@ function generateTimeSlots(start, end) {
 
   return timeSlots;
 }
+
+
+const getAllAppointmentsBySalonId = async (req, res) => {
+  try {
+      const { salonId } = req.body;
+
+      // Assuming your Appointment and Barber models are properly imported
+      const appointments = await Appointment.aggregate([
+          { $match: { salonId: salonId } },
+          { $unwind: "$appointmentList" },
+          {
+              $lookup: {
+                  from: "barbers", // Assuming your barbers collection name
+                  localField: "appointmentList.barberId",
+                  foreignField: "barberId",
+                  as: "barberInfo"
+              }
+          },
+          {
+              $addFields: {
+                  "appointmentList.appointmentDate": {
+                      $dateToString: {
+                          format: "%d/%m/%Y",
+                          date: "$appointmentList.appointmentDate"
+                      }
+                  },
+                  "appointmentList.barberName": {
+                      $arrayElemAt: ["$barberInfo.name", 0] // Assuming the name field in the barbers collection
+                  }
+              }
+          },
+          {
+              $group: {
+                  _id: "$_id",
+                  appointmentList: { $push: "$appointmentList" }
+              }
+          }
+      ]);
+
+      if (!appointments || appointments.length === 0) {
+          return res.status(404).json({
+              success: false,
+              message: 'No appointments found for the provided salon ID',
+              appointments: [],
+          });
+      }
+
+      res.status(200).json({
+          success: true,
+          message: 'Appointments retrieved successfully',
+          appointments: appointments,
+      });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({
+          success: false,
+          error: 'Failed to fetch appointments. Please try again.',
+      });
+  }
+};
+
+
+const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
+  try {
+      const { salonId, appointmentDate } = req.body;
+
+      // Convert appointmentDate to ISO format (YYYY-MM-DD)
+      const [day, month, year] = appointmentDate.split('/');
+      const isoFormattedDate = `${year}-${month}-${day}`;
+
+      // Assuming your Appointment and Barber models are properly imported
+      const appointments = await Appointment.aggregate([
+          {
+              $match: {
+                  salonId: salonId,
+                  "appointmentList.appointmentDate": {
+                      $eq: new Date(isoFormattedDate)
+                  }
+              }
+          },
+          { $unwind: "$appointmentList" },
+          {
+              $match: {
+                  "appointmentList.appointmentDate": {
+                      $eq: new Date(isoFormattedDate)
+                  }
+              }
+          },
+          {
+              $lookup: {
+                  from: "barbers", // Assuming your barbers collection name
+                  localField: "appointmentList.barberId",
+                  foreignField: "barberId",
+                  as: "barberInfo"
+              }
+          },
+          {
+              $addFields: {
+                  "appointmentList.appointmentDate": {
+                      $dateToString: {
+                          format: "%d/%m/%Y",
+                          date: "$appointmentList.appointmentDate"
+                      }
+                  },
+                  "appointmentList.barberName": {
+                      $arrayElemAt: ["$barberInfo.name", 0] // Assuming the name field in the barbers collection
+                  }
+              }
+          },
+          {
+              $group: {
+                  _id: "$_id",
+                  appointmentList: { $push: "$appointmentList" }
+              }
+          }
+      ]);
+
+      if (!appointments || appointments.length === 0) {
+          return res.status(404).json({
+              success: false,
+              message: 'No appointments found for the provided salon ID and date',
+              appointments: [],
+          });
+      }
+
+      res.status(200).json({
+          success: true,
+          message: 'Appointments retrieved successfully',
+          appointments: appointments,
+      });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({
+          success: false,
+          error: 'Failed to fetch appointments. Please try again.',
+      });
+  }
+};
+
+// {
+//   id: createEventId(),
+//   title: 'Appoinment 1',
+//   start: todayStr + 'T09:0:00',
+//   // end: todayStr + 'T10:00:00',
+//   color:"#7EC8E3" //sky blue
+// },
+
 module.exports = {
     createAppointment,
     getAllAppointmentsByBarberId,
-    getEngageBarberTimeSlots
+    getEngageBarberTimeSlots,
+    getAllAppointmentsBySalonId,
+    getAllAppointmentsBySalonIdAndDate
 }

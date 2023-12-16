@@ -26,7 +26,7 @@ const singleJoinQueue = async (req, res) => {
     }
     // Update the barberEWT and queueCount For the Barber
     const updatedBarber = await Barber.findOneAndUpdate(
-      { salonId: salonId, barberId: barberId, isOnline: true, isActive: true },
+      { salonId: salonId, barberId: barberId, isOnline: true },
       { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
       { new: true }
     );
@@ -131,7 +131,7 @@ const groupJoinQueue = async (req, res) => {
 
       // Update the barberEWT and queueCount for the Barber
       const updatedBarber = await Barber.findOneAndUpdate(
-        { salonId: salonId, barberId: member.barberId, isOnline: true, isActive: true },
+        { salonId: salonId, barberId: member.barberId, isOnline: true },
         {
           $inc: {
             barberEWT: totalServiceEWT,
@@ -217,7 +217,6 @@ const autoJoin = async (req, res) => {
       {
         salonId: salonId,
         isOnline: true,
-        isActive: true,
         'barberServices.serviceId': { $all: serviceIds },
       },
       {
