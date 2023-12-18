@@ -48,23 +48,23 @@ const registerController = async (req, res) => {
       await user.save();
     }
 
-    // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+  // Generate tokens
+  const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+  const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
-    // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
+  // Set cookies in the response
+  res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      maxAge: 40 * 1000, // 40secs
+      maxAge: 24 * 60 * 60 * 1000, // 2 days
       secure: true,
       sameSite: "None"
-    });
-    res.cookie('accessToken', accessToken, {
+  });
+  res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      maxAge: 20 * 1000, //20 secs
+      maxAge: 1 * 60 * 1000, //1 mins
       secure: true,
       sameSite: "None"
-    });
+  });
 
     res.status(200).json({
       success: true,
@@ -94,24 +94,23 @@ const loginController = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid Credentials" });
     }
 
-    // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+   // Generate tokens
+   const accessToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+   const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
-    // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 40 * 1000, // 2 days // 10 minutes
-      secure: true,
-      sameSite: "None"
-    });
-
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 20 * 1000, // 2 days// 20 seconds
-      secure: true,
-      sameSite: "None"
-    });
+   // Set cookies in the response
+   res.cookie('refreshToken', refreshToken, {
+       httpOnly: true,
+       maxAge: 24 * 60 * 60 * 1000, // 2 days
+       secure: true,
+       sameSite: "None"
+   });
+   res.cookie('accessToken', accessToken, {
+       httpOnly: true,
+       maxAge: 1 * 60 * 1000, //1 mins
+       secure: true,
+       sameSite: "None"
+   });
 
     res.status(201).json({
       success: true,
@@ -164,23 +163,22 @@ const googleLoginController = async (req, res) => {
     await user.save();
 
 
-    //Generate Tokens
-    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
+    // Generate tokens
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 40 * 1000,  // 40 secs
-      secure: true,
-      sameSite: "None"
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,  // 2 days
+        secure: true,
+        sameSite: "None"
     });
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 20 * 1000,  // 20 seconds
-      secure: true,
-      sameSite: "None"
+        httpOnly: true,
+        maxAge: 1 * 60 * 1000, //1 mins
+        secure: true,
+        sameSite: "None"
     });
 
 
@@ -196,19 +194,19 @@ const googleLoginController = async (req, res) => {
 
 
     // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 40 * 1000,  // 40 secs
-      secure: true,
-      sameSite: "None"
+    res.cookie('refreshToken',
+        refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 2 days
+        secure: true,
+        sameSite: "None"
     });
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 20 * 1000,  // 20 seconds
-      secure: true,
-      sameSite: "None"
+        httpOnly: true,
+        maxAge: 1 * 60 * 1000, //1 mins
+        secure: true,
+        sameSite: "None"
     });
-
 
     res.status(201).json({
       success: true,
