@@ -257,78 +257,79 @@ const getAllAppointmentsBySalonId = async (req, res) => {
 //Get All Appointments By SalonId and Date
 const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
   try {
-      const { salonId, appointmentDate } = req.body;
+    const { salonId, appointmentDate } = req.body;
 
-      // Convert appointmentDate to ISO format (YYYY-MM-DD)
-      const [day, month, year] = appointmentDate.split('/');
-      const isoFormattedDate = `${year}-${month}-${day}`;
+    // Convert appointmentDate to ISO format (YYYY-MM-DD)
 
-      // Assuming your Appointment and Barber models are properly imported
-      const appointments = await Appointment.aggregate([
-          {
-              $match: {
-                  salonId: salonId,
-                  "appointmentList.appointmentDate": {
-                      $eq: new Date(isoFormattedDate)
-                  }
-              }
-          },
-          { $unwind: "$appointmentList" },
-          {
-              $match: {
-                  "appointmentList.appointmentDate": {
-                      $eq: new Date(isoFormattedDate)
-                  }
-              }
-          },
-          {
-              $lookup: {
-                  from: "barbers", // Assuming your barbers collection name
-                  localField: "appointmentList.barberId",
-                  foreignField: "barberId",
-                  as: "barberInfo"
-              }
-          },
-          {
-              $addFields: {
-                  "appointmentList.appointmentDate": {
-                      $dateToString: {
-                          format: "%d/%m/%Y",
-                          date: "$appointmentList.appointmentDate"
-                      }
-                  },
-                  "appointmentList.barberName": {
-                      $arrayElemAt: ["$barberInfo.name", 0] // Assuming the name field in the barbers collection
-                  }
-              }
-          },
-          {
-              $group: {
-                  _id: "$_id",
-                  appointmentList: { $push: "$appointmentList" }
-              }
+    const appointments = await Appointment.aggregate([
+      {
+        $match: {
+          salonId: salonId,
+          "appointmentList.appointmentDate": {
+            $eq: new Date(appointmentDate)
           }
-      ]);
-
-      if (!appointments || appointments.length === 0) {
-          return res.status(404).json({
-              success: false,
-              message: 'No appointments found for the provided salon ID and date',
-              appointments: [],
-          });
+        }
+      },
+      {
+        $unwind: "$appointmentList"
+      },
+      {
+        $match: {
+          "appointmentList.appointmentDate": {
+            $eq: new Date(appointmentDate)
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "barbers",
+          localField: "appointmentList.barberId",
+          foreignField: "barberId",
+          as: "barberInfo"
+        }
+      },
+      {
+        $addFields: {
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0]
+          },
+          "appointmentList.background": "#FFFFFF", // Set your default color here
+          "appointmentList.startTime": "$appointmentList.startTime",
+          "appointmentList.endTime": "$appointmentList.endTime"
+        }
+      },
+      {
+        $group: {
+          _id: "$appointmentList.barberId",
+          barbername: { $first: "$appointmentList.barberName" },
+          appointments: { $push: "$appointmentList" }
+        }
+      },
+      {
+        $project: {
+          barbername: 1,
+          appointments: 1,
+          _id: 0
+        }
+      },
+      {
+        $sort: {
+          barbername: 1 // Sort by barberName in ascending order
+        }
       }
+    ]);
 
-      res.status(200).json({
-          success: true,
-          message: 'Appointments retrieved successfully',
-          appointments: appointments,
-      });
+    res.status(200).json({
+      success: true,
+      message: 'Appointments retrieved successfully',
+      response: appointments
+    });
   } catch (error) {
-      console.log(error);
-      res.status(500).json({
-          success: false,
-          error: 'Failed to fetch appointments. Please try again.',
-      });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments. Please try again.'
+    });
   }
 };
 
@@ -518,4 +519,141 @@ module.exports = {
 }
 
 
-// [[date:16/12/23,{},{},{}], [date:17/12/23,{}]]
+// const appoinments = [
+//   {
+//       title: "B",
+//       barbername: "John",
+//       event: [
+//           {
+//               event: "B1",
+//               background: "#87CEEB",//sky blue,
+//               startTime:"8:00",
+//               endTime: "9:00"
+//           },
+//           {
+//               event: "B2",
+//               background: "#FFA500",//orange,
+//               startTime:"10:00",
+//               endTime: "11:00"
+//           },
+//           {
+//               event: "B3",
+//               background: "#FA86C4",//pink,
+//               startTime:"12:00",
+//               endTime: "1:00"
+//           },
+//           {
+//               event: "B4",
+//               background: "#15F4EE", //flurocent blue
+//               startTime:"3:00",
+//               endTime: "4:00"
+//           },
+//           {
+//               event: "B1",
+//               background: "#c5e3e7", //grayish blue,
+//               startTime:"2:00",
+//               endTime: "2:30"
+//           },
+//           {
+//               event: "B2",
+//               background: "#87CEEB",//sky blue
+//               startTime:"11:00",
+//               endTime: "11:30"
+//           },
+//           {
+//               event: "B3",
+//               background: "#FA86C4",//pink
+//               startTime:"5:00",
+//               endTime: "6:00"
+//           },
+//           {
+//               event: "B4",
+//               background: "#c5e3e7", //grayish blue
+//               startTime:"4:30",
+//               endTime: "5:00"
+//           }
+//       ]
+//   },
+//   {
+//       title: "C",
+//       barbername: "Smith",
+//       event: [
+//           {
+//               event: "C1",
+//               background: "#FFA500",//orange
+//               startTime:"5:00",
+//               endTime: "6:00"
+//           },
+//           {
+//               event: "C2",
+//               background: "#FA86C4",//pink
+//               startTime:"11:00",
+//               endTime: "11:30"
+//           }
+//       ]
+//   },
+//   {
+//       title: "D",
+//       barbername: "Dorian",
+//       event: [
+//           {
+//               event: "D1",
+//               background: "#15F4EE", //flurocent blue
+//               startTime:"4:30",
+//               endTime: "5:00"
+//           },
+//           {
+//               event: "D2",
+//               background: "#FA86C4",//pink
+//               startTime:"5:00",
+//               endTime: "6:00"
+//           },
+//           {
+//               event: "D3",
+//               background: "#c5e3e7", //grayish blue
+//               startTime:"2:00",
+//               endTime: "2:30"
+//           }
+//       ]
+//   },
+//   {
+//       title: "E",
+//       barbername: "Mihawk",
+//       event: [
+//           {
+//               event: "E1",
+//               background: "#c5e3e7", //grayish blue
+//               startTime:"8:00",
+//               endTime: "9:00"
+//           },
+//           {
+//               event: "E2",
+//               background: "#15F4EE", //flurocent blue
+//               startTime:"10:00",
+//               endTime: "11:00"
+//           },
+//           {
+//               event: "D3",
+//               background: "#15F4EE", //flurocent blue
+//               startTime:"2:00",
+//               endTime: "2:30"
+//           }
+//       ]
+
+//   },
+//   {
+//       title: "F",
+//       barbername: "Georgina"
+
+//   },
+//   {
+//       title: "G",
+//       barbername: "Angelo"
+
+//   },
+//   {
+//       title: "H",
+//       barbername: "vinci"
+
+//   }
+// ]
