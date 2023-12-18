@@ -34,10 +34,6 @@ const createAppointment = async (req, res) => {
           });
       }
 
-      // Convert appointmentDate to ISO format (YYYY-MM-DD)
-      const [day, month, year] = appointmentDate.split('-');
-      const isoFormattedDate = `${year}-${month}-${day}`;
-
       // Calculate totalServiceEWT in hours and minutes
       const hours = Math.floor(totalServiceEWT / 60);
       const minutes = totalServiceEWT % 60;
@@ -48,7 +44,7 @@ const createAppointment = async (req, res) => {
       const [startHours, startMinutes] = startTime.split(':').map(Number);
 
       // Calculate endTime by adding formattedTime to startTime using Moment.js
-      const startTimeMoment = moment(`${isoFormattedDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
+      const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
       const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
       const endTime = endTimeMoment.format('HH:mm');
 
@@ -56,7 +52,7 @@ const createAppointment = async (req, res) => {
       const newAppointment = {
           barberId,
           serviceId: serviceIds, 
-          appointmentDate: isoFormattedDate, 
+          appointmentDate, 
           startTime,
           endTime,
           appointmentName,
