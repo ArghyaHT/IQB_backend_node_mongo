@@ -110,8 +110,12 @@ const getEngageBarberTimeSlots = async (req, res) => {
     // Retrieve appointments for the specified salonId, barberId, and date
     const appointments = await Appointment.findOne({
       salonId: salonId,
-      "appointmentList.barberId": barberId,
-      "appointmentList.appointmentDate": isoFormattedDate
+      appointmentList: {
+        $elemMatch: {
+          barberId: barberId,
+          appointmentDate: isoFormattedDate
+        }
+      }
     });
 
     console.log(appointments)
@@ -192,7 +196,7 @@ const getAllAppointmentsBySalonId = async (req, res) => {
       { $unwind: "$appointmentList" },
       {
         $lookup: {
-          from: "barbers", // Replace with your actual collection name
+          from: "barbers",
           localField: "appointmentList.barberId",
           foreignField: "barberId",
           as: "barberInfo"
@@ -200,30 +204,28 @@ const getAllAppointmentsBySalonId = async (req, res) => {
       },
       {
         $addFields: {
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0]
+          },
           "appointmentList.appointmentDate": {
             $dateToString: {
-              format: "%d/%m/%Y",
+              format: "%Y-%m-%d",
               date: "$appointmentList.appointmentDate"
             }
-          },
-          "appointmentList.barberName": {
-            $arrayElemAt: ["$barberInfo.name", 0] // Replace with your barber's name field
           }
         }
       },
       {
         $project: {
-          _id: 0, // Exclude _id field
-          appointmentList: {
-            _id: 1,
-            appointmentDate: 1,
-            appointmentName: 1,
-            startTime: 1,
-            endTime: 1,
-            timeSlots: 1,
-            barberName: 1
-            // Include other fields if needed
-          }
+          _id: 0,
+          "appointmentList._id": 1,
+          "appointmentList.appointmentDate": 1,
+          "appointmentList.appointmentName": 1,
+          "appointmentList.startTime": 1,
+          "appointmentList.endTime": 1,
+          "appointmentList.timeSlots": 1,
+          "appointmentList.barberName": 1
+          // Include other fields if needed
         }
       },
       { $sort: { "appointmentList.appointmentDate": 1 } }
@@ -237,21 +239,10 @@ const getAllAppointmentsBySalonId = async (req, res) => {
       });
     }
 
-    const groupedAppointments = appointments.reduce((grouped, appointment) => {
-      const date = appointment.appointmentList.appointmentDate;
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(appointment.appointmentList);
-      return grouped;
-    }, {});
-
-    const result = Object.values(groupedAppointments).map(appointments => appointments);
-
     res.status(200).json({
       success: true,
       message: 'Appointments retrieved successfully',
-      response: result,
+      response: appointments.map(appointment => appointment.appointmentList),
     });
   } catch (error) {
     console.log(error);
