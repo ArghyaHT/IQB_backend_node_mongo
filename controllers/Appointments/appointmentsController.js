@@ -103,38 +103,46 @@ const getEngageBarberTimeSlots = async (req, res) => {
   try {
     const { salonId, barberId, date } = req.body;
 
-    // Convert date to ISO format (YYYY-MM-DD)
-    const [day, month, year] = date.split('/');
-    const isoFormattedDate = `${year}-${month}-${day}`;
-
-    // Retrieve appointments for the specified salonId, barberId, and date
-    const appointments = await Appointment.findOne({
-      salonId: salonId,
-      appointmentList: {
-        $elemMatch: {
-          barberId: barberId,
-          appointmentDate: isoFormattedDate
+    // Getting the appointments for a Specific Barber
+    const appointments = await Appointment.aggregate([
+      {
+        $match: {
+          salonId: salonId,
+          "appointmentList.appointmentDate": {
+            $eq: new Date(date)
+          },
+          "appointmentList.barberId": barberId
         }
-      }
-    });
-
-    console.log(appointments)
+      },
+      {
+        $unwind: "$appointmentList"
+      },
+      {
+        $match: {
+          "appointmentList.appointmentDate": {
+            $eq: new Date(date)
+          },
+          "appointmentList.barberId": barberId
+        }
+      },
+    ]);
 
     let timeSlots = [];
 
-    if (!appointments) {
-      // If there are no appointments for the specified barber on the date, generate time slots as disabled: false
+    if (!appointments || appointments.length === 0) {
+      // Generate time slots for the entire working hours as no appointments found
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
       const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
 
+      //Generate the timeslots for the barber If no appointments
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
       timeSlots = generateTimeSlots(start, end);
     } else {
-      // If there are appointments for the specified barber on the date, generate time slots as disabled: true
-      const appointmentList = appointments.appointmentList;
+      const appointmentList = appointments.map(appt => appt.appointmentList);
 
+      // Generate time slots for the barber If have appointments
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
       const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
 
@@ -169,7 +177,6 @@ const getEngageBarberTimeSlots = async (req, res) => {
     });
   }
 };
-
 
 //Function to generate TimeSlots of 30 mins
 function generateTimeSlots(start, end) {
