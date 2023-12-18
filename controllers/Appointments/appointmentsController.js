@@ -103,20 +103,23 @@ const getEngageBarberTimeSlots = async (req, res) => {
   try {
     const { salonId, barberId, date } = req.body;
 
+    // Convert date to ISO format (YYYY-MM-DD)
+    const [day, month, year] = date.split('/');
+    const isoFormattedDate = `${year}-${month}-${day}`;
+
     // Retrieve appointments for the specified salonId, barberId, and date
     const appointments = await Appointment.findOne({
       salonId: salonId,
       "appointmentList.barberId": barberId,
-      "appointmentList.appointmentDate": {
-        $gte: new Date(date), // Filter appointments on or after the given date
-        $lt: new Date(moment(date).add(1, 'day')) // Filter appointments before the next day
-      }
+      "appointmentList.appointmentDate": isoFormattedDate
     });
+
+    console.log(appointments)
 
     let timeSlots = [];
 
     if (!appointments) {
-      // If there are no appointments for the specified barber, generate time slots as disabled: false
+      // If there are no appointments for the specified barber on the date, generate time slots as disabled: false
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
       const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
 
@@ -125,7 +128,7 @@ const getEngageBarberTimeSlots = async (req, res) => {
 
       timeSlots = generateTimeSlots(start, end);
     } else {
-      // If there are appointments for the specified barber, generate time slots as disabled: true
+      // If there are appointments for the specified barber on the date, generate time slots as disabled: true
       const appointmentList = appointments.appointmentList;
 
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
@@ -182,86 +185,80 @@ function generateTimeSlots(start, end) {
 //Get All Appointments by SalonId
 const getAllAppointmentsBySalonId = async (req, res) => {
   try {
-      const { salonId } = req.body;
+    const { salonId } = req.body;
 
-      // Assuming your Appointment and Barber models are properly imported
-      const appointments = await Appointment.aggregate([
-          { $match: { salonId: salonId } },
-          { $unwind: "$appointmentList" },
-          {
-              $lookup: {
-                  from: "barbers", // Assuming your barbers collection name
-                  localField: "appointmentList.barberId",
-                  foreignField: "barberId",
-                  as: "barberInfo"
-              }
+    const appointments = await Appointment.aggregate([
+      { $match: { salonId: salonId } },
+      { $unwind: "$appointmentList" },
+      {
+        $lookup: {
+          from: "barbers", // Replace with your actual collection name
+          localField: "appointmentList.barberId",
+          foreignField: "barberId",
+          as: "barberInfo"
+        }
+      },
+      {
+        $addFields: {
+          "appointmentList.appointmentDate": {
+            $dateToString: {
+              format: "%d/%m/%Y",
+              date: "$appointmentList.appointmentDate"
+            }
           },
-          {
-              $addFields: {
-                  "appointmentList.appointmentDate": {
-                      $dateToString: {
-                          format: "%d/%m/%Y",
-                          date: "$appointmentList.appointmentDate"
-                      }
-                  },
-                  "appointmentList.barberName": {
-                      $arrayElemAt: ["$barberInfo.name", 0] // Assuming the name field in the barbers collection
-                  }
-              }
-          },
-          {
-              $project: {
-                  _id: 1,
-                  appointmentList: {
-                    _id: 1,
-                      appointmentDate: 1,
-                      appointmentName: 1,
-                      startTime: 1,
-                      endTime: 1,
-                      timeSlots: 1,
-                      barberName: 1
-                      // Include other fields if needed
-                  }
-              }
-          },
-          { $sort: { "appointmentList.appointmentDate": 1 } } // Sort by appointmentDate in ascending order
-      ]);
-
-      if (!appointments || appointments.length === 0) {
-          return res.status(404).json({
-              success: false,
-              message: 'No appointments found for the provided salon ID',
-              appointments: [],
-          });
-      }
-
-      // Group appointments by appointmentDate
-      const groupedAppointments = appointments.reduce((grouped, appointment) => {
-          const date = appointment.appointmentList.appointmentDate;
-          if (!grouped[date]) {
-              grouped[date] = [];
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0] // Replace with your barber's name field
           }
-          grouped[date].push(appointment.appointmentList);
-          return grouped;
-      }, {});
+        }
+      },
+      {
+        $project: {
+          _id: 0, // Exclude _id field
+          appointmentList: {
+            _id: 1,
+            appointmentDate: 1,
+            appointmentName: 1,
+            startTime: 1,
+            endTime: 1,
+            timeSlots: 1,
+            barberName: 1
+            // Include other fields if needed
+          }
+        }
+      },
+      { $sort: { "appointmentList.appointmentDate": 1 } }
+    ]);
 
-      // Convert groupedAppointments object into an array of arrays
-      const result = Object.entries(groupedAppointments).map(([date, appointments]) => ({
-          date,
-          appointments,
-      }));
-
-      res.status(200).json({
-          success: true,
-          message: 'Appointments retrieved successfully',
-          appointments: result,
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No appointments found for the provided salon ID',
+        appointments: [],
       });
+    }
+
+    const groupedAppointments = appointments.reduce((grouped, appointment) => {
+      const date = appointment.appointmentList.appointmentDate;
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(appointment.appointmentList);
+      return grouped;
+    }, {});
+
+    const result = Object.values(groupedAppointments).map(appointments => appointments);
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointments retrieved successfully',
+      response: result,
+    });
   } catch (error) {
-      console.log(error);
-      res.status(500).json({
-          success: false,
-          error: 'Failed to fetch appointments. Please try again.',
-      });
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments. Please try again.',
+    });
   }
 };
 
