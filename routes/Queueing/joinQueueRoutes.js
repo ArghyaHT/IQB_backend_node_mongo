@@ -20,12 +20,12 @@ router.route("/autoJoin").post(handleProtectedRoute,autoJoin),
 router.route("/barberServedQueue").post(handleProtectedRoute,barberServedQueue)
 
 //Get Available Barbers for Queue
-router.route("/getAvailableBarbersForQ").post(getAvailableBarbersForQ)
+router.route("/getAvailableBarbersForQ").post(handleProtectedRoute, getAvailableBarbersForQ)
 
 //Get Barber By Multiple ServiceId
-router.route("/getBarberByMultipleServiceId").post(getBarberByMultipleServiceId)
+router.route("/getBarberByMultipleServiceId").post(handleProtectedRoute, getBarberByMultipleServiceId)
 
 //Get Q list by BarberId
-router.route("/getQlistByBarberId").post(getQlistbyBarberId)
+router.route("/getQlistByBarberId").post(handleProtectedRoute, getQlistbyBarberId)
 
 module.exports = router
