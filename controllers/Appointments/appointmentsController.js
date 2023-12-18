@@ -98,33 +98,6 @@ const createAppointment = async (req, res) => {
   }
 };
 
-//Get All Appointments By BarberId
-const getAllAppointmentsByBarberId = async(req, res) =>{
-  try {
-    const { salonId, barberId, appointmentDate } = req.body;
-
-    //finding the appointments according to the barberId and appointmentDate
-    const appointments = await Appointment.find({
-      salonId: salonId,
-      'appointmentList.appointmentDate': appointmentDate,
-      'appointmentList.barberId': barberId,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Appointment List Retrieved',
-      response: appointments,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      error: 'Could not retrieve the appointments of the barber',
-    });
-  }
-
-}
-
 //Get Engage BarberTimeSLots Api
 const getEngageBarberTimeSlots = async (req, res) => {
   try {
@@ -132,61 +105,62 @@ const getEngageBarberTimeSlots = async (req, res) => {
 
     // Retrieve appointments for the specified salonId, barberId, and date
     const appointments = await Appointment.findOne({
-        salonId: salonId,
-        "appointmentList.barberId": barberId,
-        "appointmentList.appointmentDate": new Date(date)
+      salonId: salonId,
+      "appointmentList.barberId": barberId,
+      "appointmentList.appointmentDate": {
+        $gte: new Date(date), // Filter appointments on or after the given date
+        $lt: new Date(moment(date).add(1, 'day')) // Filter appointments before the next day
+      }
     });
 
     let timeSlots = [];
 
     if (!appointments) {
-        // If there are no appointments for the specified barber, generate time slots as disabled: false
-        const { appointmentSettings } = await SalonSettings.findOne({ salonId });
-        const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+      // If there are no appointments for the specified barber, generate time slots as disabled: false
+      const { appointmentSettings } = await SalonSettings.findOne({ salonId });
+      const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
 
-        const start = moment(appointmentStartTime, 'HH:mm');
-        const end = moment(appointmentEndTime, 'HH:mm');
+      const start = moment(appointmentStartTime, 'HH:mm');
+      const end = moment(appointmentEndTime, 'HH:mm');
 
-        timeSlots = generateTimeSlots(start, end);
+      timeSlots = generateTimeSlots(start, end);
     } else {
       // If there are appointments for the specified barber, generate time slots as disabled: true
-        const appointmentList = appointments.appointmentList;
+      const appointmentList = appointments.appointmentList;
 
-        const { appointmentSettings } = await SalonSettings.findOne({ salonId });
-        const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+      const { appointmentSettings } = await SalonSettings.findOne({ salonId });
+      const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
 
-        const start = moment(appointmentStartTime, 'HH:mm');
-        const end = moment(appointmentEndTime, 'HH:mm');
+      const start = moment(appointmentStartTime, 'HH:mm');
+      const end = moment(appointmentEndTime, 'HH:mm');
 
-        timeSlots = generateTimeSlots(start, end);
+      timeSlots = generateTimeSlots(start, end);
 
-        appointmentList.forEach(appointment => {
-            const slotsInRange = appointment.timeSlots.split('-');
-            const rangeStart = moment(slotsInRange[0], 'HH:mm');
-            const rangeEnd = moment(slotsInRange[1], 'HH:mm');
+      appointmentList.forEach(appointment => {
+        const slotsInRange = appointment.timeSlots.split('-');
+        const rangeStart = moment(slotsInRange[0], 'HH:mm');
+        const rangeEnd = moment(slotsInRange[1], 'HH:mm');
 
-            const rangeStartTime = moment(rangeStart.format('HH:mm'), 'HH:mm');
-            const rangeEndTime = moment(rangeEnd.format('HH:mm'), 'HH:mm');
-
-            timeSlots = timeSlots.map(slot => {
-                if (moment(slot.timeInterval, 'HH:mm').isBetween(rangeStartTime, rangeEndTime, undefined, '[]')) {
-                    return { ...slot, disabled: true };
-                }
-                return slot;
-            });
+        timeSlots = timeSlots.map(slot => {
+          const slotTime = moment(slot.timeInterval, 'HH:mm');
+          if (slotTime.isBetween(rangeStart, rangeEnd) || slotTime.isSame(rangeStart) || slotTime.isSame(rangeEnd)) {
+            return { ...slot, disabled: true };
+          }
+          return slot;
         });
+      });
     }
 
     res.status(200).json({
-        message: "Time slots retrieved and matched successfully",
-        timeSlots: timeSlots
+      message: "Time slots retrieved and matched successfully",
+      timeSlots: timeSlots
     });
-} catch (error) {
+  } catch (error) {
     res.status(500).json({
-        error: 'Failed to fetch time slots',
-        details: error.message
+      error: 'Failed to fetch time slots',
+      details: error.message
     });
-}
+  }
 };
 
 
@@ -205,6 +179,7 @@ function generateTimeSlots(start, end) {
 }
 
 
+//Get All Appointments by SalonId
 const getAllAppointmentsBySalonId = async (req, res) => {
   try {
       const { salonId } = req.body;
@@ -235,11 +210,21 @@ const getAllAppointmentsBySalonId = async (req, res) => {
               }
           },
           {
-              $group: {
-                  _id: "$_id",
-                  appointmentList: { $push: "$appointmentList" }
+              $project: {
+                  _id: 1,
+                  appointmentList: {
+                    _id: 1,
+                      appointmentDate: 1,
+                      appointmentName: 1,
+                      startTime: 1,
+                      endTime: 1,
+                      timeSlots: 1,
+                      barberName: 1
+                      // Include other fields if needed
+                  }
               }
-          }
+          },
+          { $sort: { "appointmentList.appointmentDate": 1 } } // Sort by appointmentDate in ascending order
       ]);
 
       if (!appointments || appointments.length === 0) {
@@ -250,10 +235,26 @@ const getAllAppointmentsBySalonId = async (req, res) => {
           });
       }
 
+      // Group appointments by appointmentDate
+      const groupedAppointments = appointments.reduce((grouped, appointment) => {
+          const date = appointment.appointmentList.appointmentDate;
+          if (!grouped[date]) {
+              grouped[date] = [];
+          }
+          grouped[date].push(appointment.appointmentList);
+          return grouped;
+      }, {});
+
+      // Convert groupedAppointments object into an array of arrays
+      const result = Object.entries(groupedAppointments).map(([date, appointments]) => ({
+          date,
+          appointments,
+      }));
+
       res.status(200).json({
           success: true,
           message: 'Appointments retrieved successfully',
-          appointments: appointments,
+          appointments: result,
       });
   } catch (error) {
       console.log(error);
@@ -265,6 +266,7 @@ const getAllAppointmentsBySalonId = async (req, res) => {
 };
 
 
+//Get All Appointments By SalonId and Date
 const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
   try {
       const { salonId, appointmentDate } = req.body;
@@ -342,6 +344,174 @@ const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
   }
 };
 
+// Get all appointments by salonid and barberid
+const getAllAppointmentsByBarberId = async (req, res) => {
+  try {
+    const { salonId, barberId } = req.body;
+
+    const appointments = await Appointment.aggregate([
+      { $match: { salonId: salonId } },
+      { $unwind: "$appointmentList" },
+      {
+        $match: {
+          "appointmentList.barberId": barberId
+        }
+      },
+      {
+        $lookup: {
+          from: "barbers",
+          localField: "appointmentList.barberId",
+          foreignField: "barberId",
+          as: "barberInfo"
+        }
+      },
+      {
+        $addFields: {
+          "appointmentList.appointmentDate": {
+            $dateToString: {
+              format: "%d/%m/%Y",
+              date: "$appointmentList.appointmentDate"
+            }
+          },
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          appointmentList: {
+            _id: 1,
+            appointmentDate: 1,
+            appointmentName: 1,
+            startTime: 1,
+            endTime: 1,
+            timeSlots: 1,
+            barberName: 1
+          }
+        }
+      },
+      { $sort: { "appointmentList.appointmentDate": 1 } }
+    ]);
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No appointments found for the provided salon and barber IDs',
+        appointments: [],
+      });
+    }
+
+    const groupedAppointments = appointments.reduce((grouped, appointment) => {
+      const date = appointment.appointmentList.appointmentDate;
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(appointment.appointmentList);
+      return grouped;
+    }, {});
+
+    const result = Object.entries(groupedAppointments).map(([date, appointments]) => ({
+      date,
+      appointments,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointments retrieved successfully',
+      appointments: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments. Please try again.',
+    });
+  }
+};
+
+
+//Get All Appointments By SalonId and Date
+const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
+  try {
+    const { salonId, barberId, appointmentDate } = req.body;
+
+    // Convert appointmentDate to ISO format (YYYY-MM-DD)
+    const [day, month, year] = appointmentDate.split('/');
+    const isoFormattedDate = `${year}-${month}-${day}`;
+
+    const appointments = await Appointment.aggregate([
+      {
+        $match: {
+          salonId: salonId,
+          "appointmentList.appointmentDate": {
+            $eq: new Date(isoFormattedDate)
+          },
+          "appointmentList.barberId": barberId
+        }
+      },
+      { $unwind: "$appointmentList" },
+      {
+        $match: {
+          "appointmentList.appointmentDate": {
+            $eq: new Date(isoFormattedDate)
+          },
+          "appointmentList.barberId": barberId
+        }
+      },
+      {
+        $lookup: {
+          from: "barbers",
+          localField: "appointmentList.barberId",
+          foreignField: "barberId",
+          as: "barberInfo"
+        }
+      },
+      {
+        $addFields: {
+          "appointmentList.appointmentDate": {
+            $dateToString: {
+              format: "%d/%m/%Y",
+              date: "$appointmentList.appointmentDate"
+            }
+          },
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          appointmentList: { $push: "$appointmentList" }
+        }
+      }
+    ]);
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No appointments found for the provided salon ID, barber ID, and date',
+        appointments: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointments retrieved successfully',
+      appointments: appointments,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments. Please try again.',
+    });
+  }
+};
+
+
 // {
 //   id: createEventId(),
 //   title: 'Appoinment 1',
@@ -355,5 +525,9 @@ module.exports = {
     getAllAppointmentsByBarberId,
     getEngageBarberTimeSlots,
     getAllAppointmentsBySalonId,
-    getAllAppointmentsBySalonIdAndDate
+    getAllAppointmentsBySalonIdAndDate,
+    getAllAppointmentsByBarberIdAndDate
 }
+
+
+// [[date:16/12/23,{},{},{}], [date:17/12/23,{}]]
