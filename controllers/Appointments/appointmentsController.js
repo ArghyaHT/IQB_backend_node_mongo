@@ -328,7 +328,8 @@ const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch appointments. Please try again.'
+      message: 'Failed to fetch appointments. Please try again.',
+      error: error.message
     });
   }
 };
@@ -356,29 +357,28 @@ const getAllAppointmentsByBarberId = async (req, res) => {
       },
       {
         $addFields: {
-          "appointmentList.appointmentDate": {
-            $dateToString: {
-              format: "%d/%m/%Y",
-              date: "$appointmentList.appointmentDate"
-            }
-          },
           "appointmentList.barberName": {
             $arrayElemAt: ["$barberInfo.name", 0]
+          },
+          "appointmentList.appointmentDate": {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$appointmentList.appointmentDate"
+            }
           }
         }
       },
       {
         $project: {
-          _id: 1,
-          appointmentList: {
-            _id: 1,
-            appointmentDate: 1,
-            appointmentName: 1,
-            startTime: 1,
-            endTime: 1,
-            timeSlots: 1,
-            barberName: 1
-          }
+          _id: 0,
+          "appointmentList._id": 1,
+          "appointmentList.appointmentDate": 1,
+          "appointmentList.appointmentName": 1,
+          "appointmentList.startTime": 1,
+          "appointmentList.endTime": 1,
+          "appointmentList.timeSlots": 1,
+          "appointmentList.barberName": 1
+          // Include other fields if needed
         }
       },
       { $sort: { "appointmentList.appointmentDate": 1 } }
@@ -387,29 +387,15 @@ const getAllAppointmentsByBarberId = async (req, res) => {
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No appointments found for the provided salon and barber IDs',
+        message: 'No appointments found for the provided salon and barber ID',
         appointments: [],
       });
     }
 
-    const groupedAppointments = appointments.reduce((grouped, appointment) => {
-      const date = appointment.appointmentList.appointmentDate;
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(appointment.appointmentList);
-      return grouped;
-    }, {});
-
-    const result = Object.entries(groupedAppointments).map(([date, appointments]) => ({
-      date,
-      appointments,
-    }));
-
     res.status(200).json({
       success: true,
       message: 'Appointments retrieved successfully',
-      appointments: result,
+      response: appointments.map(appointment => appointment.appointmentList),
     });
   } catch (error) {
     console.log(error);
@@ -426,16 +412,12 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
   try {
     const { salonId, barberId, appointmentDate } = req.body;
 
-    // Convert appointmentDate to ISO format (YYYY-MM-DD)
-    const [day, month, year] = appointmentDate.split('/');
-    const isoFormattedDate = `${year}-${month}-${day}`;
-
     const appointments = await Appointment.aggregate([
       {
         $match: {
           salonId: salonId,
           "appointmentList.appointmentDate": {
-            $eq: new Date(isoFormattedDate)
+            $eq: new Date(appointmentDate)
           },
           "appointmentList.barberId": barberId
         }
@@ -444,7 +426,7 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
       {
         $match: {
           "appointmentList.appointmentDate": {
-            $eq: new Date(isoFormattedDate)
+            $eq: new Date(appointmentDate)
           },
           "appointmentList.barberId": barberId
         }
@@ -459,12 +441,6 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
       },
       {
         $addFields: {
-          "appointmentList.appointmentDate": {
-            $dateToString: {
-              format: "%d/%m/%Y",
-              date: "$appointmentList.appointmentDate"
-            }
-          },
           "appointmentList.barberName": {
             $arrayElemAt: ["$barberInfo.name", 0]
           }
@@ -472,8 +448,17 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
       },
       {
         $group: {
-          _id: "$_id",
-          appointmentList: { $push: "$appointmentList" }
+          _id: "$appointmentList.barberId",
+          barbername: { $first: "$appointmentList.barberName" },
+          appointments: { $push: "$appointmentList" }
+        }
+      },
+      {
+        $project: {
+          _id: 0, // Exclude _id field
+          barbername: 1,
+          barberId: 1,
+          appointments: 1
         }
       }
     ]);
@@ -482,20 +467,21 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'No appointments found for the provided salon ID, barber ID, and date',
-        appointments: [],
+        response: [],
       });
     }
 
     res.status(200).json({
       success: true,
       message: 'Appointments retrieved successfully',
-      appointments: appointments,
+      response: appointments,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch appointments. Please try again.',
+      message: 'Failed to fetch appointments. Please try again.',
+      error: error.message
     });
   }
 };
