@@ -37,7 +37,8 @@ const barberSchema = new mongoose.Schema({
         type: Date,
     },
     salonId: {
-        type: Number
+        type: Number,
+        default: 0
     },
     barberId: {
         type: Number
