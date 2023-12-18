@@ -99,6 +99,13 @@ const getEngageBarberTimeSlots = async (req, res) => {
   try {
     const { salonId, barberId, date } = req.body;
 
+    if (!date) {
+      // If the date value is null, send a response to choose the date
+      return res.status(400).json({
+        message: 'Please choose a date to fetch time slots'
+      });
+    }
+
     // Getting the appointments for a Specific Barber
     const appointments = await Appointment.aggregate([
       {

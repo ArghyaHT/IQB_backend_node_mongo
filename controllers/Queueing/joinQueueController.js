@@ -483,6 +483,61 @@ const getBarberByMultipleServiceId = async (req, res) => {
   }
 };
 
+const getQlistbyBarberId = async (req, res) => {
+  try {
+    const { salonId, barberId } = req.body;
+
+    const qList = await SalonQueueList.aggregate([
+      {
+        $match: {
+          salonId: salonId
+        }
+      },
+      {
+        $unwind: "$queueList"
+      },
+      {
+        $match: {
+          "queueList.barberId": barberId
+        }
+      },
+      {
+        $group: {
+          _id: "$queueList.barberId",
+          queueList: { $push: "$queueList" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          queueList: 1
+        }
+      }
+    ]);
+
+    if (!qList || qList.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Queue list not found for the specified barber and salon ID',
+        queueList: []
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Queue list retrieved successfully for the specified barber',
+      queueList: qList[0].queueList // Extracting the queue list from the result
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch queue list by barber ID',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   singleJoinQueue,
   groupJoinQueue,
@@ -490,5 +545,6 @@ module.exports = {
   autoJoin,
   barberServedQueue,
   getAvailableBarbersForQ,
-  getBarberByMultipleServiceId
+  getBarberByMultipleServiceId,
+  getQlistbyBarberId
 }
