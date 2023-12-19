@@ -150,6 +150,10 @@ const googleLoginController = async (req, res) => {
   let user = await Barber.findOne({ email: payload.email, AuthType: "google" });
 
   const barberId = await Barber.countDocuments() + 1;
+
+  //Creating the barberCode
+  const firstTwoLetters = payload.name.slice(0, 2).toUpperCase();
+  const barberCode = firstTwoLetters + barberId;
   // If the user doesn't exist, create a new user
   // add barber id by count docuents and isApproved as false 
   if (!user) {
@@ -157,6 +161,7 @@ const googleLoginController = async (req, res) => {
       name: payload.name,
       email: payload.email,
       barberId: barberId,
+      barberCode: barberCode,
       barber: true,
       AuthType: "google"
     });

@@ -67,9 +67,18 @@ const updateBarberByEmail = async (barberData) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             updateFields.password = hashedPassword;
         }
+        
 
         //Updating the Barber Document
         const barber = await Barber.findOneAndUpdate({ email: email }, updateFields, { new: true }).select("-password");
+
+        // Generating the barberCode based on the updated name and existing barberId
+        const firstTwoLetters = name.slice(0, 2).toUpperCase();
+        const updatedBarberCode = firstTwoLetters + barberId;
+
+        // Updating the barberCode in the database
+        await Barber.findOneAndUpdate({ email: email }, { barberCode: updatedBarberCode }, {new: true});
+
 
         return {
             status: 200,
