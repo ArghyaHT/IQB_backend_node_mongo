@@ -74,7 +74,7 @@ const updateBarberByEmail = async (barberData) => {
 
         // Generating the barberCode based on the updated name and existing barberId
         const firstTwoLetters = name.slice(0, 2).toUpperCase();
-        const updatedBarberCode = firstTwoLetters + barberId;
+        const updatedBarberCode = firstTwoLetters + barber.barberId;
 
         // Updating the barberCode in the database
         await Barber.findOneAndUpdate({ email: email }, { barberCode: updatedBarberCode }, {new: true});
