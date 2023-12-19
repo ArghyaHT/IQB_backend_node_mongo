@@ -824,7 +824,7 @@ const deleteBarberProfilePicture = async (req, res) => {
 //Get all barber By SalonId
 const getAllBarberbySalonId = async (req, res) => {
   try {
-    const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query;
+    const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
     let query = { isDeleted: false }; // Filter for isDeleted set to false
 
     const searchRegExpName = new RegExp('.*' + name + ".*", 'i');
