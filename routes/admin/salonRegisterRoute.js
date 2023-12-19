@@ -14,7 +14,7 @@ router.route("/createSalonByAdmin").post(handleProtectedRoute,createSalonByAdmin
 router.route("/uploadSalonImage").post(handleProtectedRoute,uploadProfile)
 
 //UPLOAD MORE IMAGES TO THE EXISTING ARRAY OF IMAGES
-router.route("/uploadMoreImages").post(uploadMoreProfileImages)
+router.route("/uploadMoreImages").post(handleProtectedRoute, uploadMoreProfileImages)
 
 //UPDATE SALON IMAGES
 router.route("/updateSalonImages").put(handleProtectedRoute,updateSalonImages)
