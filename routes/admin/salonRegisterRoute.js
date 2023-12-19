@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages, getAllSalons,  } = require("../../controllers/admin/salonRegisterController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 
@@ -36,13 +36,16 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 
 //GET ALL SALON SERVICES
-router.route("/allSalonServices").get(allSalonServices) //api working
+router.route("/allSalonServices").get(handleProtectedRoute ,allSalonServices) //api working
 
-router.route("/updateSalonServiceByServiceId").put(updateSalonServiceByServiceId) //api working perfectly
+router.route("/updateSalonServiceByServiceId").put(handleProtectedRoute,updateSalonServiceByServiceId) //api working perfectly
 
 router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSalonId)
 
 //SOFT DELETE SALON
-router.route("/deleteSalon").post(deleteSalon)
+router.route("/deleteSalon").post(handleProtectedRoute,deleteSalon)
+
+//GetAll Salons
+router.route("/getAllSalons").get(handleProtectedRoute,getAllSalons)
 
 module.exports = router 

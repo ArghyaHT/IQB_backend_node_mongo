@@ -8,9 +8,9 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
-    cloud_name: 'dfrw3aqyp',
-    api_key: '574475359946326',
-    api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
+  cloud_name: 'dfrw3aqyp',
+  api_key: '574475359946326',
+  api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
 });
 
 // Create a new Salon By Admin
@@ -39,7 +39,7 @@ const createSalonByAdmin = async (req, res) => {
 };
 
 //Upload Salon Images
-const uploadProfile = async(req, res) =>{
+const uploadProfile = async (req, res) => {
   try {
     let profiles = req.files.profile;
     let salonId = req.body.salonId
@@ -86,7 +86,7 @@ const uploadProfile = async(req, res) =>{
         console.log(profileimg);
 
         const salon = await Salon.findOneAndUpdate(
-          {salonId},{ profile: profileimg }, {new: true});
+          { salonId }, { profile: profileimg }, { new: true });
 
         res.status(200).json({
           success: true,
@@ -122,22 +122,22 @@ const uploadMoreProfileImages = async (req, res) => {
           public_id: public_id,
           folder: "students",
         })
-        .then((image) => {
-          resolve({
-            public_id: image.public_id,
-            url: image.secure_url,
+          .then((image) => {
+            resolve({
+              public_id: image.public_id,
+              url: image.secure_url,
+            });
+          })
+          .catch((err) => {
+            reject(err);
+          })
+          .finally(() => {
+            fs.unlink(profile.tempFilePath, (unlinkError) => {
+              if (unlinkError) {
+                console.error('Failed to delete temporary file:', unlinkError);
+              }
+            });
           });
-        })
-        .catch((err) => {
-          reject(err);
-        })
-        .finally(() => {
-          fs.unlink(profile.tempFilePath, (unlinkError) => {
-            if (unlinkError) {
-              console.error('Failed to delete temporary file:', unlinkError);
-            }
-          });
-        });
       });
     });
 
@@ -160,22 +160,22 @@ const uploadMoreProfileImages = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      success:false,
+    res.status(500).json({
+      success: false,
       message: "Internal Server Error",
-     error: error.message 
-  });
+      error: error.message
+    });
   }
 };
 
 //Update Salon  Images
-const updateSalonImages = async(req, res) =>{
+const updateSalonImages = async (req, res) => {
   try {
     const id = req.body.id;
 
     const salonProfile = await Salon.findOne({ "profile._id": id }, { "profile.$": 1 })
 
-    const public_imgid = req.body.public_imgid; 
+    const public_imgid = req.body.public_imgid;
     const profile = req.files.profile;
 
     // Validate Image
@@ -203,7 +203,7 @@ const updateSalonImages = async(req, res) =>{
 
         if (result.result === 'ok') {
           console.log("cloud img deleted")
-    
+
         } else {
           res.status(500).json({ message: 'Failed to delete image.' });
         }
@@ -216,36 +216,36 @@ const updateSalonImages = async(req, res) =>{
         });
 
         const updatedSalon = await Salon.findOneAndUpdate(
-          { "profile._id": id }, 
-          { 
-            $set: { 
+          { "profile._id": id },
+          {
+            $set: {
               'profile.$.public_id': image.public_id,
               'profile.$.url': image.url
-            } 
-          }, 
-          { new: true } 
+            }
+          },
+          { new: true }
         );
         res.status(200).json({
           success: true,
           message: "Files Updated successfully",
           updatedSalon
         });
-        
+
       })
 
 
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Internal Server Error",
       error: error.message
-   });
+    });
   }
 }
 
 //Delete Salon Images
-const deleteSalonImages = async(req, res) =>{
+const deleteSalonImages = async (req, res) => {
   try {
     const public_id = req.body.public_id
     const img_id = req.body.img_id
@@ -273,7 +273,7 @@ const deleteSalonImages = async(req, res) =>{
     } else {
       res.status(404).json({ message: 'Image not found in the student profile' });
     }
-  
+
   } catch (error) {
     console.error('Error deleting image:', error);
     res.status(500).json({ message: 'Internal server error.' });
@@ -470,16 +470,16 @@ const getAllSalonsByAdmin = async (req, res) => {
 
 
 //SEARCH SALONS BY NAME AND CITY
-const searchSalonsByNameAndCity = async(req, res) =>{
-  try{
-    const {salonName, city, limit = 3, sortField, sortOrder} = req.query;
+const searchSalonsByNameAndCity = async (req, res) => {
+  try {
+    const { salonName, city, limit = 3, sortField, sortOrder } = req.query;
 
     let query = {};
 
     //Creating the RegExp For salonName and City
     const searchRegExpName = new RegExp('.*' + salonName + ".*", 'i')
     const searchRegExpCity = new RegExp('.*' + city + ".*", 'i')
-    
+
     //Query for searching salonName and City
     if (salonName || city) {
       query.$or = [
@@ -501,7 +501,7 @@ const searchSalonsByNameAndCity = async(req, res) =>{
       message: "All Salons fetched successfully",
       getAllSalons,
     })
-  }catch (error) {
+  } catch (error) {
     console.log(error.message)
     return {
       status: 500,
@@ -511,33 +511,55 @@ const searchSalonsByNameAndCity = async(req, res) =>{
 }
 
 //Delete Salon
-const deleteSalon = async(req, res) =>{
-  try{
-    const {salonId} = req.body;
+const deleteSalon = async (req, res) => {
+  try {
+    const { salonId } = req.body;
 
-    const deletedSalon = await Salon.findOneAndUpdate({salonId}, {isDeleted: true}, {new: true});
+    const deletedSalon = await Salon.findOneAndUpdate({ salonId }, { isDeleted: true }, { new: true });
 
-    if(!deletedSalon){
+    if (!deletedSalon) {
       res.status(404).json({
         success: true,
         message: "The Salonw ith the SalonId not found",
-       })
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "The Salon has been deleted",
-        response: deletedSalon
       })
-     }
-     catch (error) {
-      console.log(error.message)
-      return {
-        status: 500,
-        message: error.message,
-      };
     }
+
+    res.status(200).json({
+      success: true,
+      message: "The Salon has been deleted",
+      response: deletedSalon
+    })
+  }
+  catch (error) {
+    console.log(error.message)
+    return {
+      status: 500,
+      message: error.message,
+    };
+  }
 }
+
+//Get All Salons
+
+const getAllSalons = async (req, res) => {
+  try {
+    const salons = await Salon.find({}); // Retrieve all salons from the database
+    res.status(200).json({
+      success: true,
+      response: salons
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      response: 'Server Error',
+      error: error.message
+    });
+  }
+}
+
+
+
+
 module.exports = {
   createSalonByAdmin,
   // searchSalonsByCity,
@@ -554,5 +576,6 @@ module.exports = {
   uploadProfile,
   updateSalonImages,
   deleteSalonImages,
-  uploadMoreProfileImages
+  uploadMoreProfileImages,
+  getAllSalons
 }
