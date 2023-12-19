@@ -99,10 +99,10 @@ const getEngageBarberTimeSlots = async (req, res) => {
   try {
     const { salonId, barberId, date } = req.body;
 
-    if (!date) {
+    if (!date || !barberId) {
       // If the date value is null, send a response to choose the date
       return res.status(400).json({
-        message: 'Please choose a date to fetch time slots'
+        message: 'Please choose a Date and Barber to fetch time slots'
       });
     }
 
