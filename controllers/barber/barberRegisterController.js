@@ -1096,15 +1096,4 @@ module.exports = {
  isBarberLoggedOutMiddleware,
 }
 
-// https://iqb-frontend.netlify.app/
 
-
-//create barberby admin
-//update barberby admin
-//create salonby admin
-//update salonby admin
-//update admin Accounbt details
-//update barber Account details
-//upload adminprofile pic
-//update adminProfile pic
-//delete adminProfile pic 
