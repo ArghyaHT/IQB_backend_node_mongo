@@ -28,7 +28,26 @@ const createSalonSettings = async (req, res) => {
 }
 
 const getSalonSettings = async (req, res) => {
-    res.send("this is get salon Settings route ")
+    try{
+        const {salonId} = req. body;
+        // Find the existing SalonSettings document based on salonId
+        let existingSalonSettings = await SalonSettings.findOne({ salonId });
+
+        if (!existingSalonSettings) {
+            return res.status(404).json({ 
+                message: "Salon Settings not found"
+             });
+        }
+        res.status(200).json({
+            message: "Salon Settings Updated",
+            response: existingSalonSettings
+        });
+
+    }catch (error) {
+        res.status(500).json({ 
+            response: 'Failed to update salon settings', 
+            error: error.message });
+    }
 }
 
 const updateSalonSettings = async (req, res) => {
@@ -44,6 +63,7 @@ const updateSalonSettings = async (req, res) => {
                 message: "Salon Settings not found"
              });
         }
+
 
         // Update the appointment settings if provided in the request
         if (startTime && endTime) {
