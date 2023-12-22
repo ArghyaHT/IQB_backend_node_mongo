@@ -28,6 +28,8 @@ const students = require("./routes/ImageUploadDemo/student.js")
 
 const mobileRoutes = require("./routes/MobileRoutes/MobileRoutes.js")
 
+const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
+
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
   limit: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -109,6 +111,8 @@ app.use("/api/salonReports", salonReports)
 app.use("/api/appointments", appointments)
 
 app.use("/api/mobileRoutes", mobileRoutes)
+
+app.use("/api/advertisement", advertisement)
 
 const PORT = 8080;
 

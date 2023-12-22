@@ -1,6 +1,7 @@
 const Salon = require("../../models/salonsRegisterModel.js")
 const Admin = require("../../models/adminRegisterModel.js")
 const Barber = require("../../models/barberRegisterModel.js")
+const SalonSettings = require("../../models/salonSettingsModel.js")
 
 //-------CreateSalon------//
 
@@ -23,6 +24,7 @@ const createSalon = async (salonData) => {
     twitterLink,
     instraLink,
     services,
+    appointmentSettings
   } = salonData
 
   try {
@@ -86,7 +88,20 @@ const createSalon = async (salonData) => {
 
     const savedSalon = await salon.save();
 
-    await savedSalon.save();
+   const { startTime, endTime } = appointmentSettings;
+
+   // Create a new SalonSettings instance with generated time slots
+   const newSalonSettings = new SalonSettings({
+       salonId,
+       appointmentSettings: {
+           appointmentStartTime: startTime,
+           appointmentEndTime: endTime,
+       }
+   });
+
+   // Save the new SalonSettings to the database
+   await newSalonSettings.save();
+
     return {
       status: 200,
       response: savedSalon,

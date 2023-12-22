@@ -4,17 +4,16 @@ const salonSettingsSchema  = new mongoose.Schema({
     salonId:{
         type: Number
     },
-    // queueSettings:{
-    //     settings1:{
-    //         type:String
-    //     },
-    //     settings2:{
-    //         type: String
-    //     },
-    //     settings3:{
-    //         type: String
-    //     }
-    // },
+    advertisements: [
+        {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }
+    ],
     appointmentSettings:{
         appointmentStartTime:{
             type:String
