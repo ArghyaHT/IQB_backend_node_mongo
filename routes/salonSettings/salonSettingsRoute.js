@@ -4,9 +4,15 @@ const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterC
 
 const router =  express.Router();
 
+//Create Salon Settings
 router.route("/createSalonSettings").post(handleProtectedRoute,createSalonSettings)
-router.route("/getSalonSettings").post(getSalonSettings)
-router.route("/updateSalonSettings").put(updateSalonSettings)
+
+//Get Salon Settings
+router.route("/getSalonSettings").post(handleProtectedRoute, getSalonSettings)
+
+//Update Salon Settings
+router.route("/updateSalonSettings").put(handleProtectedRoute, updateSalonSettings)
+
 router.route("/deleteSalonSettings").delete(deleteSalonSettings)
 
 
