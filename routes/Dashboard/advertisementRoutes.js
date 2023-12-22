@@ -1,10 +1,13 @@
 const express = require("express");
-const { addAdvertisements, getDashboardAppointmentList } = require("../../controllers/Dashboard/dashboardController");
+const { addAdvertisements, getDashboardAppointmentList, getAdvertisements } = require("../../controllers/Dashboard/dashboardController");
 
 const router = express.Router();
 
 //Add Advertisements
 router.route("/addAdvertisements").post(addAdvertisements)
+
+//Get Advertisements
+router.route("/getAdvertisements").post(getAdvertisements)
 
 //Get DashboardQlist
 router.route("/getDashboardAppointmentList").post(getDashboardAppointmentList)

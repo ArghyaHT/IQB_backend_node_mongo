@@ -78,6 +78,35 @@ const addAdvertisements = async (req, res) => {
     }
 };
 
+//GetAdvertisements api
+const getAdvertisements = async(req, res) =>{
+  try {
+    const { salonId } = req.body;
+
+    // Find SalonSettings by salonId and retrieve only the advertisements field
+    const salonSettings = await SalonSettings.findOne({ salonId }).select('advertisements');
+
+    // Sort advertisements array in descending order
+    const sortedAdvertisements = salonSettings.advertisements.reverse();
+
+    if (!salonSettings) {
+      return res.status(404).json({ message: "Salon settings not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Advertisement images retrieved successfully',
+      advertisements: sortedAdvertisements
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
 
 //GetDashboardQList
 const getDashboardAppointmentList = async (req, res) => {
@@ -168,4 +197,7 @@ const getDashboardAppointmentList = async (req, res) => {
   }
 }; 
   
-  module.exports = { addAdvertisements, getDashboardAppointmentList };
+  module.exports = {
+     addAdvertisements, 
+     getDashboardAppointmentList,
+     getAdvertisements };
