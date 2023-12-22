@@ -43,21 +43,27 @@ connectDB()
 
 const app = express()
 
-const allowedOrigins = [
-  "https://iqb-react-frontend.netlify.app",
-  "http://localhost:5173"
-];
+// const allowedOrigins = [
+//   "https://iqb-react-frontend.netlify.app",
+//   "http://localhost:5173"
+// ];
 
 //Use Multiple Cors
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // Check if the origin is in the allowed origins list or if it's undefined (like in case of same-origin requests)
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true); // Allow the request
+//     } else {
+//       callback(new Error("Not allowed by CORS")); // Deny the request
+//     }
+//   },
+//   credentials: true
+// }));
+
 app.use(cors({
-  origin: function (origin, callback) {
-    // Check if the origin is in the allowed origins list or if it's undefined (like in case of same-origin requests)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow the request
-    } else {
-      callback(new Error("Not allowed by CORS")); // Deny the request
-    }
-  },
+  origin:"https://iqb-react-frontend.netlify.app",
+  // origin: "http://localhost:5173",
   credentials: true
 }));
 
