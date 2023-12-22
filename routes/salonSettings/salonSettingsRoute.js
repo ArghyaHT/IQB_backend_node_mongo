@@ -5,7 +5,7 @@ const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterC
 const router =  express.Router();
 
 router.route("/createSalonSettings").post(handleProtectedRoute,createSalonSettings)
-router.route("/getSalonSettings").get(getSalonSettings)
+router.route("/getSalonSettings").post(getSalonSettings)
 router.route("/updateSalonSettings").put(updateSalonSettings)
 router.route("/deleteSalonSettings").delete(deleteSalonSettings)
 
