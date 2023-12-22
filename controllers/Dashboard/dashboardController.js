@@ -76,11 +76,11 @@ const addAdvertisements = async (req, res) => {
         error: error.message
       });
     }
-  };
+};
 
 
 //GetDashboardQList
-const getDashboardQList = async (req, res) => {
+const getDashboardAppointmentList = async (req, res) => {
   try {
     const { salonId, appointmentDate } = req.body;
 
@@ -168,4 +168,4 @@ const getDashboardQList = async (req, res) => {
   }
 }; 
   
-  module.exports = { addAdvertisements, getDashboardQList };
+  module.exports = { addAdvertisements, getDashboardAppointmentList };
