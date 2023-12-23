@@ -736,7 +736,7 @@ const getAllSalonsByAdmin = async (req, res) => {
         const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
         // Find the admin based on the email
-        const admin = await Admin.findOne({ email: adminEmail, isDeleted: false });
+        const admin = await Admin.findOne({ email: adminEmail });
 
         if (!admin) {
             return res.status(404).json({
@@ -745,7 +745,10 @@ const getAllSalonsByAdmin = async (req, res) => {
         }
 
         // Fetch all salons associated with the admin from registeredSalons array
-        const salons = await Salon.find({ salonId: { $in: admin.registeredSalons } });
+        const salons = await Salon.find({
+            salonId: { $in: admin.registeredSalons },
+            isDeleted: false,
+          });
 
         res.status(200).json({
             message: 'Salons retrieved successfully',
@@ -768,6 +771,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res) => {
         // Find the admin based on the provided email
         const admin = await Admin.findOne({ email: adminEmail });
 
+        console.log(admin)
         if (!admin) {
             return res.status(404).json({
                 message: 'Admin not found',
