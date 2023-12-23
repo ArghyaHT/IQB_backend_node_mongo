@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -46,5 +46,8 @@ router.route("/approvedBarber").post(handleProtectedRoute,approveBarber)
 
 //Get All Salons By Admin
 router.route("/getAllSalonsByAdmin").post(handleProtectedRoute,getAllSalonsByAdmin)
+
+//Change Default SalonId Of Admin
+router.route("/changeDefaultSalonIdofAdmin").post(handleProtectedRoute, changeDefaultSalonIdOfAdmin)
 
 module.exports = router

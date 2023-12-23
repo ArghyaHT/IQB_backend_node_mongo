@@ -760,9 +760,35 @@ const getAllSalonsByAdmin = async(req, res) => {
 }
 
 //Change Salon Id of Admin
-const changeDefaultSalonIdOfAdmin = async(req, res) =>{
-    
-}
+const changeDefaultSalonIdOfAdmin = async (req, res) => {
+    try {
+      const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
+  
+      // Find the admin based on the provided email
+      const admin = await Admin.findOne({ email: adminEmail });
+  
+      if (!admin) {
+        return res.status(404).json({
+          message: 'Admin not found',
+        });
+      }
+  
+      // Update the default salonId of the admin
+      admin.salonId = salonId;
+      await admin.save();
+  
+      res.status(200).json({
+        message: 'Default salon ID of admin updated successfully',
+        admin: admin,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: 'Failed to update default salon ID of admin',
+        error: error.message,
+      });
+    }
+  };
 
 module.exports = {
     deleteSingleAdmin,
@@ -783,4 +809,5 @@ module.exports = {
     updateAdminProfilePic,
     deleteAdminProfilePicture,
     getAllSalonsByAdmin,
+    changeDefaultSalonIdOfAdmin,
 }
