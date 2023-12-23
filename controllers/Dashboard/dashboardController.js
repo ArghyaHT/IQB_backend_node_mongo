@@ -111,24 +111,41 @@ const getAdvertisements = async (req, res) => {
 //Update Advertisements
 const updateAdvertisements = async (req, res) => {
   try {
-    const { id, public_imgid, advertisements } = req.body;
+    const id = req.body.id;
 
-    // Find the SalonSettings document that matches the provided public_id (or appropriate field)
-    const salonSetting = await SalonSettings.findOne({ "public_id": id }, { "advertisements.$": 1 });
+    const updateadvertisements = await SalonSettings.findOne({ "advertisements._id": id }, { "advertisements.$": 1 })
 
-    // Existing image validation logic remains unchanged...
+    const public_imgid = req.body.public_imgid;
+    const advertisements = req.files.advertisements;
+
+    // Validate Image
+    const fileSize = advertisements.size / 1000;
+    const fileExt = advertisements.name.split(".")[1];
+
+    if (fileSize > 500) {
+      return res.status(400).json({ message: "File size must be lower than 500kb" });
+    }
+
+    if (!["jpg", "png", "jfif", "jpeg"].includes(fileExt)) {
+      return res.status(400).json({ message: "File extension must be jpg or png" });
+    }
+
+    // Generate a unique public_id based on the original file name
+    const public_id = `${advertisements.name.split(".")[0]}`;
 
     cloudinary.uploader.upload(advertisements.tempFilePath, {
-      public_id: `${advertisements.name.split(".")[0]}`,
-      folder: "students", // Adjust the folder according to your setup
+      public_id: public_id,
+      folder: "students",
     })
       .then(async (image) => {
+
         const result = await cloudinary.uploader.destroy(public_imgid);
 
         if (result.result === 'ok') {
-          console.log("Cloud image deleted");
+          console.log("cloud img deleted")
+    
         } else {
-          return res.status(500).json({ message: 'Failed to delete image.' });
+          res.status(500).json({ message: 'Failed to delete image.' });
         }
 
         // Delete the temporary file after uploading to Cloudinary
@@ -138,16 +155,15 @@ const updateAdvertisements = async (req, res) => {
           }
         });
 
-        // Update the specific advertisement in the SalonSettings document
         const updatedSalonSettings = await SalonSettings.findOneAndUpdate(
-          { "advertisements._id": id }, // Check and confirm the correct field to match here
-          {
-            $set: {
+          { "advertisements._id": id }, 
+          { 
+            $set: { 
               'advertisements.$.public_id': image.public_id,
               'advertisements.$.url': image.url
-            }
-          },
-          { new: true }
+            } 
+          }, 
+          { new: true } 
         );
 
         res.status(200).json({
@@ -174,33 +190,33 @@ const updateAdvertisements = async (req, res) => {
   }
 }
 
+
+//Delete Advertisements
 const deleteAdvertisements = async (req, res) => {
   try {
-    const { public_id, img_id } = req.body;
+    const public_id = req.body.public_id;
+    const img_id = req.body.img_id;
 
-    // Delete image from Cloudinary
-    const cloudinaryResult = await cloudinary.uploader.destroy(public_id);
+    const result = await cloudinary.uploader.destroy(public_id);
 
-    if (cloudinaryResult.result === 'ok') {
-      console.log("Cloudinary image deleted");
+    if (result.result === 'ok') {
+      console.log("Cloud image deleted");
 
-      // Remove the advertisement from SalonSettings
-      const updatedSalon = await SalonSettings.findOneAndUpdate(
-        { "advertisements._id": img_id },
+      const updatedSalonSettings = await SalonSettings.findOneAndUpdate(
+        { 'advertisements._id': img_id },
         { $pull: { advertisements: { _id: img_id } } },
         { new: true }
       );
 
-      if (updatedSalon) {
+      if (updatedSalonSettings) {
         return res.status(200).json({
           success: true,
-          message: "Image successfully deleted from both Cloudinary and SalonSettings"
+          message: "Image successfully deleted"
         });
       } else {
         return res.status(404).json({ message: 'Image not found in the advertisements' });
       }
     } else {
-      console.error("Failed to delete image from Cloudinary:", cloudinaryResult);
       return res.status(500).json({ message: 'Failed to delete image.' });
     }
   } catch (error) {
