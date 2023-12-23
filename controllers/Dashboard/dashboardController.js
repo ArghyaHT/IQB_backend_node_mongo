@@ -174,44 +174,43 @@ const updateAdvertisements = async (req, res) => {
   }
 }
 
-//Delete Advertisements
 const deleteAdvertisements = async (req, res) => {
   try {
-    const public_id = req.body.public_id
-    const img_id = req.body.img_id
+    const { public_id, img_id } = req.body;
 
-    const result = await cloudinary.uploader.destroy(public_id);
+    // Delete image from Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.destroy(public_id);
 
-    if (result.result === 'ok') {
-      console.log("cloud img deleted")
+    if (cloudinaryResult.result === 'ok') {
+      console.log("Cloudinary image deleted");
 
+      // Remove the advertisement from SalonSettings
+      const updatedSalon = await SalonSettings.findOneAndUpdate(
+        { "advertisements._id": img_id },
+        { $pull: { advertisements: { _id: img_id } } },
+        { new: true }
+      );
+
+      if (updatedSalon) {
+        return res.status(200).json({
+          success: true,
+          message: "Image successfully deleted from both Cloudinary and SalonSettings"
+        });
+      } else {
+        return res.status(404).json({ message: 'Image not found in the advertisements' });
+      }
     } else {
-      res.status(500).json({ message: 'Failed to delete image.' });
+      console.error("Failed to delete image from Cloudinary:", cloudinaryResult);
+      return res.status(500).json({ message: 'Failed to delete image.' });
     }
-
-    const updatedSalon = await SalonSettings.findOneAndUpdate(
-      { 'profile._id': img_id },
-      { $pull: { advertisements: { _id: img_id } } },
-      { new: true }
-    );
-
-    if (updatedSalon) {
-      res.status(200).json({
-        success: true,
-        message: "Image successfully deleted"
-      })
-    } else {
-      res.status(404).json({ message: 'Image not found in the student profile' });
-    }
-
   } catch (error) {
     console.error('Error deleting image:', error);
-    res.status(500).json({
+    return res.status(500).json({
       message: 'Internal server error.',
       error: error.message
     });
   }
-}
+};
 
 
 

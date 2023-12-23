@@ -36,10 +36,10 @@ const registerController = async (req, res) => {
 
         let user = await Admin.findOne({ email: email });
 
-        if(user){
+        if (user) {
             return res.status(400).json({
-                success:false,
-                message:"User already exist"
+                success: false,
+                message: "User already exist"
             })
         }
 
@@ -80,7 +80,7 @@ const registerController = async (req, res) => {
             })
         }
 
-        
+
     } catch (error) {
         res.status(400).json({
             success: false,
@@ -105,7 +105,7 @@ const loginController = async (req, res) => {
         }
 
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
         // Set cookies in the response
@@ -170,28 +170,28 @@ const googleLoginController = async (req, res) => {
         });
         await user.save()
 
-         // Generate tokens
-         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        // Generate tokens
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
-         // Set cookies in the response
-         res.cookie('refreshToken', refreshToken, {
-             httpOnly: true,
-             maxAge: 24 * 60 * 60 * 1000,  // 2 days
-             secure: true,
-             sameSite: "None"
-         });
-         res.cookie('accessToken', accessToken, {
-             httpOnly: true,
-             maxAge: 1 * 60 * 1000, //1 mins
-             secure: true,
-             sameSite: "None"
-         });
+        // Set cookies in the response
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,  // 2 days
+            secure: true,
+            sameSite: "None"
+        });
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 1 * 60 * 1000, //1 mins
+            secure: true,
+            sameSite: "None"
+        });
 
-         res.status(200).json({
-             success: true,
-             message: "Admin registered successfully"
-         })
+        res.status(200).json({
+            success: true,
+            message: "Admin registered successfully"
+        })
     }
 
     else if (user) {
@@ -380,7 +380,10 @@ const isLogginMiddleware = async (req, res) => {
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-        const loggedinUser = await Admin.find({email:decodeToken.user.email})
+        const loggedinUser = await Admin.find({ email: decodeToken.user.email })
+
+        // Find the logged-in user by email
+        const loggedinSalon = await Salon.find({ adminEmail: decodeToken.user.email });
 
         if (!decodeToken) {
             return res.status(401).json({
@@ -392,7 +395,8 @@ const isLogginMiddleware = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "User already logged in",
-            user: loggedinUser
+            user: loggedinUser,
+            salon: loggedinSalon.salonName
         })
 
     } catch (error) {
@@ -731,150 +735,150 @@ const deleteAdminProfilePicture = async (req, res) => {
 }
 
 //Get Salons by Admin
-const getAllSalonsByAdmin = async(req, res) => {
+const getAllSalonsByAdmin = async (req, res) => {
     try {
         const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
-    
+
         // Find the admin based on the email
-        const admin = await Admin.findOne({ email: adminEmail });
-    
+        const admin = await Admin.findOne({ email: adminEmail, isDeleted: false });
+
         if (!admin) {
-          return res.status(404).json({
-            message: 'Admin not found',
-          });
+            return res.status(404).json({
+                message: 'Admin not found',
+            });
         }
-    
+
         // Fetch all salons associated with the admin from registeredSalons array
         const salons = await Salon.find({ salonId: { $in: admin.registeredSalons } });
-    
+
         res.status(200).json({
-          message: 'Salons retrieved successfully',
-          salons: salons,
+            message: 'Salons retrieved successfully',
+            salons: salons,
         });
-      } catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({
-          message: 'Failed to retrieve salons',
-          error: error.message,
+            message: 'Failed to retrieve salons',
+            error: error.message,
         });
-      }
+    }
 }
 
 //Change Salon Id of Admin
 const changeDefaultSalonIdOfAdmin = async (req, res) => {
     try {
-      const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
-  
-      // Find the admin based on the provided email
-      const admin = await Admin.findOne({ email: adminEmail });
-  
-      if (!admin) {
-        return res.status(404).json({
-          message: 'Admin not found',
+        const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
+
+        // Find the admin based on the provided email
+        const admin = await Admin.findOne({ email: adminEmail });
+
+        if (!admin) {
+            return res.status(404).json({
+                message: 'Admin not found',
+            });
+        }
+
+        // Update the default salonId of the admin
+        admin.salonId = salonId;
+        await admin.save();
+
+        res.status(200).json({
+            message: 'Default salon ID of admin updated successfully',
+            admin: admin,
         });
-      }
-  
-      // Update the default salonId of the admin
-      admin.salonId = salonId;
-      await admin.save();
-  
-      res.status(200).json({
-        message: 'Default salon ID of admin updated successfully',
-        admin: admin,
-      });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        message: 'Failed to update default salon ID of admin',
-        error: error.message,
-      });
+        console.error(error);
+        res.status(500).json({
+            message: 'Failed to update default salon ID of admin',
+            error: error.message,
+        });
     }
-  };
+};
 
 //Send Email Verification code
-const sendVerificationCodeForAdminEmail = async(req, res) =>{
+const sendVerificationCodeForAdminEmail = async (req, res) => {
     try {
         const { email } = req.body;
-    
+
         const user = await Admin.findOne({ email });
         if (!user) {
-          return res.status(404).json({
-            success: false,
-            response: "User with this email does not exist. Please register first",
-          });
+            return res.status(404).json({
+                success: false,
+                response: "User with this email does not exist. Please register first",
+            });
         }
-    
+
         const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
         const emailData = {
-          email,
-          subject: 'Verify your Email',
-          html: `
+            email,
+            subject: 'Verify your Email',
+            html: `
             <h2>Hello ${user.name}!</h2>
             <p>Your Password Reset Verification Code is ${verificationCode}</p>
           `
         };
-    
+
         user.verificationCode = verificationCode;
         await user.save();
-    
+
         try {
-          await sendPasswordResetEmail(emailData);
+            await sendPasswordResetEmail(emailData);
         } catch (error) {
-          return res.status(500).json({
-            success: false,
-            message: 'Failed to send reset password email',
-            error: error.message
-          });
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to send reset password email',
+                error: error.message
+            });
         }
-    
+
         return res.status(200).json({
-          success: true,
-          message: `Please check your email (${email}) for resetting the password`,
-          verificationCode: verificationCode
+            success: true,
+            message: `Please check your email (${email}) for resetting the password`,
+            verificationCode: verificationCode
         });
-      } catch (error) {
+    } catch (error) {
         console.error('Failed to handle forget password:', error);
         return res.status(500).json({
-          success: false,
-          message: 'Failed to initiate password reset',
-          error: error.message
+            success: false,
+            message: 'Failed to initiate password reset',
+            error: error.message
         });
-      }
+    }
 }
 
 //Match Verification Code and change EmailVerified Status
-const changeEmailVerifiedStatus = async(req, res) => {
+const changeEmailVerifiedStatus = async (req, res) => {
     try {
         const { email, verificationCode } = req.body;
-    
+
         // FIND THE CUSTOMER 
         const admin = await Admin.findOne({ email });
-    
+
         if (admin && admin.verificationCode === verificationCode) {
-          // If verification code matches, clear it from the database
-          admin.verificationCode = '';
-          admin.emailVerified = true;
-          await customer.save();
-    
-          return res.status(200).json({
-            success: true,
-            response: admin,
-          });
+            // If verification code matches, clear it from the database
+            admin.verificationCode = '';
+            admin.emailVerified = true;
+            await customer.save();
+
+            return res.status(200).json({
+                success: true,
+                response: admin,
+            });
         }
-    
+
         // If verification code doesn't match or customer not found
         return res.status(201).json({
-          success: false,
-          response: "Verification Code didn't match",
-          message: "Enter a valid Verification code",
+            success: false,
+            response: "Verification Code didn't match",
+            message: "Enter a valid Verification code",
         });
-      } catch (error) {
+    } catch (error) {
         console.error(error);
         return res.status(500).json({
-          status: 500,
-          error: 'Failed to match Verification Code',
+            status: 500,
+            error: 'Failed to match Verification Code',
         });
-      }
+    }
 }
 
 
