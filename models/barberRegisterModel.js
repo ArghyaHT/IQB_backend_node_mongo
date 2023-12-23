@@ -11,7 +11,7 @@ const barberSchema = new mongoose.Schema({
         type: String,
     },
     emailVerified:{
-        type: String,
+        type: Boolean,
         default: false
     },
     verificationCode:{

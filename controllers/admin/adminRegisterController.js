@@ -382,9 +382,6 @@ const isLogginMiddleware = async (req, res) => {
 
         const loggedinUser = await Admin.find({ email: decodeToken.user.email })
 
-        // Find the logged-in user by email
-        const loggedinSalon = await Salon.find({ adminEmail: decodeToken.user.email });
-
         if (!decodeToken) {
             return res.status(401).json({
                 success: false,
@@ -396,7 +393,6 @@ const isLogginMiddleware = async (req, res) => {
             success: true,
             message: "User already logged in",
             user: loggedinUser,
-            salon: loggedinSalon.salonName
         })
 
     } catch (error) {
@@ -858,7 +854,7 @@ const changeEmailVerifiedStatus = async (req, res) => {
             // If verification code matches, clear it from the database
             admin.verificationCode = '';
             admin.emailVerified = true;
-            await customer.save();
+            await admin.save();
 
             return res.status(200).json({
                 success: true,
@@ -875,8 +871,9 @@ const changeEmailVerifiedStatus = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            status: 500,
-            error: 'Failed to match Verification Code',
+           success: false,
+            message: 'Failed to match Verification Code',
+            error: error.message
         });
     }
 }
