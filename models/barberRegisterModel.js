@@ -21,7 +21,7 @@ const barberSchema = new mongoose.Schema({
         type: String,
         default: "local"
     },
-    userName: {
+    nickName: {
         type: String,
         // required: true,
     },

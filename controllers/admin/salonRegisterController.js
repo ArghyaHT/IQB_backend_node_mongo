@@ -584,6 +584,32 @@ const getAllSalons = async (req, res) => {
 }
 
 
+//Change Salon Online Status
+const changeSalonOnlineStatus = async (req, res) => {
+
+  try {
+    const { salonId, isOnline } = req.body;
+
+    const updatedSalon = await Salon.findOneAndUpdate(
+      { salonId: salonId },
+      { isOnline: isOnline }, // Update the Salon isOnline field in the database
+      { new: true }
+    );
+
+    if (!updatedSalon) {
+      return res.status(404).json({ message: "Barber not found" });
+    }
+
+    return res.status(200).json(updatedSalon);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
 
 
 module.exports = {
@@ -603,5 +629,6 @@ module.exports = {
   updateSalonImages,
   deleteSalonImages,
   uploadMoreProfileImages,
-  getAllSalons
+  getAllSalons,
+  changeSalonOnlineStatus
 }

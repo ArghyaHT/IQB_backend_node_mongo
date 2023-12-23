@@ -3,6 +3,7 @@ const { validateSignUp } = require("../../middlewares/registerValidator");
 const adminService = require("../../services/admin/adminRegisterService")
 const Admin = require("../../models/adminRegisterModel")
 const Barber = require("../../models/barberRegisterModel")
+const Salon = require("../../models/salonsRegisterModel")
 
 const jwt = require('jsonwebtoken')
 const { OAuth2Client } = require('google-auth-library');
@@ -728,6 +729,41 @@ const deleteAdminProfilePicture = async (req, res) => {
     }
 }
 
+//Get Salons by Admin
+const getAllSalonsByAdmin = async(req, res) => {
+    try {
+        const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
+    
+        // Find the admin based on the email
+        const admin = await Admin.findOne({ email: adminEmail });
+    
+        if (!admin) {
+          return res.status(404).json({
+            message: 'Admin not found',
+          });
+        }
+    
+        // Fetch all salons associated with the admin from registeredSalons array
+        const salons = await Salon.find({ salonId: { $in: admin.registeredSalons } });
+    
+        res.status(200).json({
+          message: 'Salons retrieved successfully',
+          salons: salons,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          message: 'Failed to retrieve salons',
+          error: error.message,
+        });
+      }
+}
+
+//Change Salon Id of Admin
+const changeDefaultSalonIdOfAdmin = async(req, res) =>{
+    
+}
+
 module.exports = {
     deleteSingleAdmin,
     updateAdminAccountDetails,
@@ -746,4 +782,5 @@ module.exports = {
     uploadAdminprofilePic,
     updateAdminProfilePic,
     deleteAdminProfilePicture,
+    getAllSalonsByAdmin,
 }

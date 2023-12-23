@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages, getAllSalons,  } = require("../../controllers/admin/salonRegisterController")
+const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages, getAllSalons, changeSalonOnlineStatus,  } = require("../../controllers/admin/salonRegisterController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 
@@ -47,5 +47,8 @@ router.route("/deleteSalon").post(handleProtectedRoute,deleteSalon)
 
 //GetAll Salons
 router.route("/getAllSalons").get(handleProtectedRoute,getAllSalons)
+
+//Change Salon online Status
+router.route("/changeSalonOnlineStatus").post(handleProtectedRoute,changeSalonOnlineStatus )
 
 module.exports = router 

@@ -49,13 +49,13 @@ const insertBarberDetails = async (barberData) => {
 //Update Barber By Email
 const updateBarberByEmail = async (barberData) => {
 
-    const { name, email, userName, mobileNumber, dateOfBirth, gender, password } = barberData
+    const { name, email, nickName, mobileNumber, dateOfBirth, gender, password } = barberData
     try {
 
         //Creating an object other than the password field 
         let updateFields = {
             name,
-            userName,
+            nickName,
             gender,
             dateOfBirth,
             mobileNumber,
@@ -67,7 +67,7 @@ const updateBarberByEmail = async (barberData) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             updateFields.password = hashedPassword;
         }
-        
+
 
         //Updating the Barber Document
         const barber = await Barber.findOneAndUpdate({ email: email }, updateFields, { new: true }).select("-password");
@@ -77,7 +77,7 @@ const updateBarberByEmail = async (barberData) => {
         const updatedBarberCode = firstTwoLetters + barber.barberId;
 
         // Updating the barberCode in the database
-        await Barber.findOneAndUpdate({ email: email }, { barberCode: updatedBarberCode }, {new: true});
+        await Barber.findOneAndUpdate({ email: email }, { barberCode: updatedBarberCode }, { new: true });
 
 
         return {

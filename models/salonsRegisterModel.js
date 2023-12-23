@@ -38,6 +38,9 @@ const salonsSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    salonType:{
+        type: String
+    },
     address: {
         type: String,
         // required: true
@@ -133,6 +136,10 @@ const salonsSchema = new mongoose.Schema({
         enum: ["Queuing", "Appointment", "Both"],
     },
     isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    isOnline:{
         type: Boolean,
         default: false
     },

@@ -29,9 +29,6 @@ const adminSchema = new mongoose.Schema({
         type: String,
         default: "local"
     },
-    userName:{
-        type:String,
-    },
     gender:{
         type:String,
     },

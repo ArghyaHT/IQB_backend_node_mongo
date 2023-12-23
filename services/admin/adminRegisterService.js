@@ -69,13 +69,12 @@ const deleteAdmin = async (email) => {
 
 //Update Admin Account Details
 const updateAdmin = async (adminData) => {
-  const { salonId, name, gender, email, userName, mobileNumber, dateOfBirth, isActive, password } = adminData;
+  const { salonId, name, gender, email, mobileNumber, dateOfBirth, isActive, password } = adminData;
 
   try {
     let updateFields = {
       name,
       salonId,
-      userName,
       gender,
       dateOfBirth,
       mobileNumber,

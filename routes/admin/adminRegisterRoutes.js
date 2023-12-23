@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -38,11 +38,13 @@ router.route("/updateAdminProfilePicture").put(handleProtectedRoute,updateAdminP
 //DELETE BARBER PROFILE PICTURE
 router.route("/deleteAdminProfilePicture").delete(handleProtectedRoute,deleteAdminProfilePicture)
 
-
 //UPDATE ADMIN ACCOUNT DETAILS
 router.route("/updateAdminAcoountDetails").put(handleProtectedRoute,updateAdminAccountDetails)
 
 //Approve Barber By Admin
 router.route("/approvedBarber").post(handleProtectedRoute,approveBarber)
+
+//Get All Salons By Admin
+router.route("/getAllSalonsByAdmin").post(handleProtectedRoute,getAllSalonsByAdmin)
 
 module.exports = router

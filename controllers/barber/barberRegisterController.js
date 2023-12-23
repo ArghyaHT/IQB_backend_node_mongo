@@ -503,7 +503,7 @@ const createBarberByAdmin = async (req, res) => {
     const {
       email,
       name,
-      userName,
+      nickName,
       mobileNumber,
       salonId,
       dateOfBirth,
@@ -534,7 +534,7 @@ const createBarberByAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       name,
-      userName,
+      nickName,
       salonId,
       mobileNumber,
       dateOfBirth,
@@ -567,7 +567,7 @@ const createBarberByAdmin = async (req, res) => {
 //DESC Update BarberBy Admin
 const updateBarberByAdmin = async (req, res) => {
   try {
-    const { email, name, userName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
+    const { email, name, nickName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
 
     //If barberServices is present for updating
@@ -607,7 +607,7 @@ const updateBarberByAdmin = async (req, res) => {
     }
 
 
-    const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, userName, mobileNumber, dateOfBirth }, { new: true });
+    const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, nickName, mobileNumber, dateOfBirth }, { new: true });
 
     if (!updatedBarber) {
       res.status(404).json({

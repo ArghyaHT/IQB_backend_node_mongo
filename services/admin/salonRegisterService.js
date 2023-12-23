@@ -12,6 +12,7 @@ const createSalon = async (salonData) => {
     adminEmail,
     salonIcon,
     salonLogo,
+    salonType,
     address,
     city,
     location,
@@ -47,11 +48,6 @@ const createSalon = async (salonData) => {
 
     const salonCode = firstTwoLetters + salonId;
    
-    await Admin.findOneAndUpdate(
-      { email: adminEmail },
-      { salonId: salonId },  // what if admin is having multiple salons.
-      { new: true })
-
     const servicesData =  services.map((s, i) =>({
       serviceId: `${salonId}${i + 1}`,
       serviceCode:`${s.serviceName.slice(0, 2).toUpperCase()}${salonId}${i + 1}`,
@@ -71,6 +67,7 @@ const createSalon = async (salonData) => {
       salonCode: salonCode,
       salonIcon,
       salonLogo,
+      salonType,
       address,
       city,
       location,
@@ -87,6 +84,20 @@ const createSalon = async (salonData) => {
     });
 
     const savedSalon = await salon.save();
+
+    const admin = await Admin.findOne({ email: adminEmail });
+
+    if (admin) {
+      admin.registeredSalons.push(savedSalon.salonId); // Assuming salonId is the unique identifier for salons
+      admin.salonId = savedSalon.salonId; // Update the salonId of the admin
+      await admin.save();
+    } else {
+      // Handle the case where admin is not found
+      return {
+        status: 404,
+        response: 'Admin not found',
+      };
+    }
 
    const { startTime, endTime } = appointmentSettings;
 
