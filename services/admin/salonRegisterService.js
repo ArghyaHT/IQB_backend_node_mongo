@@ -60,7 +60,6 @@ const createSalon = async (salonData) => {
     //Save the Salon
     const salon = new Salon({
       salonId,
-      userName,  // salonCode
       adminEmail,
       salonName,
       salonCode: salonCode,

@@ -14,72 +14,72 @@ cloudinary.config({
 
 //AddAdvertisements api
 const addAdvertisements = async (req, res) => {
-    try {
-      let advertisements = req.files.advertisements;
-      let salonId = req.body.salonId;
-  
-      // Ensure that advertisements is an array, even for single uploads
-      if (!Array.isArray(advertisements)) {
-        advertisements = [advertisements];
-      }
-  
-      const uploadPromises = advertisements.map(advertisement => {
-        return new Promise((resolve, reject) => {
-          const public_id = `${advertisement.name.split(".")[0]}`;
-  
-          cloudinary.uploader.upload(advertisement.tempFilePath, {
-            public_id: public_id,
-            folder: "students", // Change the folder name as required
-          })
-            .then((image) => {
-              resolve({
-                public_id: image.public_id,
-                url: image.secure_url,
-              });
-            })
-            .catch((err) => {
-              reject(err);
-            })
-            .finally(() => {
-              fs.unlink(advertisement.tempFilePath, (unlinkError) => {
-                if (unlinkError) {
-                  console.error('Failed to delete temporary file:', unlinkError);
-                }
-              });
-            });
-        });
-      });
-  
-      const uploadedImages = await Promise.all(uploadPromises);
-  
-      // Update the Salon model with the uploaded advertisement images
-      const updatedSalon = await SalonSettings.findOneAndUpdate(
-        { salonId },
-        { $push: { advertisements: { $each: uploadedImages } } }, // Update the advertisements field with the uploaded images
-        { new: true, projection: { _id: 0, advertisements: 1 } }
-      );
-  
-      if (!updatedSalon) {
-        return res.status(404).json({ message: "Salon not found" });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: "Advertisement images uploaded successfully",
-        response: updatedSalon.advertisements,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message
-      });
+  try {
+    let advertisements = req.files.advertisements;
+    let salonId = req.body.salonId;
+
+    // Ensure that advertisements is an array, even for single uploads
+    if (!Array.isArray(advertisements)) {
+      advertisements = [advertisements];
     }
+
+    const uploadPromises = advertisements.map(advertisement => {
+      return new Promise((resolve, reject) => {
+        const public_id = `${advertisement.name.split(".")[0]}`;
+
+        cloudinary.uploader.upload(advertisement.tempFilePath, {
+          public_id: public_id,
+          folder: "students", // Change the folder name as required
+        })
+          .then((image) => {
+            resolve({
+              public_id: image.public_id,
+              url: image.secure_url,
+            });
+          })
+          .catch((err) => {
+            reject(err);
+          })
+          .finally(() => {
+            fs.unlink(advertisement.tempFilePath, (unlinkError) => {
+              if (unlinkError) {
+                console.error('Failed to delete temporary file:', unlinkError);
+              }
+            });
+          });
+      });
+    });
+
+    const uploadedImages = await Promise.all(uploadPromises);
+
+    // Update the Salon model with the uploaded advertisement images
+    const updatedSalon = await SalonSettings.findOneAndUpdate(
+      { salonId },
+      { $push: { advertisements: { $each: uploadedImages } } }, // Update the advertisements field with the uploaded images
+      { new: true, projection: { _id: 0, advertisements: 1 } }
+    );
+
+    if (!updatedSalon) {
+      return res.status(404).json({ message: "Salon not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Advertisement images uploaded successfully",
+      response: updatedSalon.advertisements,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
 };
 
 //GetAdvertisements api
-const getAdvertisements = async(req, res) =>{
+const getAdvertisements = async (req, res) => {
   try {
     const { salonId } = req.body;
 
@@ -174,6 +174,47 @@ const updateAdvertisements = async (req, res) => {
   }
 }
 
+//Delete Advertisements
+const deleteAdvertisements = async (req, res) => {
+  try {
+    const public_id = req.body.public_id
+    const img_id = req.body.img_id
+
+    const result = await cloudinary.uploader.destroy(public_id);
+
+    if (result.result === 'ok') {
+      console.log("cloud img deleted")
+
+    } else {
+      res.status(500).json({ message: 'Failed to delete image.' });
+    }
+
+    const updatedSalon = await SalonSettings.findOneAndUpdate(
+      { 'profile._id': img_id },
+      { $pull: { advertisements: { _id: img_id } } },
+      { new: true }
+    );
+
+    if (updatedSalon) {
+      res.status(200).json({
+        success: true,
+        message: "Image successfully deleted"
+      })
+    } else {
+      res.status(404).json({ message: 'Image not found in the student profile' });
+    }
+
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({
+      message: 'Internal server error.',
+      error: error.message
+    });
+  }
+}
+
+
+
 //GetDashboardQList
 const getDashboardAppointmentList = async (req, res) => {
   try {
@@ -261,11 +302,12 @@ const getDashboardAppointmentList = async (req, res) => {
       error: error.message
     });
   }
-}; 
-  
-  module.exports = {
-     addAdvertisements, 
-     getDashboardAppointmentList,
-     getAdvertisements,
-     updateAdvertisements 
-  };
+};
+
+module.exports = {
+  addAdvertisements,
+  getDashboardAppointmentList,
+  getAdvertisements,
+  updateAdvertisements,
+  deleteAdvertisements
+};
