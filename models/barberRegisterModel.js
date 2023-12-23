@@ -10,6 +10,14 @@ const barberSchema = new mongoose.Schema({
     email: {
         type: String,
     },
+    emailVerified:{
+        type: String,
+        default: false
+    },
+    verificationCode:{
+        type: String,
+        // required:true
+    },
     password: {
         type: String
     },
@@ -32,6 +40,10 @@ const barberSchema = new mongoose.Schema({
     mobileNumber: {
         type: Number,
         // required: true,
+    },
+    mobileVerified:{
+        type: Boolean,
+        default: false
     },
     dateOfBirth: {
         type: Date,

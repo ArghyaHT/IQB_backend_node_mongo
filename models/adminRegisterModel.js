@@ -18,6 +18,14 @@ const adminSchema = new mongoose.Schema({
     email: {
         type: String,
     },
+    emailVerified:{
+        type: Boolean,
+        default: false
+    },
+    verificationCode:{
+        type: String,
+        // required:true
+    },
     password: {
         type: String
     },
@@ -50,7 +58,10 @@ const adminSchema = new mongoose.Schema({
     mobileNumber:{
         type: Number,
     },
-
+    mobileVerified:{
+        type: Boolean,
+        default: false
+    },
     isActive: {
         type: Boolean,
         default: false

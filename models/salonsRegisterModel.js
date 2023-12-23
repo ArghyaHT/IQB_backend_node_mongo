@@ -16,10 +16,6 @@ const salonsSchema = new mongoose.Schema({
     salonId: {
         type: Number,
     },
-    userName: {
-        type: String,
-        // required: true
-    },
     salonName: {
         type: String,
         // required: true,

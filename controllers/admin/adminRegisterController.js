@@ -17,6 +17,7 @@ const JWT_REFRESH_SECRET = "refreshToken"
 //Upload Profile Picture Config
 const path = require("path");
 const fs = require('fs');
+const { sendPasswordResetEmail } = require("../../utils/emailSender");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -790,6 +791,93 @@ const changeDefaultSalonIdOfAdmin = async (req, res) => {
     }
   };
 
+//Send Email Verification code
+const sendVerificationCodeForAdminEmail = async(req, res) =>{
+    try {
+        const { email } = req.body;
+    
+        const user = await Admin.findOne({ email });
+        if (!user) {
+          return res.status(404).json({
+            success: false,
+            response: "User with this email does not exist. Please register first",
+          });
+        }
+    
+        const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        const emailData = {
+          email,
+          subject: 'Verify your Email',
+          html: `
+            <h2>Hello ${user.name}!</h2>
+            <p>Your Password Reset Verification Code is ${verificationCode}</p>
+          `
+        };
+    
+        user.verificationCode = verificationCode;
+        await user.save();
+    
+        try {
+          await sendPasswordResetEmail(emailData);
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to send reset password email',
+            error: error.message
+          });
+        }
+    
+        return res.status(200).json({
+          success: true,
+          message: `Please check your email (${email}) for resetting the password`,
+          verificationCode: verificationCode
+        });
+      } catch (error) {
+        console.error('Failed to handle forget password:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to initiate password reset',
+          error: error.message
+        });
+      }
+}
+
+//Match Verification Code and change EmailVerified Status
+const changeEmailVerifiedStatus = async(req, res) => {
+    try {
+        const { email, verificationCode } = req.body;
+    
+        // FIND THE CUSTOMER 
+        const admin = await Admin.findOne({ email });
+    
+        if (admin && admin.verificationCode === verificationCode) {
+          // If verification code matches, clear it from the database
+          admin.verificationCode = '';
+          admin.emailVerified = true;
+          await customer.save();
+    
+          return res.status(200).json({
+            success: true,
+            response: admin,
+          });
+        }
+    
+        // If verification code doesn't match or customer not found
+        return res.status(201).json({
+          success: false,
+          response: "Verification Code didn't match",
+          message: "Enter a valid Verification code",
+        });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+          status: 500,
+          error: 'Failed to match Verification Code',
+        });
+      }
+}
+
+
 module.exports = {
     deleteSingleAdmin,
     updateAdminAccountDetails,
@@ -810,4 +898,6 @@ module.exports = {
     deleteAdminProfilePicture,
     getAllSalonsByAdmin,
     changeDefaultSalonIdOfAdmin,
+    sendVerificationCodeForAdminEmail,
+    changeEmailVerifiedStatus
 }

@@ -7,7 +7,6 @@ const SalonSettings = require("../../models/salonSettingsModel.js")
 
 const createSalon = async (salonData) => {
   const {
-    userName,
     salonName,
     adminEmail,
     salonIcon,
@@ -31,7 +30,7 @@ const createSalon = async (salonData) => {
   try {
 
      //Find the Salon If exits 
-    const existingSalon = await Salon.findOne({ userName });
+    const existingSalon = await Salon.findOne({ salonName });
 
 
     if (existingSalon) {

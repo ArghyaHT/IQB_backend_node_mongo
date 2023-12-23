@@ -108,6 +108,72 @@ const getAdvertisements = async(req, res) =>{
   }
 }
 
+//Update Advertisements
+const updateAdvertisements = async (req, res) => {
+  try {
+    const { id, public_imgid, advertisements } = req.body;
+
+    // Find the SalonSettings document that matches the provided public_id (or appropriate field)
+    const salonSetting = await SalonSettings.findOne({ "public_id": id }, { "advertisements.$": 1 });
+
+    // Existing image validation logic remains unchanged...
+
+    cloudinary.uploader.upload(advertisements.tempFilePath, {
+      public_id: `${advertisements.name.split(".")[0]}`,
+      folder: "students", // Adjust the folder according to your setup
+    })
+      .then(async (image) => {
+        const result = await cloudinary.uploader.destroy(public_imgid);
+
+        if (result.result === 'ok') {
+          console.log("Cloud image deleted");
+        } else {
+          return res.status(500).json({ message: 'Failed to delete image.' });
+        }
+
+        // Delete the temporary file after uploading to Cloudinary
+        fs.unlink(advertisements.tempFilePath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+
+        // Update the specific advertisement in the SalonSettings document
+        const updatedSalonSettings = await SalonSettings.findOneAndUpdate(
+          { "advertisements._id": id }, // Check and confirm the correct field to match here
+          {
+            $set: {
+              'advertisements.$.public_id': image.public_id,
+              'advertisements.$.url': image.url
+            }
+          },
+          { new: true }
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "Files Updated successfully",
+          updatedSalonSettings
+        });
+
+      })
+      .catch((uploadError) => {
+        console.error(uploadError);
+        return res.status(500).json({
+          message: "Failed to upload image to Cloudinary",
+          error: uploadError.message
+        });
+      });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
 //GetDashboardQList
 const getDashboardAppointmentList = async (req, res) => {
   try {
@@ -200,4 +266,6 @@ const getDashboardAppointmentList = async (req, res) => {
   module.exports = {
      addAdvertisements, 
      getDashboardAppointmentList,
-     getAdvertisements };
+     getAdvertisements,
+     updateAdvertisements 
+  };
