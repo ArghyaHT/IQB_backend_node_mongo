@@ -45,7 +45,6 @@ const singleJoinQueue = async (req, res) => {
     const newQueue = {
       customerName,
       customerEmail,
-      userName,
       joinedQ: true,
       joinedQType: joinedQType,
       qPosition: updatedBarber.queueCount,
