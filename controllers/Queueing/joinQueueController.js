@@ -289,7 +289,7 @@ const autoJoin = async (req, res) => {
 const getQueueListBySalonId = async (req, res) => {
 
   try {
-    const { salonId } = req.query;
+    const salonId = parseInt(req.query.salonId, 10);
     console.log(salonId)
 
     //To find the queueList according to salonId and sort it according to qposition
@@ -302,7 +302,7 @@ const getQueueListBySalonId = async (req, res) => {
       },
       {
         $sort: {
-          "queueList.qPosition": -1 // Sort by qPosition in descending order (-1)
+          "queueList.qPosition": 1 // Sort by qPosition in descending order (-1)
         }
       },
       {

@@ -382,8 +382,8 @@ const isLogginMiddleware = async (req, res) => {
 
         const loggedinUser = await Admin.findOne({ email: decodeToken.user.email })
 
-      // Fetch the salon details using the salonId of the logged-in admin
-      const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
+        // Fetch the salon details using the salonId of the logged-in admin
+        const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
 
         if (!decodeToken) {
             return res.status(401).json({
@@ -391,17 +391,19 @@ const isLogginMiddleware = async (req, res) => {
                 message: "Invalid Access Token. UnAuthorize User",
             });
         }
-        
+
 
         return res.status(200).json({
             success: true,
             message: "User already logged in",
-            user: {
-              ...loggedinUser.toObject(), // Spread the user object properties
-              salonName: loggedInSalon.salonName, // Add salonName
-              salonIsOnline: loggedInSalon.isOnline // Add isOnline
-            }
-          });
+            user: [
+                {
+                    ...loggedinUser.toObject(), // Spread the user object properties
+                    salonName: loggedInSalon.salonName, // Add salonName
+                    salonIsOnline: loggedInSalon.isOnline // Add isOnline
+                }
+            ]
+        });
 
     } catch (error) {
         return res.json({
@@ -756,7 +758,7 @@ const getAllSalonsByAdmin = async (req, res) => {
         const salons = await Salon.find({
             salonId: { $in: admin.registeredSalons },
             isDeleted: false,
-          });
+        });
 
         res.status(200).json({
             message: 'Salons retrieved successfully',
@@ -883,7 +885,7 @@ const changeEmailVerifiedStatus = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-           success: false,
+            success: false,
             message: 'Failed to match Verification Code',
             error: error.message
         });
