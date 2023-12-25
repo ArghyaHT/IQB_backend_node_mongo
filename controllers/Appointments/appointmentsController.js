@@ -7,7 +7,7 @@ const moment = require("moment")
 //Creating Appointment
 const createAppointment = async (req, res) => {
   try {
-      const { salonId, barberId, serviceId, appointmentDate, appointmentName, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
+      const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
       // Assuming you have your models imported (Barber, Appointment) and other necessary dependencies
 
@@ -55,7 +55,7 @@ const createAppointment = async (req, res) => {
           appointmentDate, 
           startTime,
           endTime,
-          appointmentName,
+          appointmentNotes,
           timeSlots: `${startTime}-${endTime}`, 
           customerEmail,
           customerName, 
@@ -97,7 +97,7 @@ const createAppointment = async (req, res) => {
 //Get Engage BarberTimeSLots Api
 const getEngageBarberTimeSlots = async (req, res) => {
   try {
-    const { salonId, barberId, date } = req.body;
+    const { salonId, barberId, date, intervalInMinutes } = req.body;
 
     if (!date || !barberId) {
       // If the date value is null, send a response to choose the date
@@ -141,7 +141,7 @@ const getEngageBarberTimeSlots = async (req, res) => {
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
-      timeSlots = generateTimeSlots(start, end);
+      timeSlots = generateTimeSlots(start, end, intervalInMinutes);
     } else {
       const appointmentList = appointments.map(appt => appt.appointmentList);
 
@@ -176,20 +176,20 @@ const getEngageBarberTimeSlots = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to fetch time slots',
-      details: error.message
+      error: error.message
     });
   }
 };
 
 //Function to generate TimeSlots of 30 mins
-function generateTimeSlots(start, end) {
+function generateTimeSlots(start, end, intervalInMinutes) {
   const timeSlots = [];
   let currentTime = moment(start);
 
   while (currentTime < end) {
       const timeInterval = currentTime.format('HH:mm');
       timeSlots.push({ timeInterval, disabled: false });
-      currentTime.add(30, 'minutes'); // Increment by 30 minutes
+      currentTime.add(intervalInMinutes, 'minutes'); // Increment by 30 minutes
   }
 
   return timeSlots;

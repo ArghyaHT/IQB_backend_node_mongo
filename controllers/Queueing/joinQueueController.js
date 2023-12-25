@@ -6,7 +6,7 @@ const Barber = require("../../models/barberRegisterModel")
 //Single Join queue api
 const singleJoinQueue = async (req, res) => {
   try {
-    const { salonId, name, userName, joinedQType, methodUsed, barberName, barberId, services } = req.body;
+    const { salonId, customerName, customerEmail, joinedQType, methodUsed, barberName, barberId, services } = req.body;
 
     let totalServiceEWT = 0;
     let serviceIds = "";
@@ -43,7 +43,8 @@ const singleJoinQueue = async (req, res) => {
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
     const newQueue = {
-      name,
+      customerName,
+      customerEmail,
       userName,
       joinedQ: true,
       joinedQType: joinedQType,
@@ -153,8 +154,8 @@ const groupJoinQueue = async (req, res) => {
 
       // Create queue entry data for the group member
       const joinedQData = {
-        name: member.name,
-        userName: member.userName,
+        customerName: member.customerName,
+       customerEmail: member.customerEmail,
         joinedQ: true,
         joinedQType: "Group-Join",
         qPosition: updatedBarber.queueCount,
@@ -198,7 +199,7 @@ const groupJoinQueue = async (req, res) => {
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, userName, name, joinedQType, methodUsed, services } = req.body;
+    const { salonId, customerName, customerEmail, joinedQType, methodUsed, services } = req.body;
     const serviceIds = services.map(service => service.serviceId);
 
     let totalServiceEWT = 0;
@@ -239,8 +240,8 @@ const autoJoin = async (req, res) => {
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
     const newQueue = {
-      name,
-      userName,
+      customerName, 
+      customerEmail,
       joinedQ: true,
       joinedQType: joinedQType,
       qPosition: availableBarber.queueCount,
@@ -407,6 +408,16 @@ const barberServedQueue = async (req, res) => {
         },
         { new: true }
       );
+
+    // Iterate through the queueList to notify customers about their changed queue position
+    const customersToNotify = queue.queueList.filter(element =>
+      element.barberId === barberId && element.salonId === salonId
+    );
+
+    customersToNotify.forEach(customer => {
+      sendQueuePositionChangedEmail(customer.userName, customer.qPosition);
+    });
+
 
       res.status(200).json({
         success: true,

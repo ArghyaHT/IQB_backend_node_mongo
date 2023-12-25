@@ -14,13 +14,12 @@ const salonQueueListSchema = new mongoose.Schema({
         position: {
             type: Number,
         },
-        userName: {
+        customerName: {
             type: String,
             // required: true
         },
-        name: {
-            type: String,
-            // required: true
+        customerEmail: {
+            type: String
         },
         joinedQ: {
             type: Boolean

@@ -29,7 +29,7 @@ const createSalon = async (salonData) => {
 
   try {
 
-     //Find the Salon If exits 
+    //Find the Salon If exits 
     const existingSalon = await Salon.findOne({ salonName });
 
 
@@ -46,16 +46,16 @@ const createSalon = async (salonData) => {
     // const secondTwoLetters = admin.FirstName.slice(0, 2).toUpperCase();
 
     const salonCode = firstTwoLetters + salonId;
-   
-    const servicesData =  services.map((s, i) =>({
+
+    const servicesData = services.map((s, i) => ({
       serviceId: `${salonId}${i + 1}`,
-      serviceCode:`${s.serviceName.slice(0, 2).toUpperCase()}${salonId}${i + 1}`,
+      serviceCode: `${s.serviceName.slice(0, 2).toUpperCase()}${salonId}${i + 1}`,
       serviceName: s.serviceName,
       serviceDesc: s.serviceDesc,
       servicePrice: s.servicePrice,
       serviceEWT: s.serviceEWT
 
-  }))
+    }))
 
     //Save the Salon
     const salon = new Salon({
@@ -77,7 +77,7 @@ const createSalon = async (salonData) => {
       salonEmail,
       twitterLink,
       instraLink,
-      services:servicesData
+      services: servicesData
 
     });
 
@@ -97,19 +97,19 @@ const createSalon = async (salonData) => {
       };
     }
 
-   const { startTime, endTime } = appointmentSettings;
+    const { startTime, endTime } = appointmentSettings;
 
-   // Create a new SalonSettings instance with generated time slots
-   const newSalonSettings = new SalonSettings({
-       salonId,
-       appointmentSettings: {
-           appointmentStartTime: startTime,
-           appointmentEndTime: endTime,
-       }
-   });
+    // Create a new SalonSettings instance with generated time slots
+    const newSalonSettings = new SalonSettings({
+      salonId,
+      appointmentSettings: {
+        appointmentStartTime: startTime,
+        appointmentEndTime: endTime,
+      }
+    });
 
-   // Save the new SalonSettings to the database
-   await newSalonSettings.save();
+    // Save the new SalonSettings to the database
+    await newSalonSettings.save();
 
     return {
       status: 200,
@@ -161,37 +161,37 @@ const searchSalonsByCity = async (city) => {
 const searchSalonsByLocation = async (longitude, latitude) => {
   let salons = [];
 
-    try {
-      salons = await Salon.aggregate([
-        {
-          $geoNear: {
-            near: {
-              type: 'Point',
-              coordinates: [parseFloat(longitude), parseFloat(latitude)],
-            },
-            key:"location",
-            maxDistance: parseFloat(1000)*1609,
-            spherical: true,
-            distanceField: "dist.calculated",
+  try {
+    salons = await Salon.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
           },
+          key: "location",
+          maxDistance: parseFloat(1000) * 1609,
+          spherical: true,
+          distanceField: "dist.calculated",
         },
-      ]);
-        return {
-          status: 200,
-          success: true,
-          response: salons
-        };
-      }
-    catch (error) {
-      // Handle the error within the function or log it
-      console.error('Error finding salons:', error);
-      return {
-        status: 404,
-        success: false,
-        message: 'Error finding salons.'
-      };
-    }
-  
+      },
+    ]);
+    return {
+      status: 200,
+      success: true,
+      response: salons
+    };
+  }
+  catch (error) {
+    // Handle the error within the function or log it
+    console.error('Error finding salons:', error);
+    return {
+      status: 404,
+      success: false,
+      message: 'Error finding salons.'
+    };
+  }
+
 
   // return {
   //   status:500,
@@ -262,7 +262,7 @@ const updateSalonBySalonId = async (salonData) => {
       });
     }
 
-    const salon = await Salon.findOne({salonId, adminEmail })
+    const salon = await Salon.findOne({ salonId, adminEmail })
 
     if (!salon) {
       return {
@@ -270,32 +270,32 @@ const updateSalonBySalonId = async (salonData) => {
         message: 'Salon not found.',
       };
     }
-    
-   let updateFields = {
-    userName,
-    salonName,
-    salonIcon,
-    salonLogo,
-    salonId,
-    salonType,
-    adminEmail,
-    address,
-    city,
-    country,
-    postCode,
-    contactTel,
-    webLink,
-    fblink,
-    salonEmail,
-    twitterLink,
-    instraLink,
-   }
+
+    let updateFields = {
+      userName,
+      salonName,
+      salonIcon,
+      salonLogo,
+      salonId,
+      salonType,
+      adminEmail,
+      address,
+      city,
+      country,
+      postCode,
+      contactTel,
+      webLink,
+      fblink,
+      salonEmail,
+      twitterLink,
+      instraLink,
+    }
 
     if (services && Array.isArray(services)) {
       // If services are provided, update the services
       const updatedServices = salon.services.map((existingService) => {
         const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
-
+    
         if (matchingService) {
           return {
             ...existingService.toObject(),
@@ -307,11 +307,34 @@ const updateSalonBySalonId = async (salonData) => {
         }
         return existingService; // Keep the existing service unchanged
       });
-
+    
+      const existingServiceCount = updatedServices.length;
+    
+      // Calculate the next available serviceCounter based on existing services count
+      let serviceCounter = existingServiceCount + 1;
+    
+      // Check for any new services that don't exist in the current services array
+      services.forEach((newService) => {
+        const existingService = updatedServices.find((s) => s.serviceId === newService.serviceId);
+        if (!existingService) {
+          // If the service doesn't exist, add it to the updatedServices array
+          updatedServices.push({
+            serviceId: `${salonId}${serviceCounter}`,
+            serviceCode: `${newService.serviceName.slice(0, 2).toUpperCase()}${salonId}${serviceCounter}`,
+            serviceName: newService.serviceName,
+            servicePrice: newService.servicePrice,
+            serviceDesc: newService.serviceDesc,
+            serviceEWT: newService.serviceEWT,
+            // Add any other necessary properties here
+          });
+          serviceCounter++; // Increment serviceCounter for the next service
+        }
+      });
+    
       updateFields.services = updatedServices;
     }
 
-   
+
 
     const updatedSalon = await Salon.findOneAndUpdate(
       { salonId: salonId, adminEmail: adminEmail },
@@ -404,12 +427,12 @@ const deleteSalonService = async (salonId, serviceId) => {
 }
 
 //Get Salons By Admin Email
-const getSalonsByAdminEmail = async(adminEmail) =>{
+const getSalonsByAdminEmail = async (adminEmail) => {
 
-  try{
-    const salonListByAdminEmail = await Salon.find({adminEmail, isDeleted: false});
+  try {
+    const salonListByAdminEmail = await Salon.find({ adminEmail, isDeleted: false });
 
-    if(!salonListByAdminEmail){
+    if (!salonListByAdminEmail) {
       return ({
         status: 200,
         message: 'No Salons found for this Admin',
@@ -421,14 +444,14 @@ const getSalonsByAdminEmail = async(adminEmail) =>{
       message: 'Salons found successfully.',
       response: salonListByAdminEmail,
     });
-}
-catch (error) {
-  console.error(error);
-  return ({
-    status: 500,
-    message: 'Failed to search salons by this adminEmail.',
-  });
-}
+  }
+  catch (error) {
+    console.error(error);
+    return ({
+      status: 500,
+      message: 'Failed to search salons by this adminEmail.',
+    });
+  }
 
 }
 

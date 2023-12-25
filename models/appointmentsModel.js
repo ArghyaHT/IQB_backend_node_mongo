@@ -11,7 +11,7 @@ appointmentList:[{
     serviceId:{
         type: String
     },
-    appointmentName:{
+    appointmentNotes:{
         type: String
     },
     appointmentDate:{
