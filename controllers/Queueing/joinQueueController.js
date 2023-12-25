@@ -292,9 +292,10 @@ const getQueueListBySalonId = async (req, res) => {
     const { salonId } = req.query;
     console.log(salonId)
 
-    //To find the queueList according to salonId
+    //To find the queueList according to salonId and sort it according to qposition
     const getSalon = await SalonQueueList.findOne({ salonId })
-
+    .sort({ "queueList.qPosition": 1 });
+  
     if (getSalon) {
       const getQList = getSalon.queueList || [];
 

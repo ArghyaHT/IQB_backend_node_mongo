@@ -380,7 +380,10 @@ const isLogginMiddleware = async (req, res) => {
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-        const loggedinUser = await Admin.find({ email: decodeToken.user.email })
+        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email })
+
+      // Fetch the salon details using the salonId of the logged-in admin
+      const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
 
         if (!decodeToken) {
             return res.status(401).json({
@@ -388,11 +391,14 @@ const isLogginMiddleware = async (req, res) => {
                 message: "Invalid Access Token. UnAuthorize User",
             });
         }
+        
 
         return res.status(200).json({
             success: true,
             message: "User already logged in",
             user: loggedinUser,
+           salonName: loggedInSalon.salonName,
+           salonIsOnline: loggedInSalon.isOnline
         })
 
     } catch (error) {

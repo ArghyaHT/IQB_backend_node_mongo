@@ -78,6 +78,7 @@ const addAdvertisements = async (req, res) => {
   }
 };
 
+
 //GetAdvertisements api
 const getAdvertisements = async (req, res) => {
   try {

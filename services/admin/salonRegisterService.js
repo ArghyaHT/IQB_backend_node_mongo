@@ -241,6 +241,7 @@ const updateSalonBySalonId = async (salonData) => {
     salonId,
     adminEmail,
     address,
+    salonType,
     city,
     country,
     postCode,
@@ -270,50 +271,58 @@ const updateSalonBySalonId = async (salonData) => {
       };
     }
     
-    if (!salon.services || !Array.isArray(salon.services)) {
-      return {
-        status: 500,
-        message: 'Salon services are missing or not an array.',
-      };
+   let updateFields = {
+    userName,
+    salonName,
+    salonIcon,
+    salonLogo,
+    salonId,
+    salonType,
+    adminEmail,
+    address,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    salonEmail,
+    twitterLink,
+    instraLink,
+   }
+
+    if (services && Array.isArray(services)) {
+      // If services are provided, update the services
+      const updatedServices = salon.services.map((existingService) => {
+        const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
+
+        if (matchingService) {
+          return {
+            ...existingService.toObject(),
+            serviceName: matchingService.serviceName,
+            servicePrice: matchingService.servicePrice,
+            serviceDesc: matchingService.serviceDesc,
+            serviceEWT: matchingService.serviceEWT,
+          };
+        }
+        return existingService; // Keep the existing service unchanged
+      });
+
+      updateFields.services = updatedServices;
     }
 
-    // const updateServices = services.map((s) =>{
-    //  const serviceId = s.serviceId;
-    //  const serviceName = s.serviceName;
-    //  const servicePrice = s.servicePrice;
-
-    //  const existingService = salon.services.find((service) => service.serviceId === serviceId);
-
-    //     console.log(existingService)
-    //     if (existingService) {
-    //       existingService.serviceName = serviceName;
-    //       existingService.servicePrice = servicePrice;
-    //       return existingService;
-    //     }
-    // });
    
 
-    const updatedSalon = await Salon.findOneAndUpdate({ salonId: salonId, adminEmail: adminEmail },
+    const updatedSalon = await Salon.findOneAndUpdate(
+      { salonId: salonId, adminEmail: adminEmail },
       {
-        userName,
-        salonName,
-        salonIcon,
-        salonLogo,
-        address,
-        city,
-        country,
-        postCode,
-        contactTel,
-        webLink,
-        fblink,
-        twitterLink,
-        instraLink,
-        services,
-        salonEmail
+        // Update only the provided fields
+        $set: updateFields,
       },
       {
-        new: true
-      })
+        new: true,
+      }
+    );
 
     return ({
       status: 200,
