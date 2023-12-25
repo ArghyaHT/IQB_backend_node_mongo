@@ -20,8 +20,10 @@ const salonSettingsSchema  = new mongoose.Schema({
         },
         appointmentEndTime:{
             type:String
-        },
-        // timeSlots: [{type: String}]
+        }, 
+        intervalInMinutes:{
+            type: Number
+        }
     }
 },{timestamps: true})
 

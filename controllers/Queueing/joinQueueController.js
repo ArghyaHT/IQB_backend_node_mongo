@@ -6,7 +6,7 @@ const Barber = require("../../models/barberRegisterModel")
 //Single Join queue api
 const singleJoinQueue = async (req, res) => {
   try {
-    const { salonId, customerName, customerEmail, joinedQType, methodUsed, barberName, barberId, services } = req.body;
+    const { salonId, name, customerEmail, joinedQType, methodUsed, barberName, barberId, services } = req.body;
 
     let totalServiceEWT = 0;
     let serviceIds = "";
@@ -43,7 +43,7 @@ const singleJoinQueue = async (req, res) => {
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
     const newQueue = {
-      customerName,
+      customerName: name,
       customerEmail,
       joinedQ: true,
       joinedQType: joinedQType,
@@ -153,7 +153,7 @@ const groupJoinQueue = async (req, res) => {
 
       // Create queue entry data for the group member
       const joinedQData = {
-        customerName: member.customerName,
+        customerName: member.name,
        customerEmail: member.customerEmail,
         joinedQ: true,
         joinedQType: "Group-Join",
@@ -198,7 +198,7 @@ const groupJoinQueue = async (req, res) => {
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, customerName, customerEmail, joinedQType, methodUsed, services } = req.body;
+    const { salonId, name, customerEmail, joinedQType, methodUsed, services } = req.body;
     const serviceIds = services.map(service => service.serviceId);
 
     let totalServiceEWT = 0;
@@ -239,7 +239,7 @@ const autoJoin = async (req, res) => {
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
     const newQueue = {
-      customerName, 
+      customerName: name, 
       customerEmail,
       joinedQ: true,
       joinedQType: joinedQType,

@@ -97,7 +97,7 @@ const createAppointment = async (req, res) => {
 //Get Engage BarberTimeSLots Api
 const getEngageBarberTimeSlots = async (req, res) => {
   try {
-    const { salonId, barberId, date, intervalInMinutes } = req.body;
+    const { salonId, barberId, date } = req.body;
 
     if (!date || !barberId) {
       // If the date value is null, send a response to choose the date
@@ -141,6 +141,15 @@ const getEngageBarberTimeSlots = async (req, res) => {
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
+      const settings = await SalonSettings.findOne({ salonId: salonId });
+
+      if (!settings) {
+        console.log('Salon settings not found');
+        return null;
+      }
+      const intervalInMinutes = settings.appointmentSettings.intervalInMinutes;
+      console.log('Interval in minutes:', intervalInMinutes);
+      
       timeSlots = generateTimeSlots(start, end, intervalInMinutes);
     } else {
       const appointmentList = appointments.map(appt => appt.appointmentList);

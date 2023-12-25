@@ -25,7 +25,8 @@ const addAdvertisements = async (req, res) => {
 
     const uploadPromises = advertisements.map(advertisement => {
       return new Promise((resolve, reject) => {
-        const public_id = `${advertisement.name.split(".")[0]}`;
+        const timestamp = Date.now();
+        const public_id = `${advertisement.name.split(".")[0]}_${timestamp}`;
 
         cloudinary.uploader.upload(advertisement.tempFilePath, {
           public_id: public_id,

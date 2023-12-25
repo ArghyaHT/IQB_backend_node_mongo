@@ -508,7 +508,7 @@ const createBarberByAdmin = async (req, res) => {
       salonId,
       dateOfBirth,
       password,
-      barberServices // Array of service objects containing serviceId, serviceCode, serviceName, serviceEWT
+      barberServices // Array of service objects containing serviceId, serviceCode, servicePrice, serviceName, serviceEWT
     } = req.body;
 
     // Check if the barber with the provided email already exists

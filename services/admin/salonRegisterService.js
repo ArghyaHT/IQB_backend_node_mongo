@@ -36,7 +36,7 @@ const createSalon = async (salonData) => {
     if (existingSalon) {
       return {
         status: 400,
-        response: 'A Salon with the provided UserName already exists',
+        response: 'A Salon with the provided Name already exists',
       };
     }
 
@@ -97,7 +97,7 @@ const createSalon = async (salonData) => {
       };
     }
 
-    const { startTime, endTime } = appointmentSettings;
+    const { startTime, endTime, intervalInMinutes } = appointmentSettings;
 
     // Create a new SalonSettings instance with generated time slots
     const newSalonSettings = new SalonSettings({
@@ -105,6 +105,7 @@ const createSalon = async (salonData) => {
       appointmentSettings: {
         appointmentStartTime: startTime,
         appointmentEndTime: endTime,
+        intervalInMinutes: intervalInMinutes
       }
     });
 
