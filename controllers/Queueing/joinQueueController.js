@@ -293,22 +293,39 @@ const getQueueListBySalonId = async (req, res) => {
     console.log(salonId)
 
     //To find the queueList according to salonId and sort it according to qposition
-    const getSalon = await SalonQueueList.findOne({ salonId })
-    .sort({ "queueList.qPosition": 1 });
-  
-    if (getSalon) {
-      const getQList = getSalon.queueList || [];
+    const getSalon = await SalonQueueList.aggregate([
+      { 
+        $match: { salonId } // Match the document based on salonId
+      },
+      { 
+        $unwind: "$queueList" // Deconstruct queueList array
+      },
+      {
+        $sort: {
+          "queueList.qPosition": -1 // Sort by qPosition in descending order (-1)
+        }
+      },
+      {
+        $group: {
+          _id: "$_id", // Group by the document's _id field
+          queueList: { $push: "$queueList" } // Reconstruct the queueList array
+        }
+      }
+    ]);
+    
+    if (getSalon.length > 0) {
+      // Access the sorted queueList array from the result
+      const sortedQueueList = getSalon[0].queueList;
 
       res.status(200).json({
         success: true,
         message: "QList By Salon Id retrieved",
-        response: getQList,
+        response: sortedQueueList,
       });
     } else {
       res.status(404).json({
         success: false,
         message: "Salon not found",
-        error: error.message
       });
     }
 
@@ -321,7 +338,6 @@ const getQueueListBySalonId = async (req, res) => {
       error: error.message
     });
   }
-
 }
 
 
