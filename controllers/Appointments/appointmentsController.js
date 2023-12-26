@@ -251,19 +251,12 @@ const getEngageBarberTimeSlots = async (req, res) => {
     if (!appointments || appointments.length === 0) {
       // Generate time slots for the entire working hours as no appointments found
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
-      const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+      const { appointmentStartTime, appointmentEndTime, intervalInMinutes} = appointmentSettings;
 
       //Generate the timeslots for the barber If no appointments
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
-      const settings = await SalonSettings.findOne({ salonId: salonId });
-
-      if (!settings) {
-        console.log('Salon settings not found');
-        return null;
-      }
-      const intervalInMinutes = settings.appointmentSettings.intervalInMinutes;
       console.log('Interval in minutes:', intervalInMinutes);
       
       timeSlots = generateTimeSlots(start, end, intervalInMinutes);
@@ -272,12 +265,12 @@ const getEngageBarberTimeSlots = async (req, res) => {
 
       // Generate time slots for the barber If have appointments
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
-      const { appointmentStartTime, appointmentEndTime } = appointmentSettings;
+      const { appointmentStartTime, appointmentEndTime, intervalInMinutes } = appointmentSettings;
 
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
-      timeSlots = generateTimeSlots(start, end);
+      timeSlots = generateTimeSlots(start, end, intervalInMinutes);
 
       appointmentList.forEach(appointment => {
         const slotsInRange = appointment.timeSlots.split('-');
