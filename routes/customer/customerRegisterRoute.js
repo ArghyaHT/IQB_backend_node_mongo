@@ -1,5 +1,5 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword,  } = require("../../controllers/customer/customerRegisterController.js")
+const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 
 
@@ -55,5 +55,9 @@ router.route("/customerConnectSalon").post(customerConnectSalon)
 
 //Get Customer Details By CustomerId
 router.route("/getCustomerDetails").post(getCustomerDetails)
+
+
+//Send Bulk Email to Customers
+router.route("/sendBulkEmailToCustomers").post(sendBulkEmailToCustomers)
 
 module.exports = router

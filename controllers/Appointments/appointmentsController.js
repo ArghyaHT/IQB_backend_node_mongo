@@ -9,8 +9,6 @@ const createAppointment = async (req, res) => {
   try {
       const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
-      // Assuming you have your models imported (Barber, Appointment) and other necessary dependencies
-
       // Fetch barber information
       const barber = await Barber.findOne({ barberId: barberId });
     
@@ -91,6 +89,124 @@ const createAppointment = async (req, res) => {
           message: 'Your appointment is not done. Please Try Again',
           error: error.message,
       });
+  }
+};
+
+//Edit Appointments By Admin and Barber
+const editAppointment = async (req, res) => {
+  try {
+    const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
+
+    // Fetch barber information
+    const barber = await Barber.findOne({ barberId: barberId });
+    // Calculate total serviceEWT for all provided serviceIds
+    let totalServiceEWT = 0;
+    let serviceIds = "";
+    if (barber && barber.barberServices) {
+        // Convert single serviceId to an array if it's not already an array
+        const services = Array.isArray(serviceId) ? serviceId : [serviceId];
+      
+        services.forEach(id => {
+            const service = barber.barberServices.find(service => service.serviceId === id);
+            if (service) {
+                totalServiceEWT += service.barberServiceEWT || 0;
+          
+                if (serviceIds) {
+                    serviceIds += "-";
+                }
+                serviceIds += service.serviceId.toString();
+            }
+        });
+    }
+
+    // Calculate totalServiceEWT in hours and minutes
+    const hours = Math.floor(totalServiceEWT / 60);
+    const minutes = totalServiceEWT % 60;
+
+    const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+
+    // Parse startTime from the request body into hours and minutes
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+
+    // Calculate endTime by adding formattedTime to startTime using Moment.js
+    const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
+    const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
+    const endTime = endTimeMoment.format('HH:mm');
+    
+    // Fetch the appointment by its ID
+    const existingAppointment = await Appointment.findOneAndUpdate(
+      { salonId, 'appointmentList._id': appointmentId },
+      {
+        $set: {
+          'appointmentList.$.barberId': barberId,
+          'appointmentList.$.serviceId': serviceIds,
+          'appointmentList.$.appointmentDate': appointmentDate,
+          'appointmentList.$.appointmentNotes': appointmentNotes,
+          'appointmentList.$.startTime': startTime,
+          'appointmentList.$.endTime': endTime,
+          'appointmentList.$.timeSlots': `${startTime}-${endTime}`
+          // Update other fields as needed
+        },
+      },
+      { new: true }
+    );
+
+    if (!existingAppointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment updated successfully',
+      response: existingAppointment,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update appointment',
+      error: error.message,
+    });
+  }
+};
+
+//Delete Appointment
+const deleteAppointment = async (req, res) => {
+  try {
+    const {salonId, appointmentId} = req.body; // Assuming appointmentId is passed as a parameter
+    
+    // Find and remove the appointment by its ID
+    const deletedAppointment = await Appointment.findOneAndUpdate(
+      { salonId, 'appointmentList._id': appointmentId },
+      {
+        $pull: {
+          appointmentList: { _id: appointmentId },
+        },
+      },
+      { new: true }
+    );
+
+    if (!deletedAppointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment deleted successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete appointment',
+      error: error.message,
+    });
   }
 };
 
@@ -505,160 +621,15 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
   }
 };
 
-
-// {
-//   id: createEventId(),
-//   title: 'Appoinment 1',
-//   start: todayStr + 'T09:0:00',
-//   // end: todayStr + 'T10:00:00',
-//   color:"#7EC8E3" //sky blue
-// },
-
 module.exports = {
     createAppointment,
+    editAppointment,
+    deleteAppointment,
     getAllAppointmentsByBarberId,
     getEngageBarberTimeSlots,
     getAllAppointmentsBySalonId,
     getAllAppointmentsBySalonIdAndDate,
-    getAllAppointmentsByBarberIdAndDate
+    getAllAppointmentsByBarberIdAndDate, 
+    
 }
 
-
-// const appoinments = [
-//   {
-//       title: "B",
-//       barbername: "John",
-//       event: [
-//           {
-//               event: "B1",
-//               background: "#87CEEB",//sky blue,
-//               startTime:"8:00",
-//               endTime: "9:00"
-//           },
-//           {
-//               event: "B2",
-//               background: "#FFA500",//orange,
-//               startTime:"10:00",
-//               endTime: "11:00"
-//           },
-//           {
-//               event: "B3",
-//               background: "#FA86C4",//pink,
-//               startTime:"12:00",
-//               endTime: "1:00"
-//           },
-//           {
-//               event: "B4",
-//               background: "#15F4EE", //flurocent blue
-//               startTime:"3:00",
-//               endTime: "4:00"
-//           },
-//           {
-//               event: "B1",
-//               background: "#c5e3e7", //grayish blue,
-//               startTime:"2:00",
-//               endTime: "2:30"
-//           },
-//           {
-//               event: "B2",
-//               background: "#87CEEB",//sky blue
-//               startTime:"11:00",
-//               endTime: "11:30"
-//           },
-//           {
-//               event: "B3",
-//               background: "#FA86C4",//pink
-//               startTime:"5:00",
-//               endTime: "6:00"
-//           },
-//           {
-//               event: "B4",
-//               background: "#c5e3e7", //grayish blue
-//               startTime:"4:30",
-//               endTime: "5:00"
-//           }
-//       ]
-//   },
-//   {
-//       title: "C",
-//       barbername: "Smith",
-//       event: [
-//           {
-//               event: "C1",
-//               background: "#FFA500",//orange
-//               startTime:"5:00",
-//               endTime: "6:00"
-//           },
-//           {
-//               event: "C2",
-//               background: "#FA86C4",//pink
-//               startTime:"11:00",
-//               endTime: "11:30"
-//           }
-//       ]
-//   },
-//   {
-//       title: "D",
-//       barbername: "Dorian",
-//       event: [
-//           {
-//               event: "D1",
-//               background: "#15F4EE", //flurocent blue
-//               startTime:"4:30",
-//               endTime: "5:00"
-//           },
-//           {
-//               event: "D2",
-//               background: "#FA86C4",//pink
-//               startTime:"5:00",
-//               endTime: "6:00"
-//           },
-//           {
-//               event: "D3",
-//               background: "#c5e3e7", //grayish blue
-//               startTime:"2:00",
-//               endTime: "2:30"
-//           }
-//       ]
-//   },
-//   {
-//       title: "E",
-//       barbername: "Mihawk",
-//       event: [
-//           {
-//               event: "E1",
-//               background: "#c5e3e7", //grayish blue
-//               startTime:"8:00",
-//               endTime: "9:00"
-//           },
-//           {
-//               event: "E2",
-//               background: "#15F4EE", //flurocent blue
-//               startTime:"10:00",
-//               endTime: "11:00"
-//           },
-//           {
-//               event: "D3",
-//               background: "#15F4EE", //flurocent blue
-//               startTime:"2:00",
-//               endTime: "2:30"
-//           }
-//       ]
-
-//   },
-//   {
-//       title: "F",
-//       barbername: "Georgina"
-
-//   },
-//   {
-//       title: "G",
-//       barbername: "Angelo"
-
-//   },
-//   {
-//       title: "H",
-//       barbername: "vinci"
-
-//   }
-// ]

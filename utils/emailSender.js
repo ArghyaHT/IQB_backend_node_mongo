@@ -76,7 +76,7 @@ const sendVerificationCodeByEmail = (email,verificationCode) => {
 //Send QueuePositionChange Email To Customer
 const sendQueuePositionChangedEmail = (customerEmail, newQueuePosition) => {
   const mailOptions = {
-    from: 'your-email@example.com', // Replace with your sender email address
+    from: 'arghyahimanstech@gmail.com', // Replace with your sender email address
     to: customerEmail,
     subject: 'Queue Position Changed',
     html: `<p>Your queue position has changed. Your new position is ${newQueuePosition}.</p>`
@@ -91,9 +91,31 @@ const sendQueuePositionChangedEmail = (customerEmail, newQueuePosition) => {
     }
   });
 };
+
+
+//Send QueuePositionChange Email To Customer
+const bulkEmail = (subject, message, customerEmails) => {
+  const mailOptions = {
+    from: 'arghyahimanstech@gmail.com', // Replace with your sender email address
+    to: customerEmails.join(', '),
+    subject: `${subject}`,
+    html: `<p>${message}.</p>`
+    // Customize the email content as per your requirements
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
+
 module.exports ={
   sendPasswordResetEmail,
   sendCustomerMail,
   sendVerificationCodeByEmail,
-  sendQueuePositionChangedEmail
+  sendQueuePositionChangedEmail,
+  bulkEmail
 }

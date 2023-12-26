@@ -1,10 +1,14 @@
 const express =  require("express");
-const { createAppointment, getAllAppointmentsByBarberId, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberIdAndDate } = require("../../controllers/Appointments/appointmentsController");
+const { createAppointment, getAllAppointmentsByBarberId, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberIdAndDate, editAppointment, deleteAppointment } = require("../../controllers/Appointments/appointmentsController");
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 
 const router = express.Router();
 
 router.route("/createAppointment").post(handleProtectedRoute, createAppointment);
+
+router.route("/editAppointments").put(handleProtectedRoute, editAppointment)
+
+router.route("/deleteAppointments").delete(handleProtectedRoute, deleteAppointment)
 
 router.route("/getEngageBarberTimeSlots").post(handleProtectedRoute ,getEngageBarberTimeSlots)
 

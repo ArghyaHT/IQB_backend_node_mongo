@@ -10,16 +10,16 @@ const crypto = require("crypto");
 const jwt = require('jsonwebtoken')
 const { OAuth2Client } = require('google-auth-library');
 
-const { sendVerificationCodeByEmail, sendPasswordResetEmail } = require("../../utils/emailSender");
+const { sendVerificationCodeByEmail, sendPasswordResetEmail, bulkEmail } = require("../../utils/emailSender");
 // const { sendVerificationCodeToMobile } = require("../../utils/mobileMessageSender");
 
 const JWT_ACCESS_SECRET = "accessToken"
 const JWT_REFRESH_SECRET = "refreshToken"
 
 //CHECK WEATHER THE EMAIL ALREADY EXISTS IN THE DATABASE-------
-const checkEmail = async(req, res) =>{
-  try{
-    const {email} = req.body;
+const checkEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
 
     //Find existing email for a particular salonId
     const existingCustomer = await Customer.findOne({ email });
@@ -30,14 +30,14 @@ const checkEmail = async(req, res) =>{
         message: "This EmailId already exists",
       });
     }
-    else{
+    else {
       res.status(200).json({
         success: true,
         response: email,
       });
     }
   }
-  catch(error){
+  catch (error) {
     console.log(error.message)
     return {
       status: 500,
@@ -89,7 +89,7 @@ const signUp = async (req, res) => {
     const savedCustomer = await customer.save();
 
 
-//Sending the verification Code to Customer Registered Email
+    //Sending the verification Code to Customer Registered Email
     if (savedCustomer.verificationCode) {
       sendVerificationCodeByEmail(email, verificationCode);
       return res.status(200).json({
@@ -357,41 +357,41 @@ const forgetPassword = async (req, res) => {
 //Verify Password Reset Code
 const verifyPasswordResetCode = async (req, res) => {
   try {
-      const { email, verificationCode, } = req.body;
+    const { email, verificationCode, } = req.body;
 
-      const user = await Customer.findOne({ email });
+    const user = await Customer.findOne({ email });
 
-      if (!user) {
-          return res.status(404).json({
-              success: false,
-              message: "User not found",
-          });
-      }
-
-      if(user.verificationCode === verificationCode){
-        user.verificationCode = '';
-        // customer.VerificationCode = ''; // Clear the verification code
-        await user.save();
-       
-        res.status(200).json({
-          success: true,
-          message: "Verification Code successfully matched",
-          email: email,
-        });
-      } else {
-          // Verification code doesn't match
-          return res.status(400).json({
-              success: false,
-              message: "Invalid verification code",
-          });
-      }
-  } catch (error) {
-      console.error('Failed to verify password reset code:', error);
-      return res.status(500).json({
-          success: false,
-          message: 'Failed to verify password reset code',
-          error: error.message
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
+    }
+
+    if (user.verificationCode === verificationCode) {
+      user.verificationCode = '';
+      // customer.VerificationCode = ''; // Clear the verification code
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Verification Code successfully matched",
+        email: email,
+      });
+    } else {
+      // Verification code doesn't match
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code",
+      });
+    }
+  } catch (error) {
+    console.error('Failed to verify password reset code:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify password reset code',
+      error: error.message
+    });
   }
 };
 
@@ -435,48 +435,48 @@ const resetPassword = async (req, res) => {
 
 const googleLoginControllerCustomer = async (req, res) => {
   try {
-      const CLIENT_ID = process.env.CLIENT_ID;
-      const token = req.body.token;
+    const CLIENT_ID = process.env.CLIENT_ID;
+    const token = req.body.token;
 
-      if (!token) {
-          return res.status(401).json({ success: false, message: "UnAuthorized User or Invalid User" });
-      }
+    if (!token) {
+      return res.status(401).json({ success: false, message: "UnAuthorized User or Invalid User" });
+    }
 
-      const client = new OAuth2Client(CLIENT_ID);
-      const ticket = await client.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,
-      });
-      const payload = ticket.getPayload();
-      const { name, email } = payload;
+    const client = new OAuth2Client(CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { name, email } = payload;
 
-      let user = await Customer.findOne({ email });
+    let user = await Customer.findOne({ email });
 
-      if (!user) {
-          // If the user doesn't exist, create a new user
-          user = new Customer({ name, email, customer: true, AuthType: "google" });
-          await user.save();
-      }
+    if (!user) {
+      // If the user doesn't exist, create a new user
+      user = new Customer({ name, email, customer: true, AuthType: "google" });
+      await user.save();
+    }
 
-      const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-      const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
+    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
+    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
 
-      res.status(200).json({
-          success: true,
-          message: "Customer signed in successfully",
-          tokens: { accessToken, refreshToken }
-      });
+    res.status(200).json({
+      success: true,
+      message: "Customer signed in successfully",
+      tokens: { accessToken, refreshToken }
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, error: 'Failed to sign in' });
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to sign in' });
   }
 };
 
 
 //GET ALL CUSTOMER FOR A SALON
-const allCustomers = async(req, res) => {
+const allCustomers = async (req, res) => {
   try {
-  
+
     const { salonId, name, email, page = 1, limit = 3, sortField, sortOrder } = req.query
     let query = {}
 
@@ -525,70 +525,70 @@ const allCustomers = async(req, res) => {
 }
 
 //UPDATE CUSTOMER PROFILE
-const updateCustomer = async(req, res) =>{
+const updateCustomer = async (req, res) => {
   const customerData = req.body;
   try {
-      const result = await customerService.updateCustomer(customerData);
-      res.status(result.status).json({
-         success: true,
-          response: result.response,
-      });
+    const result = await customerService.updateCustomer(customerData);
+    res.status(result.status).json({
+      success: true,
+      response: result.response,
+    });
   }
   catch (error) {
-      console.error(error);
-      res.status(500).json({
-          success:false,
-          message: 'Failed to update Customer'
-      });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update Customer'
+    });
   }
 }
 
-const deleteSingleCustomer = async(req, res) =>{
-  const {email} = req.body;
-  try{
-      const result = await customerService.deleteCustomer(email)
-      res.status(result.status).json({
+const deleteSingleCustomer = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const result = await customerService.deleteCustomer(email)
+    res.status(result.status).json({
 
-          status: result.status,
-          response: result.response,
-      });
+      status: result.status,
+      response: result.response,
+    });
   }
-  
+
   catch (error) {
-      console.error(error);
-      res.status(500).json({
-          status: 500,
-          message: 'Failed to Delete Customer'
-      });
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Failed to Delete Customer'
+    });
   }
 }
 
 
 //Sending Mail to Customer
-const sendMailToCustomer = async(req, res) =>{
+const sendMailToCustomer = async (req, res) => {
   const { email, subject, text } = req.body;
 
   try {
     const result = await customerService.sendMail(email, subject, text);
     res.status(result.status).json({
-       success: true,
-        response: result.response,
-        message: result.message,
+      success: true,
+      response: result.response,
+      message: result.message,
     });
-}
-catch (error) {
+  }
+  catch (error) {
     console.error(error);
     res.status(500).json({
-        success:false,
-        message: 'Failed to send mail'
+      success: false,
+      message: 'Failed to send mail'
     });
-}
+  }
 
 }
 
 
 //Get Appointments for Customer
-const getAppointmentForCustomer =  async(req, res)=> {
+const getAppointmentForCustomer = async (req, res) => {
   try {
     const { customerEmail } = req.body;
 
@@ -670,32 +670,80 @@ const customerConnectSalon = async (req, res) => {
 };
 
 //Get Customer Details
-const getCustomerDetails = async(req, res) => {
-try{
-  const {email} = req.body;
-  const customer = await Customer.findOne({ email }).select('-password');
-  if (!customer) {
-    return res.status(404).json({
-      success: false,
-      message: "Customer not found",
+const getCustomerDetails = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const customer = await Customer.findOne({ email }).select('-password');
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Customer details found successfully",
+      response: customer,
     });
   }
-  res.status(200).json({
-    success: true,
-    message: "Customer details found successfully",
-    response: customer,
-  });
+  catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while connecting customer to the salon",
+      error: error.message,
+    });
+  }
 }
-catch (error) {
-  // Handle errors that might occur during the operation
-  res.status(500).json({
-    success: false,
-    message: "An error occurred while connecting customer to the salon",
-    error: error.message,
-  });
+
+//Bulk Send Email to Customers
+const sendBulkEmailToCustomers = async (req, res) => {
+  try {
+    const { salonId, subject, message } = req.body;
+
+    // Fetch customer emails based on salonId
+    const customers = await Customer.find({ salonId }).select('email');
+
+    if (!customers || customers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No customers found for the provided salonId',
+      });
+    }
+
+    // Extract emails from customers and create an array of emails
+    const customerEmails = customers.map((customer) => customer.email);
+
+
+
+    // Check if subject, message, and recipientEmails are present in the request body
+    if (!subject || !message || !customerEmails || !Array.isArray(customerEmails) || customerEmails.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide subject, message, and a valid array of recipientEmails in the request body.',
+      });
+    }
+
+    bulkEmail(subject, message, customerEmails)
+
+    res.status(200).json({
+      success: true,
+      message: "Mails have beeen sent successfully to Customers"
+    })
+
+  } catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while Sending mails to Customers",
+      error: error.message,
+    });
+  }
 }
-}
-  module.exports = {
+
+
+
+module.exports = {
   signUp,
   signIn,
   forgetPassword,
@@ -711,5 +759,6 @@ catch (error) {
   googleLoginControllerCustomer,
   verifyPasswordResetCode,
   getCustomerDetails,
-  savePassword
-  }
+  savePassword,
+  sendBulkEmailToCustomers
+}
