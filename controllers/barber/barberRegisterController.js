@@ -15,6 +15,7 @@ const JWT_REFRESH_SECRET = "refreshToken"
 //Upload Profile Picture Config
 const path = require("path");
 const fs = require('fs');
+const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -1116,7 +1117,7 @@ const sendVerificationCodeForBarberEmail = async (req, res) => {
 }
 
 //Match Verification Code and change EmailVerified Status
-const changeEmailVerifiedStatus = async (req, res) => {
+const changeBarberEmailVerifiedStatus = async (req, res) => {
   try {
       const { email, verificationCode } = req.body;
 
@@ -1127,11 +1128,11 @@ const changeEmailVerifiedStatus = async (req, res) => {
           // If verification code matches, clear it from the database
           barber.verificationCode = '';
           barber.emailVerified = true;
-          await admin.save();
+          await barber.save();
 
           return res.status(200).json({
               success: true,
-              response: admin,
+              response: barber,
           });
       }
 
@@ -1184,7 +1185,7 @@ module.exports = {
   isBarberLogginMiddleware,
  isBarberLoggedOutMiddleware,
  sendVerificationCodeForBarberEmail,
- changeEmailVerifiedStatus
+ changeBarberEmailVerifiedStatus
  
 }
 

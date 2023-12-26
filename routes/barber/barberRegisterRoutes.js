@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus } = require("../../controllers/barber/barberRegisterController");
 const {  handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 
 
@@ -74,5 +74,11 @@ router.route("/getAllBarbersByServiceId").get(handleProtectedRoute,getAllBarbers
 router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
 
 router.route("/changeBarberOnlineStatus").post(handleProtectedRoute, isBarberOnline)
+
+//Send Mail to Admin for Verification
+router.route("/sendVerificationCodeForBarberEmail").post(handleProtectedRoute, sendVerificationCodeForBarberEmail )
+
+//Send EmailVerifiedStatus
+router.route("/changeBarberEmailVerifiedStatus").post(handleProtectedRoute, changeBarberEmailVerifiedStatus )
 
 module.exports = router;
