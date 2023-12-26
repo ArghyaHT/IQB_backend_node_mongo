@@ -39,6 +39,19 @@ const rateLimiter = rateLimit({
   // store: ... , // Use an external store for more precise rate limiting
 })
 
+// Error handling for uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Perform necessary actions to handle the error gracefully
+  // For example, log the error, perform cleanup, and gracefully exit the process if needed
+});
+
+// Error handling for unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Perform necessary actions to handle the rejection gracefully
+  // For example, log the rejection, perform cleanup, and handle the promise rejection if needed
+});
 connectDB()
 
 const app = express()
@@ -124,4 +137,14 @@ const PORT = 8080;
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
+});
+
+// Handle process termination signals for graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM signal');
+  // Perform cleanup and graceful shutdown
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });

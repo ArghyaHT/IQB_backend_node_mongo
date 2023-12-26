@@ -1083,7 +1083,7 @@ const sendVerificationCodeForBarberEmail = async (req, res) => {
           subject: 'Verify your Email',
           html: `
           <h2>Hello ${user.name}!</h2>
-          <p>Your Password Reset Verification Code is ${verificationCode}</p>
+          <p>Your To verify your Email please note the verification code. Your verification code is ${verificationCode}</p>
         `
       };
 
@@ -1095,21 +1095,21 @@ const sendVerificationCodeForBarberEmail = async (req, res) => {
       } catch (error) {
           return res.status(500).json({
               success: false,
-              message: 'Failed to send reset password email',
+              message: 'Failed to Verify email',
               error: error.message
           });
       }
 
       return res.status(200).json({
           success: true,
-          message: `Please check your email (${email}) for resetting the password`,
+          message: `Please check your email (${email}) for verification.`,
           verificationCode: verificationCode
       });
   } catch (error) {
       console.error('Failed to handle forget password:', error);
       return res.status(500).json({
           success: false,
-          message: 'Failed to initiate password reset',
+          message: 'Failed to verify your Email',
           error: error.message
       });
   }
@@ -1121,12 +1121,12 @@ const changeEmailVerifiedStatus = async (req, res) => {
       const { email, verificationCode } = req.body;
 
       // FIND THE CUSTOMER 
-      const admin = await Barber.findOne({ email });
+      const barber = await Barber.findOne({ email });
 
-      if (admin && admin.verificationCode === verificationCode) {
+      if (barber && barber.verificationCode === verificationCode) {
           // If verification code matches, clear it from the database
-          admin.verificationCode = '';
-          admin.emailVerified = true;
+          barber.verificationCode = '';
+          barber.emailVerified = true;
           await admin.save();
 
           return res.status(200).json({
@@ -1150,6 +1150,7 @@ const changeEmailVerifiedStatus = async (req, res) => {
       });
   }
 }
+
 
 
 
