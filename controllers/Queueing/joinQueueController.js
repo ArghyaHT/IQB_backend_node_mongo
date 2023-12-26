@@ -1,6 +1,7 @@
 const SalonQueueList = require("../../models/salonQueueListModel");
 const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
-const Barber = require("../../models/barberRegisterModel")
+const Barber = require("../../models/barberRegisterModel");
+const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
 
 
 //Single Join queue api
@@ -31,7 +32,7 @@ const singleJoinQueue = async (req, res) => {
       { new: true }
     );
 
-    if(!updatedBarber){
+    if (!updatedBarber) {
       res.status(400).json({
         success: false,
         message: "The Barber Is not online",
@@ -141,7 +142,7 @@ const groupJoinQueue = async (req, res) => {
         { new: true }
       );
 
-      if(!updatedBarber){
+      if (!updatedBarber) {
         res.status(400).json({
           success: false,
           message: "The Barber Is not online",
@@ -154,7 +155,7 @@ const groupJoinQueue = async (req, res) => {
       // Create queue entry data for the group member
       const joinedQData = {
         customerName: member.name,
-       customerEmail: member.customerEmail,
+        customerEmail: member.customerEmail,
         joinedQ: true,
         joinedQType: "Group-Join",
         qPosition: updatedBarber.queueCount,
@@ -239,7 +240,7 @@ const autoJoin = async (req, res) => {
     const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
 
     const newQueue = {
-      customerName: name, 
+      customerName: name,
       customerEmail,
       joinedQ: true,
       joinedQType: joinedQType,
@@ -294,10 +295,10 @@ const getQueueListBySalonId = async (req, res) => {
 
     //To find the queueList according to salonId and sort it according to qposition
     const getSalon = await SalonQueueList.aggregate([
-      { 
+      {
         $match: { salonId } // Match the document based on salonId
       },
-      { 
+      {
         $unwind: "$queueList" // Deconstruct queueList array
       },
       {
@@ -312,7 +313,7 @@ const getQueueListBySalonId = async (req, res) => {
         }
       }
     ]);
-    
+
     if (getSalon.length > 0) {
       // Access the sorted queueList array from the result
       const sortedQueueList = getSalon[0].queueList;
@@ -345,7 +346,7 @@ const getQueueListBySalonId = async (req, res) => {
 const barberServedQueue = async (req, res) => {
   try {
     const { salonId, barberId, serviceId, _id } = req.body;
-    
+
     // also mongoID and queue position will come from frontend
 
     // Find the JoinedQueue document that matches the salonId and contains a queue entry with the specified barberId
@@ -408,19 +409,41 @@ const barberServedQueue = async (req, res) => {
         { new: true }
       );
 
-    // Iterate through the queueList to notify customers about their changed queue position
-    const customersToNotify = queue.queueList.filter(element =>
-      element.barberId === barberId && element.salonId === salonId
-    );
+      // Fetch customer emails and queue positions based on salonId and barberId
+      const customers = await SalonQueueList.find({ salonId, "queueList.barberId": barberId }).select('queueList.customerEmail queueList.qPosition');
 
-    customersToNotify.forEach(customer => {
-      sendQueuePositionChangedEmail(customer.userName, customer.qPosition);
-    });
+ // Check if customers array is not empty
+if (customers && customers.length > 0) {
+  customers.forEach((customer) => {
+    // Access each customer's queueList array
+    if (customer.queueList && Array.isArray(customer.queueList)) {
+      customer.queueList.forEach((queueItem) => {
+        // Access individual queue items within queueList
+        const { customerEmail, qPosition } = queueItem;
 
+        // Process each queue item (customerEmail and qPosition)
+        console.log(`Customer Email: ${customerEmail}, Queue Position: ${qPosition}`);
+
+        // Call your function to send queue position changed emails here (e.g., sendQueuePositionChangedEmail(customerEmail, qPosition))
+        sendQueuePositionChangedEmail(customerEmail, qPosition)
+      });
+    }
+  });
+}
+
+      // Iterate through each customer and send queue position changed emails
+      customers.forEach((customer) => {
+        const { customerEmail, qPosition } = customer;
+
+        // Check if customerEmail and qPosition are valid
+        if (customerEmail && qPosition) {
+          sendQueuePositionChangedEmail(customerEmail, qPosition);
+        }
+      });
 
       res.status(200).json({
         success: true,
-        message: 'Customer served from the queue successfully.',
+        message: 'Customer served from the queue successfully and Mail sent successfully.',
       });
     } else {
       res.status(201).json({
@@ -440,35 +463,35 @@ const barberServedQueue = async (req, res) => {
 
 
 //Get Available barbers for Queue
-const getAvailableBarbersForQ = async(req, res) =>{
-try{
- const {salonId} = req.query;
- 
- //To find the available barbers for the queue
-  const availableBarbers = await Barber.find({salonId, isActive: true, isOnline: true});
+const getAvailableBarbersForQ = async (req, res) => {
+  try {
+    const { salonId } = req.query;
 
-  if(!availableBarbers){
-    res.status(201).json({
+    //To find the available barbers for the queue
+    const availableBarbers = await Barber.find({ salonId, isActive: true, isOnline: true });
+
+    if (!availableBarbers) {
+      res.status(201).json({
+        success: false,
+        message: 'No available Barbers founf at this moment.'
+      });
+    }
+    else {
+      res.status(200).json({
+        success: true,
+        message: 'All Barbers retrieved',
+        response: availableBarbers
+      });
+    }
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
       success: false,
-      message: 'No available Barbers founf at this moment.'
+      message: 'Internal Server Error',
+      error: error.message
     });
   }
-  else{
-    res.status(200).json({
-      success: true,
-      message: 'All Barbers retrieved',
-      response: availableBarbers
-    });
-  }
-}
-catch (error) {
-  console.error(error);
-  res.status(500).json({
-    success: false,
-    message: 'Internal Server Error',
-    error: error.message
-  });
-}
 }
 
 //To find the Barber with the Multiple ServiceIds
@@ -490,23 +513,25 @@ const getBarberByMultipleServiceId = async (req, res) => {
     });
 
     if (!barbers || barbers.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        response: 'No barbers found for the provided Services' });
+        response: 'No barbers found for the provided Services'
+      });
     }
 
-    return res.status(200).json({ 
+    return res.status(200).json({
       success: true,
       message: "Barbers retrieved for the particular Services",
-      response: barbers });
+      response: barbers
+    });
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-     message : 'Failed to fetch barbers by Services',
-     error: error.message
-     });
+      message: 'Failed to fetch barbers by Services',
+      error: error.message
+    });
   }
 };
 

@@ -74,12 +74,12 @@ const sendVerificationCodeByEmail = (email,verificationCode) => {
 }
 
 //Send QueuePositionChange Email To Customer
-const sendQueuePositionChangedEmail = (customerEmail, newQueuePosition) => {
+const sendQueuePositionChangedEmail = (customerEmail, qPosition) => {
   const mailOptions = {
     from: 'arghyahimanstech@gmail.com', // Replace with your sender email address
     to: customerEmail,
     subject: 'Queue Position Changed',
-    html: `<p>Your queue position has changed. Your new position is ${newQueuePosition}.</p>`
+    html: `<p>Your queue position has changed. Your new position is ${qPosition}.</p>`
     // Customize the email content as per your requirements
   };
 
