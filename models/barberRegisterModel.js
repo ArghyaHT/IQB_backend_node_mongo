@@ -90,7 +90,7 @@ const barberSchema = new mongoose.Schema({
             type: String
         },
         servicePrice:{
-            type: String
+            type: Number
         },
         barberServiceEWT: {
             type: Number
