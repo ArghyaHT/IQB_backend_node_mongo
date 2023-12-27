@@ -355,7 +355,7 @@ const barberServedQueue = async (req, res) => {
     });
     let currentServiceEWT = 0;
 
-    if (queue.length != 0) {
+    if (queue.length != 0 && queue.queueList.qPosition === 1) {
       const updatedQueueList = [];
       for (const element of queue.queueList) {
         if (
@@ -381,7 +381,7 @@ const barberServedQueue = async (req, res) => {
             await salon.save();
           }
 
-        } else if (element.qPosition === 1, element.barberId === barberId && element._id.toString() !== _id) {
+        } else if ( element.barberId === barberId && element._id.toString() !== _id) {
           // Decrement the qPosition of other elements
           //    serviceEWT = element.serviceEWT;
           element.qPosition -= 1;
