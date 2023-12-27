@@ -396,19 +396,14 @@ const isLogginMiddleware = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "User already logged in",
-            user: [
-                {
-                    ...loggedinUser.toObject(), // Spread the user object properties
-                    salonName: loggedInSalon.salonName, // Add salonName
-                    salonIsOnline: loggedInSalon.isOnline // Add isOnline
-                }
-            ]
+            user: loggedinUser
         });
 
     } catch (error) {
         return res.json({
             success: false,
-            message: error,
+            message: "Problem",
+            error: error.message
         });
     }
 }

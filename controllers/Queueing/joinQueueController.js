@@ -381,7 +381,7 @@ const barberServedQueue = async (req, res) => {
             await salon.save();
           }
 
-        } else if (element.barberId === barberId && element._id.toString() !== _id) {
+        } else if (element.qPosition === 1, element.barberId === barberId && element._id.toString() !== _id) {
           // Decrement the qPosition of other elements
           //    serviceEWT = element.serviceEWT;
           element.qPosition -= 1;
@@ -448,7 +448,7 @@ if (customers && customers.length > 0) {
     } else {
       res.status(201).json({
         success: false,
-        message: 'No service to be served.'
+        message: 'Queue position is not 1. No service to be served.'
       });
     }
   } catch (error) {
