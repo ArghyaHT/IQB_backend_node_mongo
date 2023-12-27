@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus, getDefaultSalonByAdmin } = require("../../controllers/admin/adminRegisterController.js");
 
 const router = express.Router();
 
@@ -55,5 +55,9 @@ router.route("/sendVerificationCodeForAdminEmail").post(handleProtectedRoute, se
 
 //Send EmailVerifiedStatus
 router.route("/changeEmailVerifiedStatus").post(handleProtectedRoute, changeEmailVerifiedStatus)
+
+//Get Default Salon Of Admin
+router.route("/getDefaultSalonByAdmin").post(handleProtectedRoute, getDefaultSalonByAdmin)
+
 
 module.exports = router

@@ -768,6 +768,34 @@ const getAllSalonsByAdmin = async (req, res) => {
     }
 }
 
+//Get Default Salon Details Of Admin
+const getDefaultSalonByAdmin = async (req, res) => {
+    try {
+        const { adminEmail } = req.body;
+        const admin = await Admin.findOne({ email: adminEmail })
+        if (!admin) {
+            res.status(404).json({
+                message: 'No admin found.',
+            });
+        }
+        else {
+            const defaultSalon = await Salon.findOne({ salonId: admin.salonId })
+            res.status(200).json({
+                message: "Salon Found",
+                response: defaultSalon
+            })
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'Failed to retrieve salons',
+            error: error.message,
+        });
+    }
+}
+
+
 //Change Salon Id of Admin
 const changeDefaultSalonIdOfAdmin = async (req, res) => {
     try {
@@ -909,5 +937,6 @@ module.exports = {
     getAllSalonsByAdmin,
     changeDefaultSalonIdOfAdmin,
     sendVerificationCodeForAdminEmail,
-    changeEmailVerifiedStatus
+    changeEmailVerifiedStatus,
+    getDefaultSalonByAdmin
 }

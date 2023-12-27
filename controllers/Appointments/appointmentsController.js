@@ -1,7 +1,8 @@
 const Appointment = require("../../models/appointmentsModel")
 const Barber = require("../../models/barberRegisterModel")
 const SalonSettings = require("../../models/salonSettingsModel")
-const moment = require("moment")
+const moment = require("moment");
+const { sendAppointmentsEmail } = require("../../utils/emailSender");
 
 
 //Creating Appointment
@@ -69,6 +70,16 @@ const createAppointment = async (req, res) => {
               message: "Appointment Confirmed",
               response: existingAppointmentList,
           });
+          //prepare email
+        const emailData = {
+          email,
+          subject: 'Appointment Fixed',
+          html: `
+              <h2>Hello ${user.name}!</h2>
+              <p></p>
+          `
+      };
+      sendAppointmentsEmail(emailData)
       } else {
           const newAppointmentData = new Appointment({
               salonId: salonId,
@@ -80,6 +91,17 @@ const createAppointment = async (req, res) => {
               message: "Appointment Confirmed",
               response: savedAppointment,
           });
+          //prepare email
+        const emailData = {
+          email,
+          subject: 'Reset Password Email',
+          html: `
+              <h2>Hello ${user.name}!</h2>
+              <p></p>
+          `
+      };
+      sendAppointmentsEmail(emailData)
+
       }
 
   } catch (error) {

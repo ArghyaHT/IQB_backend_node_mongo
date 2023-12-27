@@ -346,15 +346,12 @@ const getQueueListBySalonId = async (req, res) => {
 const barberServedQueue = async (req, res) => {
   try {
     const { salonId, barberId, serviceId, _id } = req.body;
-  
-    // Find the JoinedQueue document that matches the salonId and contains a queue entry with the specified barberId
-    const queue = await SalonQueueList.findOne({
-      salonId: salonId
-    });
+
+    const queue = await SalonQueueList.findOne({ salonId: salonId });
     let currentServiceEWT = 0;
-  
-    if (queue.length != 0 && queue.queueList.qPosition === 1) {
-      const updatedQueueList = [];
+    let updatedQueueList = [];
+
+    if (queue && queue.queueList && queue.queueList.length > 0) {
       for (const element of queue.queueList) {
         if (
           element.qPosition === 1 &&
@@ -362,101 +359,74 @@ const barberServedQueue = async (req, res) => {
           element.barberId === barberId &&
           element._id.toString() === _id
         ) {
-          // Do not add the element to updatedQueueList
-          // It will be removed from queueList when we update the queue
-          // Save the element to JoinedQueueHistory
           currentServiceEWT = element.serviceEWT;
           const salon = await JoinedQueueHistory.findOne({ salonId });
+
           if (!salon) {
             const newSalonHistory = new JoinedQueueHistory({
               salonId,
               queueList: [element],
             });
-  
+
             await newSalonHistory.save();
           } else {
             salon.queueList.push(element);
             await salon.save();
           }
         } else if (element.barberId === barberId && element._id.toString() !== _id) {
-          // Decrement the qPosition of other elements
-          //    serviceEWT = element.serviceEWT;
-          element.qPosition -= 1;
-          element.customerEWT -= currentServiceEWT;
-          updatedQueueList.push(element);
+          updatedQueueList.push({
+            ...element.toObject(),
+            qPosition: element.qPosition > 1 ? element.qPosition - 1 : element.qPosition,
+            customerEWT: element.qPosition > 1 ? element.customerEWT - currentServiceEWT : element.customerEWT,
+          });
         } else {
-          // Keep elements with different barberId unchanged
           updatedQueueList.push(element);
         }
       }
-      // Update the queue with the modified queueList, removing the element
-      queue.queueList = updatedQueueList;
-      await queue.save();
-    }
-  
-    // Update barber information
-    if (currentServiceEWT > 0) {
-      // Find the corresponding barber and decrement qcount and ewt
-      const updatedBarber = await Barber.findOneAndUpdate(
-        { salonId: salonId, barberId: barberId },
-        {
-          $inc: { barberEWT: -currentServiceEWT, queueCount: -1 },
-        },
-        { new: true }
-      );
-  
-      // Fetch customer emails and queue positions based on salonId and barberId
-      const customers = await SalonQueueList.find({ salonId, "queueList.barberId": barberId }).select('queueList.customerEmail queueList.qPosition');
-  
-      // Check if customers array is not empty
-      if (customers && customers.length > 0) {
-        customers.forEach((customer) => {
-          // Access each customer's queueList array
-          if (customer.queueList && Array.isArray(customer.queueList)) {
-            customer.queueList.forEach((queueItem) => {
-              // Access individual queue items within queueList
-              const { customerEmail, qPosition } = queueItem;
-  
-              // Process each queue item (customerEmail and qPosition)
-              console.log(`Customer Email: ${customerEmail}, Queue Position: ${qPosition}`);
-  
-              // Call your function to send queue position changed emails here (e.g., sendQueuePositionChangedEmail(customerEmail, qPosition))
-              sendQueuePositionChangedEmail(customerEmail, qPosition);
-            });
+
+      if (currentServiceEWT > 0) {
+        queue.queueList = updatedQueueList;
+        await queue.save();
+
+        const updatedBarber = await Barber.findOneAndUpdate(
+          { salonId: salonId, barberId: barberId },
+          { $inc: { barberEWT: -currentServiceEWT, queueCount: -1 } },
+          { new: true }
+        );
+
+        const customers = await SalonQueueList.find({ salonId, "queueList.barberId": barberId }).select('queueList.customerEmail queueList.qPosition');
+
+        if (customers && customers.length > 0) {
+          for (const customer of customers) {
+            if (customer.queueList && Array.isArray(customer.queueList)) {
+              for (const queueItem of customer.queueList) {
+                const { customerEmail, qPosition } = queueItem;
+                sendQueuePositionChangedEmail(customerEmail, qPosition);
+              }
+            }
           }
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: 'Customer served from the queue successfully and Mail sent successfully.',
         });
       }
-  
-      // Iterate through each customer and send queue position changed emails
-      customers.forEach((customer) => {
-        const { customerEmail, qPosition } = customer;
-  
-        // Check if customerEmail and qPosition are valid
-        if (customerEmail && qPosition) {
-          sendQueuePositionChangedEmail(customerEmail, qPosition);
-        }
-      });
-  
-      res.status(200).json({
-        success: true,
-        message: 'Customer served from the queue successfully and Mail sent successfully.',
-      });
-    } else {
-      res.status(201).json({
-        success: false,
-        message: 'Queue position is not 1. No service to be served.'
-      });
     }
+
+    return res.status(201).json({
+      success: false,
+      message: 'Queue position is not 1. No service to be served.',
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'There is a problem in the API.',
-      error: error.message
+      error: error.message,
     });
   }
 };
-
 
 //Get Available barbers for Queue
 const getAvailableBarbersForQ = async (req, res) => {
