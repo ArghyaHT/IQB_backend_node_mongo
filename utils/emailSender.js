@@ -113,22 +113,24 @@ const bulkEmail = (subject, message, customerEmails) => {
 };
 
 // Function to send the password reset email
-const sendAppointmentsEmail = (emailData) => {
-  const mailOptions = {
-    from: 'arghyahimanstech@gmail.com',
-    to: emailData.email,
-    subject: emailData.subject,
-    html: emailData.html
-  };
+const sendAppointmentsEmail = (emailDataArray) => {
+  emailDataArray.forEach((emailData) => {
+    const mailOptions = {
+      from: 'arghyahimanstech@gmail.com', // Change this to your sending email
+      to: emailData.email,
+      subject: emailData.subject,
+      html: emailData.html
+    };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
   });
-};
+}
 
 module.exports ={
   sendPasswordResetEmail,

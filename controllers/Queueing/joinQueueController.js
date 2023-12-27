@@ -414,7 +414,7 @@ const barberServedQueue = async (req, res) => {
       }
     }
 
-    return res.status(201).json({
+    return res.status(404).json({
       success: false,
       message: 'Queue position is not 1. No service to be served.',
     });

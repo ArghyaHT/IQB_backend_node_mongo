@@ -1,6 +1,7 @@
 const Appointment = require("../../models/appointmentsModel")
 const Barber = require("../../models/barberRegisterModel")
 const SalonSettings = require("../../models/salonSettingsModel")
+const Admin = require("../../models/adminRegisterModel")
 const moment = require("moment");
 const { sendAppointmentsEmail } = require("../../utils/emailSender");
 
@@ -8,137 +9,29 @@ const { sendAppointmentsEmail } = require("../../utils/emailSender");
 //Creating Appointment
 const createAppointment = async (req, res) => {
   try {
-      const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
-
-      // Fetch barber information
-      const barber = await Barber.findOne({ barberId: barberId });
-    
-      // Calculate total serviceEWT for all provided serviceIds
-      let totalServiceEWT = 0;
-      let serviceIds = "";
-      if (barber && barber.barberServices) {
-          // Convert single serviceId to an array if it's not already an array
-          const services = Array.isArray(serviceId) ? serviceId : [serviceId];
-        
-          services.forEach(id => {
-              const service = barber.barberServices.find(service => service.serviceId === id);
-              if (service) {
-                  totalServiceEWT += service.barberServiceEWT || 0;
-            
-                  if (serviceIds) {
-                      serviceIds += "-";
-                  }
-                  serviceIds += service.serviceId.toString();
-              }
-          });
-      }
-
-      // Calculate totalServiceEWT in hours and minutes
-      const hours = Math.floor(totalServiceEWT / 60);
-      const minutes = totalServiceEWT % 60;
-
-      const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
-
-      // Parse startTime from the request body into hours and minutes
-      const [startHours, startMinutes] = startTime.split(':').map(Number);
-
-      // Calculate endTime by adding formattedTime to startTime using Moment.js
-      const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
-      const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
-      const endTime = endTimeMoment.format('HH:mm');
-
-      const existingAppointmentList = await Appointment.findOne({ salonId });
-      const newAppointment = {
-          barberId,
-          serviceId: serviceIds, 
-          appointmentDate, 
-          startTime,
-          endTime,
-          appointmentNotes,
-          timeSlots: `${startTime}-${endTime}`, 
-          customerEmail,
-          customerName, 
-          customerType,
-          methodUsed,
-      };
-
-      if (existingAppointmentList) {
-          existingAppointmentList.appointmentList.push(newAppointment);
-          await existingAppointmentList.save();
-          res.status(200).json({
-              success: true,
-              message: "Appointment Confirmed",
-              response: existingAppointmentList,
-          });
-          //prepare email
-        const emailData = {
-          email,
-          subject: 'Appointment Fixed',
-          html: `
-              <h2>Hello ${user.name}!</h2>
-              <p></p>
-          `
-      };
-      sendAppointmentsEmail(emailData)
-      } else {
-          const newAppointmentData = new Appointment({
-              salonId: salonId,
-              appointmentList: [newAppointment],
-          });
-          const savedAppointment = await newAppointmentData.save();
-          res.status(200).json({
-              success: true,
-              message: "Appointment Confirmed",
-              response: savedAppointment,
-          });
-          //prepare email
-        const emailData = {
-          email,
-          subject: 'Reset Password Email',
-          html: `
-              <h2>Hello ${user.name}!</h2>
-              <p></p>
-          `
-      };
-      sendAppointmentsEmail(emailData)
-
-      }
-
-  } catch (error) {
-      console.log(error);
-      res.status(500).json({
-          success: false,
-          message: 'Your appointment is not done. Please Try Again',
-          error: error.message,
-      });
-  }
-};
-
-//Edit Appointments By Admin and Barber
-const editAppointment = async (req, res) => {
-  try {
-    const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
+    const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
     // Fetch barber information
     const barber = await Barber.findOne({ barberId: barberId });
+
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
     let serviceIds = "";
     if (barber && barber.barberServices) {
-        // Convert single serviceId to an array if it's not already an array
-        const services = Array.isArray(serviceId) ? serviceId : [serviceId];
-      
-        services.forEach(id => {
-            const service = barber.barberServices.find(service => service.serviceId === id);
-            if (service) {
-                totalServiceEWT += service.barberServiceEWT || 0;
-          
-                if (serviceIds) {
-                    serviceIds += "-";
-                }
-                serviceIds += service.serviceId.toString();
-            }
-        });
+      // Convert single serviceId to an array if it's not already an array
+      const services = Array.isArray(serviceId) ? serviceId : [serviceId];
+
+      services.forEach(id => {
+        const service = barber.barberServices.find(service => service.serviceId === id);
+        if (service) {
+          totalServiceEWT += service.barberServiceEWT || 0;
+
+          if (serviceIds) {
+            serviceIds += "-";
+          }
+          serviceIds += service.serviceId.toString();
+        }
+      });
     }
 
     // Calculate totalServiceEWT in hours and minutes
@@ -154,7 +47,172 @@ const editAppointment = async (req, res) => {
     const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
     const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
     const endTime = endTimeMoment.format('HH:mm');
-    
+
+    const existingAppointmentList = await Appointment.findOne({ salonId });
+    const newAppointment = {
+      barberId,
+      serviceId: serviceIds,
+      appointmentDate,
+      startTime,
+      endTime,
+      appointmentNotes,
+      timeSlots: `${startTime}-${endTime}`,
+      customerEmail,
+      customerName,
+      customerType,
+      methodUsed,
+    };
+
+    if (existingAppointmentList) {
+      existingAppointmentList.appointmentList.push(newAppointment);
+      await existingAppointmentList.save();
+      res.status(200).json({
+        success: true,
+        message: "Appointment Confirmed",
+        response: existingAppointmentList,
+      });
+
+      const adminEmail = await Admin.findOne({ salonId }).select("email")
+
+      // Prepare email data for admin, barber, and customer
+      const adminEmailData = {
+        email: adminEmail, // Replace with the admin's email address
+        subject: 'New Appointment Created',
+        html: `
+        <h2>Hello Admin!</h2>
+        <p>A new appointment has been created at ${startTime} by ${customerName}.</p>
+        <!-- Add more details here -->
+      `,
+      };
+
+      const barberEmailData = {
+        email: barber.email, // Replace with the barber's email address
+        subject: 'New Appointment Created',
+        html: `
+        <h2>Hello ${barber.name}!</h2>
+        <p>YYou have a new appointment scheduled at ${startTime}.</p>
+        <!-- Add more details here -->
+      `,
+      };
+
+      const customerEmailData = {
+        email: customerEmail, // Replace with the customer's email address
+        subject: 'Appointment Confirmation',
+        html: `
+        <h2>Hello ${customerName}!</h2>
+        <p>Your appointment has been confirmed at ${startTime}.</p>
+        <!-- Add more details here -->
+      `,
+      };
+
+      // Combine email data objects into an array
+      const emailDataArray = [adminEmailData, barberEmailData, customerEmailData];
+
+      // Send emails to admin, barber, and customer
+      sendAppointmentsEmail(emailDataArray);
+    } else {
+      const newAppointmentData = new Appointment({
+        salonId: salonId,
+        appointmentList: [newAppointment],
+      });
+      const savedAppointment = await newAppointmentData.save();
+      res.status(200).json({
+        success: true,
+        message: "Appointment Confirmed",
+        response: savedAppointment,
+      });
+      const adminEmail = await Admin.findOne({ salonId }).select("email")
+
+
+      // Prepare email data for admin, barber, and customer
+      const adminEmailData = {
+        email: adminEmail, // Replace with the admin's email address
+        subject: 'New Appointment Created',
+        html: `
+              <h2>Hello Admin!</h2>
+              <p>A new appointment has been created at ${startTime} by ${customerName}.</p>
+              <!-- Add more details here -->
+            `,
+      };
+
+      const barberEmailData = {
+        email: barber.email, // Replace with the barber's email address
+        subject: 'New Appointment Created',
+        html: `
+        <h2>Hello ${barber.name}!</h2>
+              <p>YYou have a new appointment scheduled at ${startTime}.</p>
+              <!-- Add more details here -->
+            `,
+      };
+
+      const customerEmailData = {
+        email: customerEmail, // Replace with the customer's email address
+        subject: 'Appointment Confirmation',
+        html: `
+        <h2>Hello ${customerName}!</h2>
+              <p>Your appointment has been confirmed at ${startTime}.</p>
+              <!-- Add more details here -->
+            `,
+      };
+      // Combine email data objects into an array
+      const emailDataArray = [adminEmailData, barberEmailData, customerEmailData];
+
+      // Send emails to admin, barber, and customer
+      sendAppointmentsEmail(emailDataArray);
+
+    }
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: 'Your appointment is not done. Please Try Again',
+      error: error.message,
+    });
+  }
+};
+
+//Edit Appointments By Admin and Barber
+const editAppointment = async (req, res) => {
+  try {
+    const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
+
+    // Fetch barber information
+    const barber = await Barber.findOne({ barberId: barberId });
+    // Calculate total serviceEWT for all provided serviceIds
+    let totalServiceEWT = 0;
+    let serviceIds = "";
+    if (barber && barber.barberServices) {
+      // Convert single serviceId to an array if it's not already an array
+      const services = Array.isArray(serviceId) ? serviceId : [serviceId];
+
+      services.forEach(id => {
+        const service = barber.barberServices.find(service => service.serviceId === id);
+        if (service) {
+          totalServiceEWT += service.barberServiceEWT || 0;
+
+          if (serviceIds) {
+            serviceIds += "-";
+          }
+          serviceIds += service.serviceId.toString();
+        }
+      });
+    }
+
+    // Calculate totalServiceEWT in hours and minutes
+    const hours = Math.floor(totalServiceEWT / 60);
+    const minutes = totalServiceEWT % 60;
+
+    const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+
+    // Parse startTime from the request body into hours and minutes
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+
+    // Calculate endTime by adding formattedTime to startTime using Moment.js
+    const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
+    const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
+    const endTime = endTimeMoment.format('HH:mm');
+
     // Fetch the appointment by its ID
     const existingAppointment = await Appointment.findOneAndUpdate(
       { salonId, 'appointmentList._id': appointmentId },
@@ -198,8 +256,8 @@ const editAppointment = async (req, res) => {
 //Delete Appointment
 const deleteAppointment = async (req, res) => {
   try {
-    const {salonId, appointmentId} = req.body; // Assuming appointmentId is passed as a parameter
-    
+    const { salonId, appointmentId } = req.body; // Assuming appointmentId is passed as a parameter
+
     // Find and remove the appointment by its ID
     const deletedAppointment = await Appointment.findOneAndUpdate(
       { salonId, 'appointmentList._id': appointmentId },
@@ -273,14 +331,14 @@ const getEngageBarberTimeSlots = async (req, res) => {
     if (!appointments || appointments.length === 0) {
       // Generate time slots for the entire working hours as no appointments found
       const { appointmentSettings } = await SalonSettings.findOne({ salonId });
-      const { appointmentStartTime, appointmentEndTime, intervalInMinutes} = appointmentSettings;
+      const { appointmentStartTime, appointmentEndTime, intervalInMinutes } = appointmentSettings;
 
       //Generate the timeslots for the barber If no appointments
       const start = moment(appointmentStartTime, 'HH:mm');
       const end = moment(appointmentEndTime, 'HH:mm');
 
       console.log('Interval in minutes:', intervalInMinutes);
-      
+
       timeSlots = generateTimeSlots(start, end, intervalInMinutes);
     } else {
       const appointmentList = appointments.map(appt => appt.appointmentList);
@@ -327,9 +385,9 @@ function generateTimeSlots(start, end, intervalInMinutes) {
   let currentTime = moment(start);
 
   while (currentTime < end) {
-      const timeInterval = currentTime.format('HH:mm');
-      timeSlots.push({ timeInterval, disabled: false });
-      currentTime.add(intervalInMinutes, 'minutes'); // Increment by 30 minutes
+    const timeInterval = currentTime.format('HH:mm');
+    timeSlots.push({ timeInterval, disabled: false });
+    currentTime.add(intervalInMinutes, 'minutes'); // Increment by 30 minutes
   }
 
   return timeSlots;
@@ -637,14 +695,14 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
 };
 
 module.exports = {
-    createAppointment,
-    editAppointment,
-    deleteAppointment,
-    getAllAppointmentsByBarberId,
-    getEngageBarberTimeSlots,
-    getAllAppointmentsBySalonId,
-    getAllAppointmentsBySalonIdAndDate,
-    getAllAppointmentsByBarberIdAndDate, 
-    
+  createAppointment,
+  editAppointment,
+  deleteAppointment,
+  getAllAppointmentsByBarberId,
+  getEngageBarberTimeSlots,
+  getAllAppointmentsBySalonId,
+  getAllAppointmentsBySalonIdAndDate,
+  getAllAppointmentsByBarberIdAndDate,
+
 }
 
