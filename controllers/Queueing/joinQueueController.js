@@ -294,25 +294,47 @@ const getQueueListBySalonId = async (req, res) => {
     console.log(salonId)
 
     //To find the queueList according to salonId and sort it according to qposition
-    const getSalon = await SalonQueueList.aggregate([
-      {
-        $match: { salonId } // Match the document based on salonId
-      },
-      {
-        $unwind: "$queueList" // Deconstruct queueList array
-      },
-      {
-        $sort: {
-          "queueList.qPosition": 1 // Sort by qPosition in descending order (-1)
-        }
-      },
-      {
-        $group: {
-          _id: "$_id", // Group by the document's _id field
-          queueList: { $push: "$queueList" } // Reconstruct the queueList array
+  const getSalon = await SalonQueueList.aggregate([
+    {
+      $match: { salonId } // Match the document based on salonId
+    },
+    {
+      $unwind: "$queueList" // Deconstruct queueList array
+    },
+    {
+      $sort: {
+        "queueList.qPosition": 1 // Sort by qPosition in ascending order (1)
+      }
+    },
+    {
+      $group: {
+        _id: "$_id", // Group by the document's _id field
+        queueList: { $push: "$queueList" } // Reconstruct the queueList array
+      }
+    },
+   //Changed for frontend 
+    {
+      $project: {
+        queueList: {
+          $map: {
+            input: "$queueList",
+            as: "list",
+            in: {
+              $mergeObjects: [
+                "$$list",
+                { "name": "$$list.customerName" } // Rename customerName to name
+              ]
+            }
+          }
         }
       }
-    ]);
+    },
+    {
+      $project: {
+        "queueList.customerName": 0 // Exclude the customerName field
+      }
+    }
+  ]);
 
     if (getSalon.length > 0) {
       // Access the sorted queueList array from the result
@@ -530,7 +552,29 @@ const getQlistbyBarberId = async (req, res) => {
           _id: 0,
           queueList: 1
         }
+      },
+      //Changed for frontend 
+    {
+      $project: {
+        queueList: {
+          $map: {
+            input: "$queueList",
+            as: "list",
+            in: {
+              $mergeObjects: [
+                "$$list",
+                { "name": "$$list.customerName" } // Rename customerName to name
+              ]
+            }
+          }
+        }
       }
+    },
+    {
+      $project: {
+        "queueList.customerName": 0 // Exclude the customerName field
+      }
+    }
     ]);
 
     if (!qList || qList.length === 0) {
