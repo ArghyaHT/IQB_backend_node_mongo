@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-const notificationSchema = mongoose.Schema({
+const notificationSchema = new mongoose.Schema({
     fcmToken:{
         type:String
     }

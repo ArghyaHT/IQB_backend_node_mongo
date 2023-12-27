@@ -81,11 +81,11 @@ app.use(cors({
   credentials: true
 }));
 
-// Initialize Firebase Admin SDK
-const serviceAccount = require("./notification_push_service_key.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// // Initialize Firebase Admin SDK
+// const serviceAccount = require("./notification_push_service_key.json");
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
 
 
 app.use(cookieParser())
