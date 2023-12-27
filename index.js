@@ -3,6 +3,7 @@ const connectDB = require("./db/db.js")
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
+const admin = require('firebase-admin');
 
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
@@ -75,10 +76,17 @@ const app = express()
 // }));
 
 app.use(cors({
-  // origin:"https://iqb-react-frontend.netlify.app",
-  origin: "http://localhost:5173",
+  origin:"https://iqb-react-frontend.netlify.app",
+  // origin: "http://localhost:5173",
   credentials: true
 }));
+
+// Initialize Firebase Admin SDK
+const serviceAccount = require("./notification_push_service_key.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 
 app.use(cookieParser())
 app.use(rateLimiter)

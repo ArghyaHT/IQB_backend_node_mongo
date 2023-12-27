@@ -1,11 +1,11 @@
 const mongoose = require("mongoose")
 
-const userSchema = mongoose.Schema({
+const notificationSchema = mongoose.Schema({
     fcmToken:{
         type:String
     }
 })
 
-const User = mongoose.model("User",userSchema)
+const Notification = mongoose.model("Notification",notificationSchema)
 
-module.exports = User
+module.exports = Notification
