@@ -738,12 +738,7 @@ const deleteAdminProfilePicture = async (req, res) => {
 //Get Salons by Admin
 const getAllSalonsByAdmin = async (req, res) => {
     try {
-        const { adminEmail, salonId, salonName, city, page = 1, limit = 10, sortField, sortOrder } = req.query; // Assuming admin's email is provided in the request body
-        let query = {};
-
-        const searchRegExpSalonId = new RegExp('.*' + salonId + ".*", 'i');
-        const searchRegExpName = new RegExp('.*' + salonName + ".*", 'i');
-        const searchRegExpCity = new RegExp('.*' + city + ".*", 'i');
+        const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
         // Find the admin based on the email
         const admin = await Admin.findOne({ email: adminEmail });
@@ -754,53 +749,24 @@ const getAllSalonsByAdmin = async (req, res) => {
             });
         }
 
-        // Building the query to fetch salons associated with the admin
-        query = {
+        // Fetch all salons associated with the admin from registeredSalons array
+        const salons = await Salon.find({
             salonId: { $in: admin.registeredSalons },
             isDeleted: false,
-        };
-
-        if (salonId || salonName || city) {
-            query.$or = [
-                { salonId: { $regex: searchRegExpSalonId } },
-                { salonName: { $regex: searchRegExpName } },
-                { city: { $regex: searchRegExpCity } },
-            ];
-        }
-
-        const sortOptions = {};
-        if (sortField && sortOrder) {
-            sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
-        }
-
-        const skip = (page - 1) * limit;
-
-        // Fetching salons with sorting and pagination
-        const salons = await Salon.find(query)
-            .sort(sortOptions)
-            .skip(skip)
-            .limit(Number(limit));
-
-        
-            const totalSalons = await Salon.countDocuments(query);
+        });
 
         res.status(200).json({
-            success: true,
             message: 'Salons retrieved successfully',
-            salons,
-            totalPages: Math.ceil(totalSalons / Number(limit)),
-            currentPage: Number(page),
-            totalSalons
+            salons: salons,
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            success: false,
             message: 'Failed to retrieve salons',
             error: error.message,
         });
     }
-};
+}
 
 //Get Default Salon Details Of Admin
 const getDefaultSalonByAdmin = async (req, res) => {
