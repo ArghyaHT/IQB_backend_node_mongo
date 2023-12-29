@@ -3,7 +3,6 @@ const connectDB = require("./db/db.js")
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
-const admin = require('firebase-admin');
 
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
@@ -30,6 +29,8 @@ const students = require("./routes/ImageUploadDemo/student.js")
 const mobileRoutes = require("./routes/MobileRoutes/MobileRoutes.js")
 
 const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
+
+const notifications =  require("./routes/Notifications/notificationRoutes.js")
 
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
@@ -117,6 +118,12 @@ app.use("/api", students);
 
 //======================
 
+// // Initialize Firebase Admin SDK
+// const serviceAccount = require("./notification_push_service_key.json");
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
+
 app.use("/api/customer", registerCustomer)
 
 app.use("/api/admin", registerAdmin)
@@ -140,6 +147,8 @@ app.use("/api/appointments", appointments)
 app.use("/api/mobileRoutes", mobileRoutes)
 
 app.use("/api/advertisement", advertisement)
+
+app.use("/api/notifications", notifications)
 
 const PORT = 8080;
 

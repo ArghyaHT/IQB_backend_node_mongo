@@ -826,7 +826,6 @@ const deleteBarberProfilePicture = async (req, res) => {
 const getAllBarberbySalonId = async (req, res) => {
   try {
     const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
-    let query = { isDeleted: false }; // Filter for isDeleted set to false
 
     const searchRegExpName = new RegExp('.*' + name + ".*", 'i');
     const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i');
@@ -849,7 +848,7 @@ const getAllBarberbySalonId = async (req, res) => {
 
     const skip = Number(page - 1) * Number(limit);
 
-    const getAllBarbers = await Barber.find(query).sort(sortOptions).skip(skip).limit(Number(limit));
+    const getAllBarbers = await Barber.find({salonId, isDeleted: false}).sort(sortOptions).skip(skip).limit(Number(limit));
 
     const totalBarbers = await Barber.countDocuments(query);
 

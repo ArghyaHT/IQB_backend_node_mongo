@@ -1,4 +1,5 @@
 const Notification = require("../../models/notificationModel")
+const admin = require('firebase-admin');
 
 
 // Endpoint for saving FCM token
@@ -30,7 +31,9 @@ const sendNotification = async(req, res) => {
     const { title, body } = req.body;
   
     if (!title || !body) {
-      return res.status(400).json({ error: 'Title and body are required' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Title and body are required' });
     }
   
     try {
@@ -47,9 +50,20 @@ const sendNotification = async(req, res) => {
   
       const response = await admin.messaging().sendMulticast(message);
       console.log('Notification sent:', response);
-      res.status(200).json({ message: 'Notification sent successfully' });
+      res.status(200).json({ 
+        success: true,
+        message: 'Notification sent successfully',
+      response: response  });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ 
+        success: false,
+        message: 'Internal server error',
+      error: error });
     }
+}
+
+module.exports = {
+  registerFcmToken,
+  sendNotification,
 }
