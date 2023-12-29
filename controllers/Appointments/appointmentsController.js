@@ -90,7 +90,7 @@ const createAppointment = async (req, res) => {
         subject: 'New Appointment Created',
         html: `
         <h2>Hello ${barber.name}!</h2>
-        <p>YYou have a new appointment scheduled at ${startTime}.</p>
+        <p>You have a new appointment scheduled at ${startTime}.</p>
         <!-- Add more details here -->
       `,
       };
@@ -140,7 +140,7 @@ const createAppointment = async (req, res) => {
         subject: 'New Appointment Created',
         html: `
         <h2>Hello ${barber.name}!</h2>
-              <p>YYou have a new appointment scheduled at ${startTime}.</p>
+              <p>You have a new appointment scheduled at ${startTime}.</p>
               <!-- Add more details here -->
             `,
       };

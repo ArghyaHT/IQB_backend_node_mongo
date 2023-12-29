@@ -45,7 +45,7 @@ router.route("/updateCustomer").put(updateCustomer)
 
 //SendMailToCustomer
 
-router.route("/sendMailToCustomer").post(sendMailToCustomer)
+router.route("/sendMailToCustomer").post(handleProtectedRoute, sendMailToCustomer)
 
 //GetAppointmentsForCustomer
 
