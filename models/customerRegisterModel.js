@@ -5,14 +5,14 @@ const jwt = require("jsonwebtoken")
 
 const customerSchema = new mongoose.Schema({
 
-    salonId:{
+    salonId: {
         type: Number,
         default: 0
     },
     connectedSalon: [{
         type: Number
     }],
-    customerId:{
+    customerId: {
         type: Number
     },
     email: {
@@ -29,37 +29,40 @@ const customerSchema = new mongoose.Schema({
         type: String,
         default: "local"
     },
-    name:{
+    name: {
         type: String,
         required: true
     },
-    userName:{
+    userName: {
         type: String,
         // required: true
     },
-    gender:{
-        type:String,
+    gender: {
+        type: String,
         required: true
     },
 
-    dateOfBirth:{
+    dateOfBirth: {
         type: Date,
-        required:true
+        required: true
     },
-    mobileNumber:{
+    mobileNumber: {
         type: Number,
         required: true,
     },
-    verificationCode:{
+    verificationCode: {
         type: String,
         // required:true
     },
-    profilePic:{
+    profilePic: {
+        type: String
+    },
+    fcmToken: {
         type: String
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date
-}, {timestamps: true})
+}, { timestamps: true })
 customerSchema.methods.getResetPasswordToken = function () {
 
     //generate token
@@ -72,8 +75,8 @@ customerSchema.methods.getResetPasswordToken = function () {
     console.log('Reset Token:', resetToken);
     //We return this because when user click then this resetPasswordToken will form .so thast why 
     return resetToken
-    
+
 }
-  const Customer = mongoose.model('Customer', customerSchema);
-  
-  module.exports = Customer;
+const Customer = mongoose.model('Customer', customerSchema);
+
+module.exports = Customer;

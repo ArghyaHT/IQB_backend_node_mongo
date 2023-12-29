@@ -1,30 +1,53 @@
 const Notification = require("../../models/notificationModel")
 const admin = require('firebase-admin');
 
+// fcmToken:{
+//   type:String
+// }
+
 
 // Endpoint for saving FCM token
-const registerFcmToken = async(req, res) => {
-    const { fcmToken } = req.body;
+// const registerFcmToken = async(req, res) => {
+//     const { fcmToken } = req.body;
   
-    if (!fcmToken) {
-      return res.status(400).json({ error: 'FCM token is required' });
-    }
+//     if (!fcmToken) {
+//       return res.status(400).json({ 
+//         success: false,
+//         error: 'FCM token is required' });
+//     }
   
-    try {
-      const user = new Notification({ fcmToken });
-      await user.save();
-      res.status(200).json({ 
-        success: true,
-        message: 'FCM token saved successfully'
-     });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ 
-        success: false,
-        message: 'Internal server error'
-     });
-    }
-}
+//     try {
+//       const user = new Notification({ fcmToken });
+//       await user.save();
+//       res.status(200).json({ 
+//         success: true,
+//         message: 'FCM token saved successfully'
+//      });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ 
+//         success: false,
+//         message: 'Internal server error'
+//      });
+//     }
+// }
+
+app.post('/register', async (req, res) => {
+  const { fcmToken } = req.body;
+
+  if (!fcmToken) {
+    return res.status(400).json({ error: 'FCM token is required' });
+  }
+
+  try {
+    const user = new User({ fcmToken });
+    await user.save();
+    res.status(200).json({ message: 'FCM token saved successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Endpoint for sending notifications
 const sendNotification = async(req, res) => {
