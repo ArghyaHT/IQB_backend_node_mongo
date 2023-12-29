@@ -3,6 +3,7 @@ const connectDB = require("./db/db.js")
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
+const admin = require('firebase-admin');
 
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
@@ -77,16 +78,16 @@ const app = express()
 // }));
 
 app.use(cors({
-  // origin:"https://iqb-react-frontend.netlify.app",
-  origin: "http://localhost:5173",
+  origin:"https://iqb-react-frontend.netlify.app",
+  // origin: "http://localhost:5173",
   credentials: true
 }));
 
-// // Initialize Firebase Admin SDK
-// const serviceAccount = require("./notification_push_service_key.json");
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
+// Initialize Firebase Admin SDK
+const serviceAccount = require("./notification_push_service_key.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // notification_service_key.json
 
@@ -116,6 +117,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
+const Customer = require("./models/customerRegisterModel.js")
 const dotenv = require("dotenv").config();
 
 console.log(process.env.CLOUDINARY_URL)
@@ -166,6 +168,36 @@ app.use("/api/mobileRoutes", mobileRoutes)
 
 app.use("/api/advertisement", advertisement)
 
+
+app.post('/send-notification', async (req, res) => {
+  const { title, body } = req.body;
+
+  if (!title || !body) {
+    return res.status(400).json({ error: 'Title and body are required' });
+  }
+
+  try {
+    const users = await Customer.find();
+    const registrationTokens = users.map((user) => user.fcmToken);
+
+    const message = {
+      notification: {
+        title,
+        body,
+      },
+      tokens: registrationTokens, // Pass tokens as an array
+    };
+
+    const response = await admin.messaging().sendMulticast(message);
+    console.log('Notification sent:', response);
+    res.status(200).json({ message: 'Notification sent successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // app.use("/api/notifications", notifications)
 
 const PORT = 8080;
@@ -183,3 +215,6 @@ process.on('SIGTERM', () => {
     process.exit(0);
   });
 });
+
+
+

@@ -20,6 +20,7 @@ const fs = require('fs');
 const { sendPasswordResetEmail } = require("../../utils/emailSender");
 const cloudinary = require('cloudinary').v2
 
+
 cloudinary.config({
     cloud_name: 'dfrw3aqyp',
     api_key: '574475359946326',
