@@ -30,7 +30,7 @@ const mobileRoutes = require("./routes/MobileRoutes/MobileRoutes.js")
 
 const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
 
-const notifications =  require("./routes/Notifications/notificationRoutes.js")
+// const notifications =  require("./routes/Notifications/notificationRoutes.js")
 
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
@@ -166,7 +166,7 @@ app.use("/api/mobileRoutes", mobileRoutes)
 
 app.use("/api/advertisement", advertisement)
 
-app.use("/api/notifications", notifications)
+// app.use("/api/notifications", notifications)
 
 const PORT = 8080;
 
