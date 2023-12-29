@@ -1,6 +1,7 @@
 const express = require("express")
 const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
+const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
 
 
 const router = express.Router()
@@ -30,7 +31,7 @@ router.route("/verifyPasswordResetCode").post(verifyPasswordResetCode)
 router.route("/resetPassword").post(resetPassword)
 
 //GetAllCustomers
-router.route("/getAllCustomers").get(allCustomers)
+router.route("/getAllCustomers").get(handleProtectedRoute ,allCustomers)
 
 // getAllCustomers by Salon ID
 
