@@ -202,7 +202,7 @@ app.post('/send-notification', async (req, res) => {
 
 const PORT = 8080;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
