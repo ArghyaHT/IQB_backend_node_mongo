@@ -78,8 +78,8 @@ const app = express()
 // }));
 
 app.use(cors({
-  // origin:"https://iqb-react-frontend.netlify.app",
-  origin: "http://localhost:5173",
+  origin:"https://iqb-react-frontend.netlify.app",
+  // origin: "http://localhost:5173",
   credentials: true
 }));
 
