@@ -202,19 +202,19 @@ app.post('/send-notification', async (req, res) => {
 
 const PORT = 8080;
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
-// Handle process termination signals for graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('Received SIGTERM signal');
-  // Perform cleanup and graceful shutdown
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
+// // Handle process termination signals for graceful shutdown
+// process.on('SIGTERM', () => {
+//   console.log('Received SIGTERM signal');
+//   // Perform cleanup and graceful shutdown
+//   server.close(() => {
+//     console.log('Server closed');
+//     process.exit(0);
+//   });
+// });
 
 
 
