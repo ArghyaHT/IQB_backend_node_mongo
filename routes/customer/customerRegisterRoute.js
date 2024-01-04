@@ -1,5 +1,5 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers,  } = require("../../controllers/customer/customerRegisterController.js")
+const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
 
@@ -31,7 +31,7 @@ router.route("/verifyPasswordResetCode").post(verifyPasswordResetCode)
 router.route("/resetPassword").post(resetPassword)
 
 //GetAllCustomers
-router.route("/getAllCustomers").get(handleProtectedRoute ,allCustomers)
+router.route("/getAllCustomers").get(allCustomers)
 
 // getAllCustomers by Salon ID
 
@@ -60,5 +60,12 @@ router.route("/getCustomerDetails").post(getCustomerDetails)
 
 //Send Bulk Email to Customers
 router.route("/sendBulkEmailToCustomers").post(sendBulkEmailToCustomers)
+
+//Upload Customer Profile Pic
+router.route("/uploadCustomerProfilePic").post(uploadCustomerprofilePic)
+
+router.route("/updateCustomerProfilePic").put(updateCustomerProfilePic)
+
+router.route("/deleteCustomerProfilePic").delete(deleteCustomerProfilePicture)
 
 module.exports = router

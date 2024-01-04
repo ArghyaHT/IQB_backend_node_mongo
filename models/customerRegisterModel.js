@@ -54,9 +54,16 @@ const customerSchema = new mongoose.Schema({
         type: String,
         // required:true
     },
-    profilePic: {
-        type: String
-    },
+    profile: [
+        {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }
+    ],
     fcmToken: {
         type: String
     },

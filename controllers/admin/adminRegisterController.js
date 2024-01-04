@@ -548,7 +548,7 @@ const approveBarber = async (req, res) => {
     }
 }
 
-//Upload Barber profile Picture
+//Upload Admin profile Picture
 const uploadAdminprofilePic = async (req, res) => {
     try {
         let profiles = req.files.profile;
@@ -619,7 +619,7 @@ const uploadAdminprofilePic = async (req, res) => {
     }
 }
 
-//Update Barber Profile Picture
+//Update Admin Profile Picture
 const updateAdminProfilePic = async (req, res) => {
     try {
         const id = req.body.id;
@@ -698,7 +698,7 @@ const updateAdminProfilePic = async (req, res) => {
     }
 }
 
-//Delete Barber Profile Picture
+//Delete Admin Profile Picture
 const deleteAdminProfilePicture = async (req, res) => {
     try {
         const public_id = req.body.public_id
