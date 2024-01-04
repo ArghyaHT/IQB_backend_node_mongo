@@ -60,8 +60,7 @@ const deleteCustomer = async (email) => {
 const updateCustomer = async (customerData) => {
   const {
     email,
-    firstName,
-    lastName,
+    name,
     gender,
     dateOfBirth,
     password,
@@ -74,7 +73,7 @@ const updateCustomer = async (customerData) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
     const findCustomer = await Customer.findOneAndUpdate({ email },
-      { firstName, lastName, gender, password:hashedPassword, dateOfBirth, mobileNumber },
+      { name, gender, password:hashedPassword, dateOfBirth, mobileNumber },
       { new: true })
     return {
       status: 200,
