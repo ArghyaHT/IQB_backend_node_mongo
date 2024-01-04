@@ -943,6 +943,44 @@ const deleteCustomerProfilePicture = async (req, res) => {
 }
 
 
+// Get All Appointments by Customers
+const getAllAppointmentsByCustomer = async (req, res) => {
+  try {
+    const { customerEmail, salonId } = req.body;
+
+    // Check if customerEmail and salonId are provided
+    if (!customerEmail || !salonId) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Both customerEmail and salonId are required.' });
+    }
+
+    // Find appointments based on customerEmail and salonId
+    const appointments = await Appointment.find({
+      salonId: salonId,
+      'appointmentList.customerEmail': customerEmail,
+    });
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'No appointments found for this customer.' });
+    }
+
+    // Return the found appointments
+    res.status(200).json({ 
+      success: true,
+      message: "Appointments Found for the Customer",
+      response: appointments });
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: error.message });
+  }
+};
+
 
 module.exports = {
   signUp,
@@ -965,4 +1003,5 @@ module.exports = {
   uploadCustomerprofilePic,
   updateCustomerProfilePic,
   deleteCustomerProfilePicture,
+  getAllAppointmentsByCustomer
 }

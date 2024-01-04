@@ -1,5 +1,5 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture,  } = require("../../controllers/customer/customerRegisterController.js")
+const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture, getAllAppointmentsByCustomer,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
 
@@ -47,15 +47,15 @@ router.route("/updateCustomer").put(updateCustomer)
 
 router.route("/sendMailToCustomer").post(handleProtectedRoute, sendMailToCustomer)
 
-//GetAppointmentsForCustomer
-
-router.route("/getAppointmentsForCustomer").post(getAppointmentForCustomer)
-
 //Connect Customer to the Salon
 router.route("/customerConnectSalon").post(customerConnectSalon)
 
 //Get Customer Details By CustomerId
 router.route("/getCustomerDetails").post(getCustomerDetails)
+
+//Get all appointments by Customer
+
+router.route("/getAllAppointmentsByCustomerId").post(getAllAppointmentsByCustomer)
 
 
 //Send Bulk Email to Customers
