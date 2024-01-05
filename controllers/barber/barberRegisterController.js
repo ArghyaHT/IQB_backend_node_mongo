@@ -33,6 +33,12 @@ const registerController = async (req, res) => {
     const password = req.body.password
 
     let user = await Barber.findOne({ email: email });
+    if (user) {
+      return res.status(400).json({
+          success: false,
+          message: "Barber already exists"
+      })
+  }
 
     const barberId = await Barber.countDocuments() + 1;
     // If the user doesn't exist, create a new Barber
