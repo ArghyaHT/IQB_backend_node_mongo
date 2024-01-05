@@ -600,6 +600,7 @@ const getQlistbyBarberId = async (req, res) => {
   }
 };
 
+
 module.exports = {
   singleJoinQueue,
   groupJoinQueue,
