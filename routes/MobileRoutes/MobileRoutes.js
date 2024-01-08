@@ -2,8 +2,9 @@ const express = require("express");
 const { getAllSalons, allSalonServices } = require("../../controllers/admin/salonRegisterController");
 const { singleJoinQueue, groupJoinQueue, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId } = require("../../controllers/Queueing/joinQueueController");
 const { createAppointment, editAppointment, deleteAppointment, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberId, getAllAppointmentsByBarberIdAndDate } = require("../../controllers/Appointments/appointmentsController");
-const { sendMailToCustomer } = require("../../controllers/customer/customerRegisterController");
+const { sendMailToCustomer, } = require("../../controllers/customer/customerRegisterController");
 const { getAllBarberbySalonId } = require("../../controllers/barber/barberRegisterController");
+const { getAdvertisements } = require("../../controllers/Dashboard/dashboardController");
 
 const router = express.Router();
 
@@ -73,5 +74,11 @@ router.route("/getBarberByMultipleServiceId").post(getBarberByMultipleServiceId)
 
 //Get Q list by BarberId
 router.route("/getQlistByBarberId").post(getQlistbyBarberId)
+
+
+//Get Advertisements
+router.route("/getAllAdvertisements").post(getAdvertisements)
+
+
 
 module.exports = router 

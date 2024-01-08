@@ -20,6 +20,7 @@ const JWT_REFRESH_SECRET = "refreshToken"
 //Upload Profile Picture Config
 const path = require("path");
 const fs = require('fs');
+const Salon = require("../../models/salonsRegisterModel");
 const cloudinary = require('cloudinary').v2
 
 
@@ -980,6 +981,74 @@ const getAllAppointmentsByCustomer = async (req, res) => {
   }
 };
 
+//Get All Connected Salons by Customer
+const getAllSalonsByCustomer = async (req, res) => {
+  try {
+      const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
+
+      // Find the admin based on the email
+      const customer = await Customer.findOne({ email: customerEmail });
+
+      if (!customer) {
+          return res.status(404).json({
+              message: 'Customer not found',
+          });
+      }
+
+      // Fetch all salons associated with the admin from registeredSalons array
+      const salons = await Salon.find({
+          salonId: { $in: customer.connectedSalon },
+          isDeleted: false,
+      });
+
+      res.status(200).json({
+          message: 'Salons retrieved successfully',
+          salons: salons,
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          message: 'Failed to retrieve salons',
+          error: error.message,
+      });
+  }
+}
+
+
+
+
+
+//Change Salon Id of Customer
+const changeDefaultSalonIdOfCustomer = async (req, res) => {
+  try {
+      const { customerEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
+
+      // Find the admin based on the provided email
+      const customer = await Customer.findOne({ email: customerEmail });
+
+      console.log(customer)
+      if (!customer) {
+          return res.status(404).json({
+              message: 'Customer not found',
+          });
+      }
+
+      // Update the default salonId of the admin
+      customer.salonId = salonId;
+      await customer.save();
+
+      res.status(200).json({
+          message: 'Default salon ID of admin updated successfully',
+          response: customer,
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          message: 'Failed to update default salon ID of admin',
+          error: error.message,
+      });
+  }
+};
 
 module.exports = {
   signUp,
@@ -1002,5 +1071,7 @@ module.exports = {
   uploadCustomerprofilePic,
   updateCustomerProfilePic,
   deleteCustomerProfilePicture,
-  getAllAppointmentsByCustomer
+  getAllAppointmentsByCustomer,
+  getAllSalonsByCustomer,
+  changeDefaultSalonIdOfCustomer,
 }
