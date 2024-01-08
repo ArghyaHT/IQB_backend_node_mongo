@@ -20,6 +20,9 @@ const joinqueueHistorySchema = new mongoose.Schema({
         customerEmail: {
             type: String
         },
+        mobileNumber:{
+            type: Number
+        },
         joinedQ: {
             type: Boolean
         },
@@ -53,6 +56,9 @@ const joinqueueHistorySchema = new mongoose.Schema({
         qgCode: {
             type: String
         },
+        qPosition: {
+            type: Number
+        },
         positionChangedMessageShown: {
             type: Boolean
         },
@@ -68,11 +74,17 @@ const joinqueueHistorySchema = new mongoose.Schema({
         serviceId: {
             type: String
         },
-        customerEWT: {
-            type: Number
+        serviceName: {
+            type: String
         },
         serviceEWT: {
             type: Number
+        },
+        customerEWT: {
+            type: Number
+        },
+        status:{
+            type: String
         },
         localLineId: {
             type: Number

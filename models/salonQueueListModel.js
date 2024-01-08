@@ -21,6 +21,9 @@ const salonQueueListSchema = new mongoose.Schema({
         customerEmail: {
             type: String
         },
+        mobileNumber:{
+            type: Number
+        },
         joinedQ: {
             type: Boolean
         },
@@ -80,6 +83,9 @@ const salonQueueListSchema = new mongoose.Schema({
         },
         customerEWT: {
             type: Number
+        },
+        status:{
+            type: String
         },
         localLineId: {
             type: Number

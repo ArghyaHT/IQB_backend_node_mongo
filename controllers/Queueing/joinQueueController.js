@@ -7,7 +7,7 @@ const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
 //Single Join queue api
 const singleJoinQueue = async (req, res) => {
   try {
-    const { salonId, name, customerEmail, joinedQType, methodUsed, barberName, barberId, services } = req.body;
+    const { salonId, name, customerEmail, joinedQType,mobileNumber, methodUsed, barberName, barberId, services } = req.body;
 
     let totalServiceEWT = 0;
     let serviceIds = "";
@@ -53,6 +53,7 @@ const singleJoinQueue = async (req, res) => {
       timeJoinedQ: new Date().toLocaleTimeString(),
       methodUsed,
       barberName,
+      mobileNumber,
       barberId,
       serviceId: serviceIds,
       serviceName: serviceNames,
@@ -160,6 +161,7 @@ const groupJoinQueue = async (req, res) => {
         joinedQType: "Group-Join",
         qPosition: updatedBarber.queueCount,
         barberName: member.barberName,
+        mobileNumber: member.mobileNumber,
         barberId: member.barberId,
         serviceId: serviceIds,
         serviceName: serviceNames,
@@ -199,7 +201,7 @@ const groupJoinQueue = async (req, res) => {
 const autoJoin = async (req, res) => {
 
   try {
-    const { salonId, name, customerEmail, joinedQType, methodUsed, services } = req.body;
+    const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
     const serviceIds = services.map(service => service.serviceId);
 
     let totalServiceEWT = 0;
@@ -248,6 +250,7 @@ const autoJoin = async (req, res) => {
       dateJoinedQ: new Date(),
       timeJoinedQ: new Date().toLocaleTimeString(),
       methodUsed,
+      mobileNumber,
       barberName: availableBarber.name,
       barberId: availableBarber.barberId,
       serviceId: serviceIds1,
@@ -294,47 +297,47 @@ const getQueueListBySalonId = async (req, res) => {
     console.log(salonId)
 
     //To find the queueList according to salonId and sort it according to qposition
-  const getSalon = await SalonQueueList.aggregate([
-    {
-      $match: { salonId } // Match the document based on salonId
-    },
-    {
-      $unwind: "$queueList" // Deconstruct queueList array
-    },
-    {
-      $sort: {
-        "queueList.qPosition": 1 // Sort by qPosition in ascending order (1)
-      }
-    },
-    {
-      $group: {
-        _id: "$_id", // Group by the document's _id field
-        queueList: { $push: "$queueList" } // Reconstruct the queueList array
-      }
-    },
-   //Changed for frontend 
-    {
-      $project: {
-        queueList: {
-          $map: {
-            input: "$queueList",
-            as: "list",
-            in: {
-              $mergeObjects: [
-                "$$list",
-                { "name": "$$list.customerName" } // Rename customerName to name
-              ]
+    const getSalon = await SalonQueueList.aggregate([
+      {
+        $match: { salonId } // Match the document based on salonId
+      },
+      {
+        $unwind: "$queueList" // Deconstruct queueList array
+      },
+      {
+        $sort: {
+          "queueList.qPosition": 1 // Sort by qPosition in ascending order (1)
+        }
+      },
+      {
+        $group: {
+          _id: "$_id", // Group by the document's _id field
+          queueList: { $push: "$queueList" } // Reconstruct the queueList array
+        }
+      },
+      //Changed for frontend 
+      {
+        $project: {
+          queueList: {
+            $map: {
+              input: "$queueList",
+              as: "list",
+              in: {
+                $mergeObjects: [
+                  "$$list",
+                  { "name": "$$list.customerName" } // Rename customerName to name
+                ]
+              }
             }
           }
         }
+      },
+      {
+        $project: {
+          "queueList.customerName": 0 // Exclude the customerName field
+        }
       }
-    },
-    {
-      $project: {
-        "queueList.customerName": 0 // Exclude the customerName field
-      }
-    }
-  ]);
+    ]);
 
     if (getSalon.length > 0) {
       // Access the sorted queueList array from the result
@@ -395,6 +398,11 @@ const barberServedQueue = async (req, res) => {
             salon.queueList.push(element);
             await salon.save();
           }
+          // Update the status to "served" for the served queue in JoinedQueueHistory
+          await JoinedQueueHistory.updateOne(
+            { salonId, 'queueList._id': element._id },
+            { $set: { 'queueList.$.status': 'served' } }
+          );
         } else if (element.barberId === barberId && element._id.toString() !== _id) {
           updatedQueueList.push({
             ...element.toObject(),
@@ -445,6 +453,88 @@ const barberServedQueue = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'There is a problem in the API.',
+      error: error.message,
+    });
+  }
+};
+
+//Cancel Queue
+const cancelQueue = async (req, res) => {
+  try {
+    const { salonId, barberId, _id } = req.body;
+
+    const updatedQueue = await SalonQueueList.findOne({ salonId });
+
+    if (!updatedQueue) {
+      return res.status(404).json({
+        success: false,
+        message: 'Queue not found for the given salon ID',
+      });
+    }
+
+    const canceledQueueIndex = updatedQueue.queueList.findIndex(queue => queue._id.toString() === _id);
+
+    if (canceledQueueIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Queue not found with the given _id',
+      });
+    }
+
+    const canceledServiceEWT = updatedQueue.queueList[canceledQueueIndex].serviceEWT;
+
+    // Remove the canceled queue from the queue list
+    const canceledQueue = updatedQueue.queueList.splice(canceledQueueIndex, 1)[0];
+
+    // Decrement qPosition for subsequent queues and adjust customerEWT
+    updatedQueue.queueList.forEach(queue => {
+      if (queue.qPosition > canceledQueue.qPosition) {
+        queue.qPosition -= 1;
+        queue.customerEWT -= canceledServiceEWT;
+      }
+    });
+
+    await updatedQueue.save();
+
+    //Updating the barber
+    const updatedBarber = await Barber.findOneAndUpdate(
+      { salonId, barberId },
+      { $inc: { queueCount: -1, barberEWT: -canceledServiceEWT } },
+      { new: true }
+    );
+
+    //Adding the cancelled queue to the joinqueuehistory with status cancelled
+    let salon = await JoinedQueueHistory.findOne({ salonId });
+
+    if (!salon) {
+      salon = new JoinedQueueHistory({
+        salonId,
+        queueList: [canceledQueue],
+      });
+    } else {
+      salon.queueList.push(canceledQueue);
+    }
+
+    await salon.save();
+
+    // Update the status to "cancelled" for the canceled queue in JoinedQueueHistory
+    salon = await JoinedQueueHistory.findOneAndUpdate(
+      { salonId, 'queueList._id': _id },
+      { $set: { 'queueList.$.status': 'cancelled' } },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Queue canceled successfully',
+      updatedQueueList: updatedQueue.queueList,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to cancel queue',
       error: error.message,
     });
   }
@@ -554,27 +644,27 @@ const getQlistbyBarberId = async (req, res) => {
         }
       },
       //Changed for frontend 
-    {
-      $project: {
-        queueList: {
-          $map: {
-            input: "$queueList",
-            as: "list",
-            in: {
-              $mergeObjects: [
-                "$$list",
-                { "name": "$$list.customerName" } // Rename customerName to name
-              ]
+      {
+        $project: {
+          queueList: {
+            $map: {
+              input: "$queueList",
+              as: "list",
+              in: {
+                $mergeObjects: [
+                  "$$list",
+                  { "name": "$$list.customerName" } // Rename customerName to name
+                ]
+              }
             }
           }
         }
+      },
+      {
+        $project: {
+          "queueList.customerName": 0 // Exclude the customerName field
+        }
       }
-    },
-    {
-      $project: {
-        "queueList.customerName": 0 // Exclude the customerName field
-      }
-    }
     ]);
 
     if (!qList || qList.length === 0) {
@@ -594,7 +684,7 @@ const getQlistbyBarberId = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch queue list by barber ID',
+      message: 'Failed to fetch queue list by barber Id',
       error: error.message
     });
   }
@@ -609,5 +699,6 @@ module.exports = {
   barberServedQueue,
   getAvailableBarbersForQ,
   getBarberByMultipleServiceId,
-  getQlistbyBarberId
+  getQlistbyBarberId,
+  cancelQueue,
 }

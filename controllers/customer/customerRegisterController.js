@@ -38,9 +38,9 @@ const checkEmail = async (req, res) => {
     const existingCustomer = await Customer.findOne({ email });
 
     if (existingCustomer) {
-      res.status(400).json({
+      res.status(200).json({
         success: false,
-        message: "This EmailId already exists",
+        response: "This EmailId already exists",
       });
     }
     else {
@@ -107,8 +107,7 @@ const signUp = async (req, res) => {
       sendVerificationCodeByEmail(email, verificationCode);
       return res.status(200).json({
         success: true,
-        response: verificationCode,
-        message: 'Customer saved and verification code sent successfully',
+        response: 'Customer saved and verification code sent successfully',
       });
     } else {
       return res.status(400).json({

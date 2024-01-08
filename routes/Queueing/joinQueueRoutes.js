@@ -1,5 +1,5 @@
 const express = require("express")
-const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId } = require("../../controllers/Queueing/joinQueueController")
+const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue } = require("../../controllers/Queueing/joinQueueController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 const router = express.Router()
@@ -27,5 +27,8 @@ router.route("/getBarberByMultipleServiceId").post(handleProtectedRoute, getBarb
 
 //Get Q list by BarberId
 router.route("/getQlistByBarberId").post(handleProtectedRoute, getQlistbyBarberId)
+
+//Cancel Q List
+router.route("/cancelQ").post(cancelQueue)
 
 module.exports = router

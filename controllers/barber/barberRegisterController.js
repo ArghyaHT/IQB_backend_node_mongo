@@ -514,7 +514,6 @@ const createBarberByAdmin = async (req, res) => {
       mobileNumber,
       salonId,
       dateOfBirth,
-      password,
       barberServices // Array of service objects containing serviceId, serviceCode, servicePrice, serviceName, serviceEWT
     } = req.body;
 
@@ -528,8 +527,12 @@ const createBarberByAdmin = async (req, res) => {
       });
     }
 
+    //Creating the random Password of ^ digit
+    const randomPassword = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+    const randomString = randomPassword.toString();
+
     // Hashing the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(randomString, 10);
 
     // Creating the barberId and barberCode
     const barberId = await Barber.countDocuments() + 1;
@@ -555,6 +558,25 @@ const createBarberByAdmin = async (req, res) => {
 
     // Save the new barber to the database
     const savedBarber = await newBarber.save();
+
+    const emailData = {
+      email,
+      subject: 'Your Login Details',
+      html: `
+      <h2>Hello ${name}!</h2>
+      <p>Your auto generated password is ${randomPassword}. Please login by this password and reset your password</p>
+    `
+  };
+
+  try {
+    await sendPasswordResetEmail(emailData);
+} catch (error) {
+    return res.status(500).json({
+        success: false,
+        message: 'Failed to Verify email',
+        error: error.message
+    });
+}
 
     res.status(201).json({
       success: true,
