@@ -352,7 +352,6 @@ const getSalonInfo = async (req, res) => {
 
     // Find associated barbers using salonId
     const barbers = await Barber.find({ salonId });
-    console.log(barbers)
 
     res.status(200).json({
       success: true,

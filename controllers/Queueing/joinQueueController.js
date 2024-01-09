@@ -2,6 +2,7 @@ const SalonQueueList = require("../../models/salonQueueListModel");
 const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel");
 const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
+const { sendSms } = require("../../utils/mobileMessageSender");
 
 
 //Single Join queue api
@@ -691,6 +692,28 @@ const getQlistbyBarberId = async (req, res) => {
 };
 
 
+const sendQSms = async(req, res) => {
+  try{
+    const {body} = req.body;
+   sendSms(body)
+    res.status(200).json({
+      success:true,
+      message: "Sms sent successfully"
+    })
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send sms',
+      error: error.message
+    });
+  }
+ 
+
+}
+
+
 module.exports = {
   singleJoinQueue,
   groupJoinQueue,
@@ -701,4 +724,5 @@ module.exports = {
   getBarberByMultipleServiceId,
   getQlistbyBarberId,
   cancelQueue,
+  sendQSms
 }

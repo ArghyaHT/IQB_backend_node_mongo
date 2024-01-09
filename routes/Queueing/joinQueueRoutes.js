@@ -1,5 +1,5 @@
 const express = require("express")
-const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue } = require("../../controllers/Queueing/joinQueueController")
+const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue, sendQSms } = require("../../controllers/Queueing/joinQueueController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 const router = express.Router()
@@ -30,5 +30,8 @@ router.route("/getQlistByBarberId").post(handleProtectedRoute, getQlistbyBarberI
 
 //Cancel Q List
 router.route("/cancelQ").post(cancelQueue)
+
+//SendSms
+router.route("/send-sms").post(sendQSms)
 
 module.exports = router

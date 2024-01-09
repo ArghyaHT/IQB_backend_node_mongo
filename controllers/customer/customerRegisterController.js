@@ -21,6 +21,8 @@ const JWT_REFRESH_SECRET = "refreshToken"
 const path = require("path");
 const fs = require('fs');
 const Salon = require("../../models/salonsRegisterModel");
+const Barber = require("../../models/barberRegisterModel");
+const SalonQueueList = require("../../models/salonQueueListModel");
 const cloudinary = require('cloudinary').v2
 
 
@@ -1050,6 +1052,65 @@ const changeDefaultSalonIdOfCustomer = async (req, res) => {
   }
 };
 
+//Customer Dashboard Api
+const customerDashboard = async(req, res) => {
+  const { salonId } = req.body;
+  try {
+    // Find salon information by salonId
+    const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline");
+
+    if (!salonInfo) {
+      res.status(404).json({
+        success: false,
+        message: 'No salons found for the particular SalonId.',
+      });
+    }
+
+    // Find associated barbers using salonId
+    const barbers = await Barber.find({ salonId, isOnline: true });
+    const barberCount = barbers.length;
+
+    let barberWithLeastQueues = null;
+    let minQueueCount = Number.MAX_VALUE;
+
+    barbers.forEach(barber => {
+      if (barber.queueCount < minQueueCount) {
+        minQueueCount = barber.queueCount;
+        barberWithLeastQueues = barber._id;
+      }
+    });
+
+
+ // Find queues associated with the salonId
+ const salonQueues = await SalonQueueList.find({ salonId });
+    
+ let totalQueueCount = 0;
+
+ // Calculate total queue count for the salon
+ salonQueues.forEach(queue => {
+   totalQueueCount += queue.queueList.length;
+ });
+
+    res.status(200).json({
+      success: true,
+      message: 'Salon and barbers found successfully.',
+      response: {
+        salonInfo: salonInfo,
+        barbers: barbers,
+        barberOnDuty: barberCount,
+        totalQueueCount: totalQueueCount,
+        leastQueueCount: minQueueCount
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to search salons and barbers by the SalonId.',
+    });
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
@@ -1074,4 +1135,5 @@ module.exports = {
   getAllAppointmentsByCustomer,
   getAllSalonsByCustomer,
   changeDefaultSalonIdOfCustomer,
+  customerDashboard
 }
