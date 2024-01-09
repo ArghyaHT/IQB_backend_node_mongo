@@ -16,7 +16,7 @@ const singleJoinQueue = async (req, res) => {
 
     //Code for storing the services names and serviceIds and calculating the ServiceEWT
     for (const service of services) {
-      totalServiceEWT += service.barberServiceEWT;
+      totalServiceEWT += service.barberServiceEWT || service.serviceEWT;
       if (serviceIds) {
         serviceIds += "-";
       }
@@ -121,7 +121,7 @@ const groupJoinQueue = async (req, res) => {
       let serviceNames = "";
 
       for (const service of member.services) {
-        totalServiceEWT += service.barberServiceEWT;
+        totalServiceEWT += service.barberServiceEWT || service.serviceEWT;
         if (serviceIds) {
           serviceIds += "-";
         }
