@@ -483,56 +483,56 @@ const getAllSalonsByAdmin = async (req, res) => {
 
 //SEARCH SALONS BY NAME AND CITY
 const searchSalonsByNameAndCity = async (req, res) => {
-  // try {
-  //   const { salonName, city, limit = 3, sortField, sortOrder } = req.query;
-
-  //   let query = {};
-
-  //   //Creating the RegExp For salonName and City
-  //   const searchRegExpName = new RegExp('.*' + salonName + ".*", 'i')
-  //   const searchRegExpCity = new RegExp('.*' + city + ".*", 'i')
-
-  //   //Query for searching salonName and City
-  //   if (salonName || city) {
-  //     query.$or = [
-  //       { salonName: { $regex: searchRegExpName } },
-  //       { city: { $regex: searchRegExpCity } }
-  //     ];
-  //   }
-
-  //   const sortOptions = {};
-
-  //   //Creating sorting options
-  //   if (sortField && sortOrder) {
-  //     sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
-  //   }
-
-  //   const getAllSalons = await Salon.find(query).sort(sortOptions).limit(Number(limit));
-  //   res.status(200).json({
-  //     success: true,
-  //     message: "All Salons fetched successfully",
-  //     getAllSalons,
-  //   })
-  // } catch (error) {
-  //   console.log(error.message)
-  //   return {
-  //     status: 500,
-  //     message: error.message,
-  //   };
-  // }
   try {
-    const salons = await Salon.find({}); // Retrieve all salons from the database
+    const { searchValue, limit = 10, sortField, sortOrder } = req.query;
+
+    let query = {};
+
+    //Creating the RegExp For salonName and City
+    const searchRegExpName = new RegExp('.*' + searchValue + ".*", 'i')
+    const searchRegExpCity = new RegExp('.*' + searchValue + ".*", 'i')
+
+    //Query for searching salonName and City
+    if (searchValue) {
+      query.$or = [
+        { salonName: { $regex: searchRegExpName } },
+        { city: { $regex: searchRegExpCity } }
+      ];
+    }
+
+    const sortOptions = {};
+
+    //Creating sorting options
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    const getAllSalons = await Salon.find(query).sort(sortOptions).limit(Number(limit));
     res.status(200).json({
       success: true,
-      response: salons
-    });
+      message: "All Salons fetched successfully",
+      getAllSalons,
+    })
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      response: 'Server Error',
-      error: error.message
-    });
+    console.log(error.message)
+    return {
+      status: 500,
+      message: error.message,
+    };
   }
+  // try {
+  //   const salons = await Salon.find({}); // Retrieve all salons from the database
+  //   res.status(200).json({
+  //     success: true,
+  //     response: salons
+  //   });
+  // } catch (error) {
+  //   res.status(500).json({
+  //     success: false,
+  //     response: 'Server Error',
+  //     error: error.message
+  //   });
+  // }
 }
 
 //Delete Salon
