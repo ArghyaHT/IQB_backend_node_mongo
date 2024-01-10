@@ -201,161 +201,305 @@ const loginController = async (req, res) => {
 
 
 //GOOGLE SIGNIN ===================================
+// const googleLoginController = async (req, res) => {
+//   const CLIENT_ID = process.env.CLIENT_ID;
+//   const token = req.body.token;
+//   const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
+//   if (!token) {
+//     res.json({ message: "UnAuthorized User or Invalid User" })
+//   }
+
+//   const client = new OAuth2Client(CLIENT_ID);
+
+//   // Call the verifyIdToken to
+//   // varify and decode it
+//   const ticket = await client.verifyIdToken({
+//     idToken: token,
+//     audience: CLIENT_ID,
+//   });
+
+//   // Get the JSON with all the user info
+//   const payload = ticket.getPayload();
+
+//   let user = await Barber.findOne({ email: payload.email, AuthType: "google" });
+
+//   const barberId = await Barber.countDocuments() + 1;
+
+//   //Creating the barberCode
+//   const firstTwoLetters = payload.name.slice(0, 2).toUpperCase();
+//   const barberCode = firstTwoLetters + barberId;
+//   // If the user doesn't exist, create a new user
+//   // add barber id by count docuents and isApproved as false 
+//   if (!user) {
+//     user = new Barber({
+//       name: payload.name,
+//       email: payload.email,
+//       barberId: barberId,
+//       barberCode: barberCode,
+//       barber: true,
+//       AuthType: "google"
+//     });
+//     await user.save();
+
+//     // Save FCM Tokens based on the switch-case logic
+//     let tokenType, tokenValue;
+//     switch (true) {
+//       case !!webFcmToken:
+//         tokenType = 'webFcmToken';
+//         tokenValue = webFcmToken;
+//         break;
+//       case !!androidFcmToken:
+//         tokenType = 'androidFcmToken';
+//         tokenValue = androidFcmToken;
+//         break;
+//       case !!iosFcmToken:
+//         tokenType = 'iosFcmToken';
+//         tokenValue = iosFcmToken;
+//         break;
+//       default:
+//         res.status(201).json({
+//           success: false,
+//           message: "No valid FCM tokens present"
+//         })
+//         break;
+//     }
+
+//     if (tokenType && tokenValue) {
+//       await UserTokenTable.findOneAndUpdate(
+//         { email: email },
+//         { [tokenType]: tokenValue, type: "barber" },
+//         { upsert: true, new: true }
+//       );
+//     }
+//     // Generate tokens
+//     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+//     const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+//     // Set cookies in the response
+//     res.cookie('refreshToken', refreshToken, {
+//       httpOnly: true,
+//       maxAge: 24 * 60 * 60 * 1000,  // 2 days
+//       secure: true,
+//       sameSite: "None"
+//     });
+//     res.cookie('accessToken', accessToken, {
+//       httpOnly: true,
+//       maxAge: 1 * 60 * 1000, //1 mins
+//       secure: true,
+//       sameSite: "None"
+//     });
+
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Barber registered in successfully"
+//     })
+//   }
+
+//   else if (user) {
+//     // Save FCM Tokens based on the switch-case logic
+//     let tokenType, tokenValue;
+//     switch (true) {
+//       case !!webFcmToken:
+//         tokenType = 'webFcmToken';
+//         tokenValue = webFcmToken;
+//         break;
+//       case !!androidFcmToken:
+//         tokenType = 'androidFcmToken';
+//         tokenValue = androidFcmToken;
+//         break;
+//       case !!iosFcmToken:
+//         tokenType = 'iosFcmToken';
+//         tokenValue = iosFcmToken;
+//         break;
+//       default:
+//         res.status(201).json({
+//           success: false,
+//           message: "No valid FCM tokens present"
+//         })
+//         break;
+//     }
+
+//     if (tokenType && tokenValue) {
+//       await UserTokenTable.findOneAndUpdate(
+//         { email: email },
+//         { [tokenType]: tokenValue, type: "barber" },
+//         { new: true }
+//       );
+//     }
+
+//     const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+//     const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+
+//     // Set cookies in the response
+//     res.cookie('refreshToken',
+//       refreshToken, {
+//       httpOnly: true,
+//       maxAge: 24 * 60 * 60 * 1000, // 2 days
+//       secure: true,
+//       sameSite: "None"
+//     });
+//     res.cookie('accessToken', accessToken, {
+//       httpOnly: true,
+//       maxAge: 1 * 60 * 1000, //1 mins
+//       secure: true,
+//       sameSite: "None"
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: "User signed in successfully"
+//     })
+//   } else {
+//     res.status(401).json({ success: false, message: "Invalid Credentials" })
+//   }
+// }
 const googleLoginController = async (req, res) => {
-  const CLIENT_ID = process.env.CLIENT_ID;
-  const token = req.body.token;
-  const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+  try {
+    const CLIENT_ID = process.env.CLIENT_ID;
+    const token = req.body.token;
+    const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
-  if (!token) {
-    res.json({ message: "UnAuthorized User or Invalid User" })
+    if (!token) {
+      return res.status(400).json({ message: "UnAuthorized User or Invalid User" });
+    }
+
+    const client = new OAuth2Client(CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    let user = await Barber.findOne({ email: payload.email, AuthType: "google" });
+
+    const barberId = await Barber.countDocuments() + 1;
+    const firstTwoLetters = payload.name.slice(0, 2).toUpperCase();
+    const barberCode = firstTwoLetters + barberId;
+
+    if (!user) {
+      user = new Barber({
+        name: payload.name,
+        email: payload.email,
+        barberId: barberId,
+        barberCode: barberCode,
+        barber: true,
+        AuthType: "google"
+      });
+      await user.save();
+
+      let tokenType, tokenValue;
+      switch (true) {
+        case !!webFcmToken:
+          tokenType = 'webFcmToken';
+          tokenValue = webFcmToken;
+          break;
+        case !!androidFcmToken:
+          tokenType = 'androidFcmToken';
+          tokenValue = androidFcmToken;
+          break;
+        case !!iosFcmToken:
+          tokenType = 'iosFcmToken';
+          tokenValue = iosFcmToken;
+          break;
+        default:
+          return res.status(201).json({
+            success: false,
+            message: "No valid FCM tokens present"
+          });
+      }
+
+      if (tokenType && tokenValue) {
+        await UserTokenTable.findOneAndUpdate(
+          { email: payload.email },
+          { [tokenType]: tokenValue, type: "barber" },
+          { upsert: true, new: true }
+        );
+      }
+
+      const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+      const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: "None"
+      });
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        maxAge: 1 * 60 * 1000,
+        secure: true,
+        sameSite: "None"
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Barber registered successfully"
+      });
+    } else if (user) {
+      let tokenType, tokenValue;
+      switch (true) {
+        case !!webFcmToken:
+          tokenType = 'webFcmToken';
+          tokenValue = webFcmToken;
+          break;
+        case !!androidFcmToken:
+          tokenType = 'androidFcmToken';
+          tokenValue = androidFcmToken;
+          break;
+        case !!iosFcmToken:
+          tokenType = 'iosFcmToken';
+          tokenValue = iosFcmToken;
+          break;
+        default:
+          return res.status(201).json({
+            success: false,
+            message: "No valid FCM tokens present"
+          });
+      }
+
+      if (tokenType && tokenValue) {
+        await UserTokenTable.findOneAndUpdate(
+          { email: payload.email },
+          { [tokenType]: tokenValue, type: "barber" },
+          { new: true }
+        );
+      }
+
+      const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+      const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: "None"
+      });
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        maxAge: 1 * 60 * 1000,
+        secure: true,
+        sameSite: "None"
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Barber signed in successfully"
+      });
+    } else {
+      return res.status(401).json({ success: false, message: "Invalid Credentials" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: 500,
+      error: 'Failed to authenticate user',
+    });
   }
-
-  const client = new OAuth2Client(CLIENT_ID);
-
-  // Call the verifyIdToken to
-  // varify and decode it
-  const ticket = await client.verifyIdToken({
-    idToken: token,
-    audience: CLIENT_ID,
-  });
-
-  // Get the JSON with all the user info
-  const payload = ticket.getPayload();
-
-  let user = await Barber.findOne({ email: payload.email, AuthType: "google" });
-
-  const barberId = await Barber.countDocuments() + 1;
-
-  //Creating the barberCode
-  const firstTwoLetters = payload.name.slice(0, 2).toUpperCase();
-  const barberCode = firstTwoLetters + barberId;
-  // If the user doesn't exist, create a new user
-  // add barber id by count docuents and isApproved as false 
-  if (!user) {
-    user = new Barber({
-      name: payload.name,
-      email: payload.email,
-      barberId: barberId,
-      barberCode: barberCode,
-      barber: true,
-      AuthType: "google"
-    });
-    await user.save();
-
-    // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    switch (true) {
-      case !!webFcmToken:
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-        break;
-      case !!androidFcmToken:
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-        break;
-      case !!iosFcmToken:
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-        break;
-      default:
-        res.status(201).json({
-          success: false,
-          message: "No valid FCM tokens present"
-        })
-        break;
-    }
-
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "barber" },
-        { upsert: true, new: true }
-      );
-    }
-    // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-    // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,  // 2 days
-      secure: true,
-      sameSite: "None"
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 1 * 60 * 1000, //1 mins
-      secure: true,
-      sameSite: "None"
-    });
-
-
-    res.status(201).json({
-      success: true,
-      message: "Barber registered in successfully"
-    })
-  }
-
-  else if (user) {
-    // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    switch (true) {
-      case !!webFcmToken:
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-        break;
-      case !!androidFcmToken:
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-        break;
-      case !!iosFcmToken:
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-        break;
-      default:
-        res.status(201).json({
-          success: false,
-          message: "No valid FCM tokens present"
-        })
-        break;
-    }
-
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "barber" },
-        { new: true }
-      );
-    }
-
-    const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-
-    // Set cookies in the response
-    res.cookie('refreshToken',
-      refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 2 days
-      secure: true,
-      sameSite: "None"
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 1 * 60 * 1000, //1 mins
-      secure: true,
-      sameSite: "None"
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "User signed in successfully"
-    })
-  } else {
-    res.status(401).json({ success: false, message: "Invalid Credentials" })
-  }
-}
+};
 
 //DESC:REFRESH TOKEN ==============================
 const refreshTokenController = async (req, res) => {
