@@ -23,13 +23,14 @@ const fs = require('fs');
 const Salon = require("../../models/salonsRegisterModel");
 const Barber = require("../../models/barberRegisterModel");
 const SalonQueueList = require("../../models/salonQueueListModel");
+const UserTokenTable = require("../../models/userTokenModel");
 const cloudinary = require('cloudinary').v2
 
 
 cloudinary.config({
-    cloud_name: 'dfrw3aqyp',
-    api_key: '574475359946326',
-    api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
+  cloud_name: 'dfrw3aqyp',
+  api_key: '574475359946326',
+  api_secret: 'fGcEwjBTYj7rPrIxlSV5cubtZPc',
 });
 
 //CHECK WEATHER THE EMAIL ALREADY EXISTS IN THE DATABASE-------
@@ -73,6 +74,8 @@ const signUp = async (req, res) => {
       dateOfBirth,
       mobileNumber,
       password,
+      fcmToken,
+      deviceType,
     } = req.body;
 
     const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
@@ -101,16 +104,31 @@ const signUp = async (req, res) => {
       customer: true,
     });
 
+    //Saving The fcmToken
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required'
+      });
+    }
+    const user = new UserTokenTable({
+      email,
+      token: [{
+        fcmToken,
+        deviceType
+      }]
+    });
+    await user.save();
+
     //Saving the Customer
     const savedCustomer = await customer.save();
-
 
     //Sending the verification Code to Customer Registered Email
     if (savedCustomer.verificationCode) {
       sendVerificationCodeByEmail(email, verificationCode);
       return res.status(200).json({
         success: true,
-        response: 'Customer saved and verification code sent successfully',
+        response: 'Customer and FCM token saved successfully and verification code sent successfully',
       });
     } else {
       return res.status(400).json({
@@ -759,188 +777,188 @@ const sendBulkEmailToCustomers = async (req, res) => {
 //Upload Customer profile Picture
 const uploadCustomerprofilePic = async (req, res) => {
   try {
-      let profiles = req.files.profile;
-      const email = req.body.email;
+    let profiles = req.files.profile;
+    const email = req.body.email;
 
-      // Ensure that profiles is an array, even for single uploads
-      if (!Array.isArray(profiles)) {
-          profiles = [profiles];
-      }
+    // Ensure that profiles is an array, even for single uploads
+    if (!Array.isArray(profiles)) {
+      profiles = [profiles];
+    }
 
-      const uploadPromises = [];
+    const uploadPromises = [];
 
-      for (const profile of profiles) {
-          uploadPromises.push(
-              new Promise((resolve, reject) => {
-                  const public_id = `${profile.name.split(".")[0]}`;
+    for (const profile of profiles) {
+      uploadPromises.push(
+        new Promise((resolve, reject) => {
+          const public_id = `${profile.name.split(".")[0]}`;
 
-                  cloudinary.uploader.upload(profile.tempFilePath, {
-                      public_id: public_id,
-                      folder: "students",
-                  })
-                      .then((image) => {
-                          resolve({
-                              public_id: image.public_id,
-                              url: image.secure_url, // Store the URL
-                          });
-                      })
-                      .catch((err) => {
-                          reject(err);
-                      })
-                      .finally(() => {
-                          // Delete the temporary file after uploading
-                          fs.unlink(profile.tempFilePath, (unlinkError) => {
-                              if (unlinkError) {
-                                  console.error('Failed to delete temporary file:', unlinkError);
-                              }
-                          });
-                      });
-              })
-          );
-      }
-
-      Promise.all(uploadPromises)
-          .then(async (profileimg) => {
-              console.log(profileimg);
-
-              const customerImage = await Customer.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
-
-              res.status(200).json({
-                  success: true,
-                  message: "Files Uploaded successfully",
-                  customerImage
-              });
+          cloudinary.uploader.upload(profile.tempFilePath, {
+            public_id: public_id,
+            folder: "students",
           })
-          .catch((err) => {
-              console.error(err);
-              res.status(500).json({
-                  message: "Cloudinary upload failed",
-                  err: err.message
+            .then((image) => {
+              resolve({
+                public_id: image.public_id,
+                url: image.secure_url, // Store the URL
               });
-          });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          message: "Internal Server Error",
-          error: error.message
+            })
+            .catch((err) => {
+              reject(err);
+            })
+            .finally(() => {
+              // Delete the temporary file after uploading
+              fs.unlink(profile.tempFilePath, (unlinkError) => {
+                if (unlinkError) {
+                  console.error('Failed to delete temporary file:', unlinkError);
+                }
+              });
+            });
+        })
+      );
+    }
+
+    Promise.all(uploadPromises)
+      .then(async (profileimg) => {
+        console.log(profileimg);
+
+        const customerImage = await Customer.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
+
+        res.status(200).json({
+          success: true,
+          message: "Files Uploaded successfully",
+          customerImage
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({
+          message: "Cloudinary upload failed",
+          err: err.message
+        });
       });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 }
 
 //Update Barber Profile Picture
 const updateCustomerProfilePic = async (req, res) => {
   try {
-      const id = req.body.id;
+    const id = req.body.id;
 
-      const customerProfile = await Customer.findOne({ "profile._id": id }, { "profile.$": 1 })
+    const customerProfile = await Customer.findOne({ "profile._id": id }, { "profile.$": 1 })
 
-      const public_imgid = req.body.public_imgid;
-      const profile = req.files.profile;
+    const public_imgid = req.body.public_imgid;
+    const profile = req.files.profile;
 
-      // Validate Image
-      const fileSize = profile.size / 1000;
-      const fileExt = profile.name.split(".")[1];
+    // Validate Image
+    const fileSize = profile.size / 1000;
+    const fileExt = profile.name.split(".")[1];
 
-      if (fileSize > 500) {
-          return res.status(400).json({ message: "File size must be lower than 500kb" });
-      }
+    if (fileSize > 500) {
+      return res.status(400).json({ message: "File size must be lower than 500kb" });
+    }
 
-      if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
-          return res.status(400).json({ message: "File extension must be jpg or png" });
-      }
+    if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
+      return res.status(400).json({ message: "File extension must be jpg or png" });
+    }
 
-      // Generate a unique public_id based on the original file name
-      const public_id = `${profile.name.split(".")[0]}`;
+    // Generate a unique public_id based on the original file name
+    const public_id = `${profile.name.split(".")[0]}`;
 
-      cloudinary.uploader.upload(profile.tempFilePath, {
-          public_id: public_id,
-          folder: "students",
+    cloudinary.uploader.upload(profile.tempFilePath, {
+      public_id: public_id,
+      folder: "students",
+    })
+      .then(async (image) => {
+
+        const result = await cloudinary.uploader.destroy(public_imgid);
+
+        if (result.result === 'ok') {
+          console.log("cloud img deleted")
+
+        } else {
+          res.status(500).json({
+            message: 'Failed to delete image.'
+          });
+        }
+
+        // Delete the temporary file after uploading to Cloudinary
+        fs.unlink(profile.tempFilePath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+
+        const updatedAdmin = await Customer.findOneAndUpdate(
+          { "profile._id": id },
+          {
+            $set: {
+              'profile.$.public_id': image.public_id,
+              'profile.$.url': image.url
+            }
+          },
+          { new: true }
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "Files Updated successfully",
+          updatedAdmin
+        });
+
       })
-          .then(async (image) => {
-
-              const result = await cloudinary.uploader.destroy(public_imgid);
-
-              if (result.result === 'ok') {
-                  console.log("cloud img deleted")
-
-              } else {
-                  res.status(500).json({
-                      message: 'Failed to delete image.'
-                  });
-              }
-
-              // Delete the temporary file after uploading to Cloudinary
-              fs.unlink(profile.tempFilePath, (err) => {
-                  if (err) {
-                      console.error(err);
-                  }
-              });
-
-              const updatedAdmin = await Customer.findOneAndUpdate(
-                  { "profile._id": id },
-                  {
-                      $set: {
-                          'profile.$.public_id': image.public_id,
-                          'profile.$.url': image.url
-                      }
-                  },
-                  { new: true }
-              );
-
-              res.status(200).json({
-                  success: true,
-                  message: "Files Updated successfully",
-                  updatedAdmin
-              });
-
-          })
 
 
 
   } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          message: "Internal Server Error",
-          error: error.message
-      });
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 }
 
 //Delete Barber Profile Picture
 const deleteCustomerProfilePicture = async (req, res) => {
   try {
-      const public_id = req.body.public_id
-      const img_id = req.body.img_id
+    const public_id = req.body.public_id
+    const img_id = req.body.img_id
 
-      const result = await cloudinary.uploader.destroy(public_id);
+    const result = await cloudinary.uploader.destroy(public_id);
 
-      if (result.result === 'ok') {
-          console.log("cloud img deleted")
+    if (result.result === 'ok') {
+      console.log("cloud img deleted")
 
-      } else {
-          res.status(500).json({ message: 'Failed to delete image.' });
-      }
+    } else {
+      res.status(500).json({ message: 'Failed to delete image.' });
+    }
 
-      const updatedAdmin = await Customer.findOneAndUpdate(
-          { 'profile._id': img_id },
-          { $pull: { profile: { _id: img_id } } },
-          { new: true }
-      );
+    const updatedAdmin = await Customer.findOneAndUpdate(
+      { 'profile._id': img_id },
+      { $pull: { profile: { _id: img_id } } },
+      { new: true }
+    );
 
-      if (updatedAdmin) {
-          res.status(200).json({
-              success: true,
-              message: "Image successfully deleted"
-          })
-      } else {
-          res.status(404).json({ message: 'Image not found in the student profile' });
-      }
+    if (updatedAdmin) {
+      res.status(200).json({
+        success: true,
+        message: "Image successfully deleted"
+      })
+    } else {
+      res.status(404).json({ message: 'Image not found in the student profile' });
+    }
   } catch (error) {
-      console.error('Error deleting image:', error);
-      res.status(500).json({
-          message: 'Internal server error.',
-          error: error.message
-      });
+    console.error('Error deleting image:', error);
+    res.status(500).json({
+      message: 'Internal server error.',
+      error: error.message
+    });
   }
 }
 
@@ -952,9 +970,10 @@ const getAllAppointmentsByCustomer = async (req, res) => {
 
     // Check if customerEmail and salonId are provided
     if (!customerEmail || !salonId) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Both customerEmail and salonId are required.' });
+        message: 'Both customerEmail and salonId are required.'
+      });
     }
 
     // Find appointments based on customerEmail and salonId
@@ -964,55 +983,58 @@ const getAllAppointmentsByCustomer = async (req, res) => {
     });
 
     if (!appointments || appointments.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'No appointments found for this customer.' });
+        message: 'No appointments found for this customer.'
+      });
     }
 
     // Return the found appointments
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: "Appointments Found for the Customer",
-      response: appointments });
+      response: appointments
+    });
   } catch (error) {
     // Handle errors
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message });
+      error: error.message
+    });
   }
 };
 
 //Get All Connected Salons by Customer
 const getAllSalonsByCustomer = async (req, res) => {
   try {
-      const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
+    const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
 
-      // Find the admin based on the email
-      const customer = await Customer.findOne({ email: customerEmail });
+    // Find the admin based on the email
+    const customer = await Customer.findOne({ email: customerEmail });
 
-      if (!customer) {
-          return res.status(404).json({
-              message: 'Customer not found',
-          });
-      }
-
-      // Fetch all salons associated with the admin from registeredSalons array
-      const salons = await Salon.find({
-          salonId: { $in: customer.connectedSalon },
-          isDeleted: false,
+    if (!customer) {
+      return res.status(404).json({
+        message: 'Customer not found',
       });
+    }
 
-      res.status(200).json({
-          message: 'Salons retrieved successfully',
-          salons: salons,
-      });
+    // Fetch all salons associated with the admin from registeredSalons array
+    const salons = await Salon.find({
+      salonId: { $in: customer.connectedSalon },
+      isDeleted: false,
+    });
+
+    res.status(200).json({
+      message: 'Salons retrieved successfully',
+      salons: salons,
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          message: 'Failed to retrieve salons',
-          error: error.message,
-      });
+    console.error(error);
+    res.status(500).json({
+      message: 'Failed to retrieve salons',
+      error: error.message,
+    });
   }
 }
 
@@ -1023,37 +1045,37 @@ const getAllSalonsByCustomer = async (req, res) => {
 //Change Salon Id of Customer
 const changeDefaultSalonIdOfCustomer = async (req, res) => {
   try {
-      const { customerEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
+    const { customerEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
 
-      // Find the admin based on the provided email
-      const customer = await Customer.findOne({ email: customerEmail });
+    // Find the admin based on the provided email
+    const customer = await Customer.findOne({ email: customerEmail });
 
-      console.log(customer)
-      if (!customer) {
-          return res.status(404).json({
-              message: 'Customer not found',
-          });
-      }
-
-      // Update the default salonId of the admin
-      customer.salonId = salonId;
-      await customer.save();
-
-      res.status(200).json({
-          message: 'Default salon ID of admin updated successfully',
-          response: customer,
+    console.log(customer)
+    if (!customer) {
+      return res.status(404).json({
+        message: 'Customer not found',
       });
+    }
+
+    // Update the default salonId of the admin
+    customer.salonId = salonId;
+    await customer.save();
+
+    res.status(200).json({
+      message: 'Default salon ID of admin updated successfully',
+      response: customer,
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          message: 'Failed to update default salon ID of admin',
-          error: error.message,
-      });
+    console.error(error);
+    res.status(500).json({
+      message: 'Failed to update default salon ID of admin',
+      error: error.message,
+    });
   }
 };
 
 //Customer Dashboard Api
-const customerDashboard = async(req, res) => {
+const customerDashboard = async (req, res) => {
   const { salonId } = req.body;
   try {
     // Find salon information by salonId
@@ -1081,15 +1103,15 @@ const customerDashboard = async(req, res) => {
     });
 
 
- // Find queues associated with the salonId
- const salonQueues = await SalonQueueList.find({ salonId });
-    
- let totalQueueCount = 0;
+    // Find queues associated with the salonId
+    const salonQueues = await SalonQueueList.find({ salonId });
 
- // Calculate total queue count for the salon
- salonQueues.forEach(queue => {
-   totalQueueCount += queue.queueList.length;
- });
+    let totalQueueCount = 0;
+
+    // Calculate total queue count for the salon
+    salonQueues.forEach(queue => {
+      totalQueueCount += queue.queueList.length;
+    });
 
     res.status(200).json({
       success: true,

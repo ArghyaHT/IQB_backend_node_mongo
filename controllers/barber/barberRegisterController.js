@@ -16,6 +16,7 @@ const JWT_REFRESH_SECRET = "refreshToken"
 const path = require("path");
 const fs = require('fs');
 const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
+const UserTokenTable = require("../../models/userTokenModel.js");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -31,14 +32,16 @@ const registerController = async (req, res) => {
   try {
     const email = req.body.email
     const password = req.body.password
+    const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
 
     let user = await Barber.findOne({ email: email });
     if (user) {
       return res.status(400).json({
-          success: false,
-          message: "Barber already exists"
+        success: false,
+        message: "Barber already exists"
       })
-  }
+    }
 
     const barberId = await Barber.countDocuments() + 1;
     // If the user doesn't exist, create a new Barber
@@ -55,23 +58,55 @@ const registerController = async (req, res) => {
       await user.save();
     }
 
-  // Generate tokens
-  const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-  const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+    // Save FCM Tokens based on the switch-case logic
+    let tokenType, tokenValue;
+    switch (true) {
+      case !!webFcmToken:
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+        break;
+      case !!androidFcmToken:
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+        break;
+      case !!iosFcmToken:
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+        break;
+      default:
+        res.status(201).json({
+          success: false,
+          message: "No valid FCM tokens present"
+        })
+        break;
+    }
 
-  // Set cookies in the response
-  res.cookie('refreshToken', refreshToken, {
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
+
+
+    // Generate tokens
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 2 days
       secure: true,
       sameSite: "None"
-  });
-  res.cookie('accessToken', accessToken, {
+    });
+    res.cookie('accessToken', accessToken, {
       httpOnly: true,
       maxAge: 1 * 60 * 1000, //1 mins
       secure: true,
       sameSite: "None"
-  });
+    });
 
     res.status(200).json({
       success: true,
@@ -92,6 +127,7 @@ const loginController = async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
+    const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
     // Find user by email in the MongoDB database
     const user = await Barber.findOne({ email: email });
@@ -101,23 +137,54 @@ const loginController = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid Credentials" });
     }
 
-   // Generate tokens
-   const accessToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-   const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+    // Save FCM Tokens based on the switch-case logic
+    let tokenType, tokenValue;
+    switch (true) {
+      case !!webFcmToken:
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+        break;
+      case !!androidFcmToken:
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+        break;
+      case !!iosFcmToken:
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+        break;
+      default:
+        res.status(201).json({
+          success: false,
+          message: "No valid FCM tokens present"
+        })
+        break;
+    }
 
-   // Set cookies in the response
-   res.cookie('refreshToken', refreshToken, {
-       httpOnly: true,
-       maxAge: 24 * 60 * 60 * 1000, // 2 days
-       secure: true,
-       sameSite: "None"
-   });
-   res.cookie('accessToken', accessToken, {
-       httpOnly: true,
-       maxAge: 1 * 60 * 1000, //1 mins
-       secure: true,
-       sameSite: "None"
-   });
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { new: true }
+      );
+    }
+
+    // Generate tokens
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+    // Set cookies in the response
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 2 days
+      secure: true,
+      sameSite: "None"
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      maxAge: 1 * 60 * 1000, //1 mins
+      secure: true,
+      sameSite: "None"
+    });
 
     res.status(201).json({
       success: true,
@@ -137,6 +204,7 @@ const loginController = async (req, res) => {
 const googleLoginController = async (req, res) => {
   const CLIENT_ID = process.env.CLIENT_ID;
   const token = req.body.token;
+  const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
   if (!token) {
     res.json({ message: "UnAuthorized User or Invalid User" })
@@ -174,23 +242,52 @@ const googleLoginController = async (req, res) => {
     });
     await user.save();
 
+    // Save FCM Tokens based on the switch-case logic
+    let tokenType, tokenValue;
+    switch (true) {
+      case !!webFcmToken:
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+        break;
+      case !!androidFcmToken:
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+        break;
+      case !!iosFcmToken:
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+        break;
+      default:
+        res.status(201).json({
+          success: false,
+          message: "No valid FCM tokens present"
+        })
+        break;
+    }
 
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
     // Generate tokens
     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email} }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,  // 2 days
-        secure: true,
-        sameSite: "None"
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,  // 2 days
+      secure: true,
+      sameSite: "None"
     });
     res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        maxAge: 1 * 60 * 1000, //1 mins
-        secure: true,
-        sameSite: "None"
+      httpOnly: true,
+      maxAge: 1 * 60 * 1000, //1 mins
+      secure: true,
+      sameSite: "None"
     });
 
 
@@ -201,23 +298,54 @@ const googleLoginController = async (req, res) => {
   }
 
   else if (user) {
+    // Save FCM Tokens based on the switch-case logic
+    let tokenType, tokenValue;
+    switch (true) {
+      case !!webFcmToken:
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+        break;
+      case !!androidFcmToken:
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+        break;
+      case !!iosFcmToken:
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+        break;
+      default:
+        res.status(201).json({
+          success: false,
+          message: "No valid FCM tokens present"
+        })
+        break;
+    }
+
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { new: true }
+      );
+    }
+
     const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
     const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
 
     // Set cookies in the response
     res.cookie('refreshToken',
-        refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 2 days
-        secure: true,
-        sameSite: "None"
+      refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 2 days
+      secure: true,
+      sameSite: "None"
     });
     res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        maxAge: 1 * 60 * 1000, //1 mins
-        secure: true,
-        sameSite: "None"
+      httpOnly: true,
+      maxAge: 1 * 60 * 1000, //1 mins
+      secure: true,
+      sameSite: "None"
     });
 
     res.status(201).json({
@@ -372,58 +500,58 @@ const handleResetPassword = async (req, res, next) => {
 
 const isBarberLogginMiddleware = async (req, res) => {
   try {
-      const accessToken = req.cookies.accessToken;
-      const refreshToken = req.cookies.refreshToken;
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
-      if (!refreshToken) {
-          return res.status(403).json({
-              success: false,
-              message: "Refresh Token not present.Please Login Again",
-          });
-      }
+    if (!refreshToken) {
+      return res.status(403).json({
+        success: false,
+        message: "Refresh Token not present.Please Login Again",
+      });
+    }
 
-      // Verify old refresh token
-      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+    // Verify old refresh token
+    const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-      const loggedinUser = await Barber.find({email:decodeToken.user.email})
+    const loggedinUser = await Barber.find({ email: decodeToken.user.email })
 
-      if (!decodeToken) {
-          return res.status(401).json({
-              success: false,
-              message: "Invalid Access Token. UnAuthorize User",
-          });
-      }
+    if (!decodeToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Access Token. UnAuthorize User",
+      });
+    }
 
-      return res.status(200).json({
-          success: true,
-          message: "User already logged in",
-          user: loggedinUser
-      })
+    return res.status(200).json({
+      success: true,
+      message: "User already logged in",
+      user: loggedinUser
+    })
 
   } catch (error) {
-      return res.json({
-          success: false,
-          message: error,
-      });
+    return res.json({
+      success: false,
+      message: error,
+    });
   }
 }
 
 const isBarberLoggedOutMiddleware = async (req, res) => {
   try {
-      const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
 
-      if (!refreshToken) {
-          return res.status(403).json({
-              success: false,
-              message: "Refresh Token not present.Please Login Again",
-          });
-      }
-  } catch (error) {
-      return res.json({
-          success: false,
-          message: error,
+    if (!refreshToken) {
+      return res.status(403).json({
+        success: false,
+        message: "Refresh Token not present.Please Login Again",
       });
+    }
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error,
+    });
   }
 }
 // const handleProtectedRoute = async (req, res, next) => {
@@ -566,17 +694,17 @@ const createBarberByAdmin = async (req, res) => {
       <h2>Hello ${name}!</h2>
       <p>Your auto generated password is ${randomPassword}. Please login by this password and reset your password</p>
     `
-  };
+    };
 
-  try {
-    await sendPasswordResetEmail(emailData);
-} catch (error) {
-    return res.status(500).json({
+    try {
+      await sendPasswordResetEmail(emailData);
+    } catch (error) {
+      return res.status(500).json({
         success: false,
         message: 'Failed to Verify email',
         error: error.message
-    });
-}
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -877,7 +1005,7 @@ const getAllBarberbySalonId = async (req, res) => {
 
     const skip = Number(page - 1) * Number(limit);
 
-    const getAllBarbers = await Barber.find({salonId, isDeleted: false}).sort(sortOptions).skip(skip).limit(Number(limit));
+    const getAllBarbers = await Barber.find({ salonId, isDeleted: false }).sort(sortOptions).skip(skip).limit(Number(limit));
 
     const totalBarbers = await Barber.countDocuments(query);
 
@@ -1000,8 +1128,9 @@ const getAllBarbersByServiceId = async (req, res) => {
   catch (error) {
     console.error(error);
     return res.status(500).json({
-       message: "Internal Server Error",
-      error: error.message });
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 }
 
@@ -1096,87 +1225,87 @@ const getBarberDetailsByEmail = async (req, res) => {
 //Send Email Verification code
 const sendVerificationCodeForBarberEmail = async (req, res) => {
   try {
-      const { email } = req.body;
+    const { email } = req.body;
 
-      const user = await Barber.findOne({ email });
-      if (!user) {
-          return res.status(404).json({
-              success: false,
-              response: "User with this email does not exist. Please register first",
-          });
-      }
+    const user = await Barber.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        response: "User with this email does not exist. Please register first",
+      });
+    }
 
-      const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-      const emailData = {
-          email,
-          subject: 'Verify your Email',
-          html: `
+    const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+    const emailData = {
+      email,
+      subject: 'Verify your Email',
+      html: `
           <h2>Hello ${user.name}!</h2>
           <p>Your To verify your Email please note the verification code. Your verification code is ${verificationCode}</p>
         `
-      };
+    };
 
-      user.verificationCode = verificationCode;
-      await user.save();
+    user.verificationCode = verificationCode;
+    await user.save();
 
-      try {
-          await sendPasswordResetEmail(emailData);
-      } catch (error) {
-          return res.status(500).json({
-              success: false,
-              message: 'Failed to Verify email',
-              error: error.message
-          });
-      }
-
-      return res.status(200).json({
-          success: true,
-          message: `Please check your email (${email}) for verification.`,
-          verificationCode: verificationCode
-      });
-  } catch (error) {
-      console.error('Failed to handle forget password:', error);
+    try {
+      await sendPasswordResetEmail(emailData);
+    } catch (error) {
       return res.status(500).json({
-          success: false,
-          message: 'Failed to verify your Email',
-          error: error.message
+        success: false,
+        message: 'Failed to Verify email',
+        error: error.message
       });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Please check your email (${email}) for verification.`,
+      verificationCode: verificationCode
+    });
+  } catch (error) {
+    console.error('Failed to handle forget password:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify your Email',
+      error: error.message
+    });
   }
 }
 
 //Match Verification Code and change EmailVerified Status
 const changeBarberEmailVerifiedStatus = async (req, res) => {
   try {
-      const { email, verificationCode } = req.body;
+    const { email, verificationCode } = req.body;
 
-      // FIND THE CUSTOMER 
-      const barber = await Barber.findOne({ email });
+    // FIND THE CUSTOMER 
+    const barber = await Barber.findOne({ email });
 
-      if (barber && barber.verificationCode === verificationCode) {
-          // If verification code matches, clear it from the database
-          barber.verificationCode = '';
-          barber.emailVerified = true;
-          await barber.save();
+    if (barber && barber.verificationCode === verificationCode) {
+      // If verification code matches, clear it from the database
+      barber.verificationCode = '';
+      barber.emailVerified = true;
+      await barber.save();
 
-          return res.status(200).json({
-              success: true,
-              response: barber,
-          });
-      }
-
-      // If verification code doesn't match or customer not found
-      return res.status(201).json({
-          success: false,
-          response: "Verification Code didn't match",
-          message: "Enter a valid Verification code",
+      return res.status(200).json({
+        success: true,
+        response: barber,
       });
+    }
+
+    // If verification code doesn't match or customer not found
+    return res.status(201).json({
+      success: false,
+      response: "Verification Code didn't match",
+      message: "Enter a valid Verification code",
+    });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-         success: false,
-          message: 'Failed to match Verification Code',
-          error: error.message
-      });
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to match Verification Code',
+      error: error.message
+    });
   }
 }
 
@@ -1211,10 +1340,10 @@ module.exports = {
   updateBarberProfilePic,
   deleteBarberProfilePicture,
   isBarberLogginMiddleware,
- isBarberLoggedOutMiddleware,
- sendVerificationCodeForBarberEmail,
- changeBarberEmailVerifiedStatus
- 
+  isBarberLoggedOutMiddleware,
+  sendVerificationCodeForBarberEmail,
+  changeBarberEmailVerifiedStatus
+
 }
 
 

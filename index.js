@@ -31,7 +31,7 @@ const mobileRoutes = require("./routes/MobileRoutes/MobileRoutes.js")
 
 const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
 
-// const notifications =  require("./routes/Notifications/notificationRoutes.js")
+const notifications =  require("./routes/Notifications/notificationRoutes.js")
 
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
@@ -169,36 +169,36 @@ app.use("/api/mobileRoutes", mobileRoutes)
 app.use("/api/advertisement", advertisement)
 
 
-app.post('/send-notification', async (req, res) => {
-  const { title, body } = req.body;
+// app.post('/send-notification', async (req, res) => {
+//   const { title, body } = req.body;
 
-  if (!title || !body) {
-    return res.status(400).json({ error: 'Title and body are required' });
-  }
+//   if (!title || !body) {
+//     return res.status(400).json({ error: 'Title and body are required' });
+//   }
 
-  try {
-    const users = await Customer.find();
-    const registrationTokens = users.map((user) => user.fcmToken);
+//   try {
+//     const users = await Customer.find();
+//     const registrationTokens = users.map((user) => user.fcmToken);
 
-    const message = {
-      notification: {
-        title,
-        body,
-      },
-      tokens: registrationTokens, // Pass tokens as an array
-    };
+//     const message = {
+//       notification: {
+//         title,
+//         body,
+//       },
+//       tokens: registrationTokens, // Pass tokens as an array
+//     };
 
-    const response = await admin.messaging().sendMulticast(message);
-    console.log('Notification sent:', response);
-    res.status(200).json({ message: 'Notification sent successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+//     const response = await admin.messaging().sendMulticast(message);
+//     console.log('Notification sent:', response);
+//     res.status(200).json({ message: 'Notification sent successfully' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 
-// app.use("/api/notifications", notifications)
+app.use("/api/notifications", notifications)
 
 const PORT = 8080;
 

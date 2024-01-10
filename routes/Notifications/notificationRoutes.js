@@ -1,13 +1,13 @@
-// const express = require("express");
-// const { registerFcmToken, sendNotification } = require("../../controllers/notifications/notificationController");
+const express = require("express");
+const { registerFcmToken, sendNotification, getAllNotifications } = require("../../controllers/notifications/notificationController");
 
-// const router = express.Router();
+const router = express.Router();
 
-// // Endpoint for saving FCM token
-// router.route("/register").post(registerFcmToken)
+// Endpoint for sending notifications
+router.route("/send-notification").post(sendNotification)
 
-// // Endpoint for sending notifications
-// router.route("/send-notification").post(sendNotification)
+//Get All Notifications
+router.route("/getAllNotifications").post(getAllNotifications)
 
 
-// module.exports = router 
+module.exports = router 
