@@ -74,8 +74,6 @@ const signUp = async (req, res) => {
       dateOfBirth,
       mobileNumber,
       password,
-      fcmToken,
-      deviceType,
     } = req.body;
 
     const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
@@ -104,21 +102,6 @@ const signUp = async (req, res) => {
       customer: true,
     });
 
-    //Saving The fcmToken
-    if (!fcmToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'FCM token is required'
-      });
-    }
-    const user = new UserTokenTable({
-      email,
-      token: [{
-        fcmToken,
-        deviceType
-      }]
-    });
-    await user.save();
 
     //Saving the Customer
     const savedCustomer = await customer.save();
@@ -128,7 +111,7 @@ const signUp = async (req, res) => {
       sendVerificationCodeByEmail(email, verificationCode);
       return res.status(200).json({
         success: true,
-        response: 'Customer and FCM token saved successfully and verification code sent successfully',
+        response: 'Customer saved successfully and verification code sent successfully',
       });
     } else {
       return res.status(400).json({
@@ -150,7 +133,7 @@ const signUp = async (req, res) => {
 //MATCH VERIFICATION CODE FOR NEW CUSTOMER
 const matchVerificationCode = async (req, res) => {
   try {
-    const { email, verificationCode } = req.body;
+    const { email, verificationCode, webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
     // FIND THE CUSTOMER 
     const customer = await Customer.findOne({ email });
@@ -159,6 +142,38 @@ const matchVerificationCode = async (req, res) => {
       // If verification code matches, clear it from the database
       customer.verificationCode = '';
       await customer.save();
+
+       // Save FCM Tokens based on the switch-case logic
+    let tokenType, tokenValue;
+    switch (true) {
+      case !!webFcmToken:
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+        break;
+      case !!androidFcmToken:
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+        break;
+      case !!iosFcmToken:
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+        break;
+      default:
+        res.status(201).json({
+          success: false,
+          message: "No valid FCM tokens present"
+        })
+        break;
+    }
+
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "customer" },
+        { upsert: true, new: true }
+      );
+    }
+
 
       return res.status(200).json({
         success: true,
@@ -219,9 +234,41 @@ const savePassword = async (req, res) => {
 //-----------SignIn Customer-------------//
 const signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
     const result = await customerService.signInCustomer(email, password);
+
+     // Save FCM Tokens based on the switch-case logic
+     let tokenType, tokenValue;
+     switch (true) {
+       case !!webFcmToken:
+         tokenType = 'webFcmToken';
+         tokenValue = webFcmToken;
+         break;
+       case !!androidFcmToken:
+         tokenType = 'androidFcmToken';
+         tokenValue = androidFcmToken;
+         break;
+       case !!iosFcmToken:
+         tokenType = 'iosFcmToken';
+         tokenValue = iosFcmToken;
+         break;
+       default:
+         res.status(201).json({
+           success: false,
+           message: "No valid FCM tokens present"
+         })
+         break;
+     }
+ 
+     if (tokenType && tokenValue) {
+       await UserTokenTable.findOneAndUpdate(
+         { email: email },
+         { [tokenType]: tokenValue, type: "customer" },
+         { new: true }
+       );
+     }
+ 
 
     res.status(result.status).json({
       success: true,
@@ -232,109 +279,9 @@ const signIn = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to sign in',
-    });
+    }); 
   }
 };
-
-// const matchVerificationCode = async (req, res) => {
-//   try {
-//     const { accessToken, verificationCode } = req.body;
-
-//     // Verify the provided access token
-//     jwt.verify(accessToken, JWT_ACCESS_SECRET, async (err, decoded) => {
-//       if (err) {
-//         return res.status(401).json({
-//           success: false,
-//           response: "Invalid or expired access token",
-//           message: "Please provide a valid access token"
-//         });
-//       }
-
-//       const customerId = decoded.customerId; // Extract customer ID from the decoded token
-
-//       // Find the customer using the extracted ID
-//       const customer = await Customer.findById(customerId);
-
-//       if (customer) {
-//         // Match the verification code
-//         if (customer.verificationCode === verificationCode) {
-//           // Clear the verification code
-//           customer.verificationCode = '';
-//           await customer.save();
-
-//           res.status(200).json({
-//             success: true,
-//             response: "Verification successful",
-//             customer
-//           });
-//         } else {
-//           res.status(400).json({
-//             success: false,
-//             response: "Verification code didn't match",
-//             message: "Please enter a valid verification code"
-//           });
-//         }
-//       } else {
-//         res.status(404).json({
-//           success: false,
-//           response: "Customer not found",
-//           message: "No customer found for provided access token"
-//         });
-//       }
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       status: 500,
-//       error: 'Failed to match Verification Code',
-//     });
-//   }
-// }
-
-
-// //DESC OF LOGIN OF THE CUSTOMER----
-// const signIn = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const user = await Customer.findOne({ email });
-//     if (!user) {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Invalid email or password',
-//       });
-//     }
-
-//     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     if (!isPasswordValid) {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Invalid email or password',
-//       });
-//     }
-
-//     const accessToken = jwt.sign({ userId: user._id, email: user.email }, JWT_ACCESS_SECRET, { expiresIn: '20s' });
-//     const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "10m" });
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Customer signed in successfully",
-//       response: {
-//         accessToken,
-//         refreshToken,
-//         user: { userId: user._id, email: user.email }
-//       },
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       success: false,
-//       error: 'Failed to sign in',
-//     });
-//   }
-// };
-
-
 
 //--------Forget Password------//
 const forgetPassword = async (req, res) => {
