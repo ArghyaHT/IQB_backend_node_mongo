@@ -679,47 +679,34 @@ const getCustomerDetails = async (req, res) => {
 //Bulk Send Email to Customers
 const sendBulkEmailToCustomers = async (req, res) => {
   try {
-    const { salonId, subject, message } = req.body;
-
-    // Fetch customer emails based on salonId
-    const customers = await Customer.find({ salonId }).select('email');
-
-    if (!customers || customers.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'No customers found for the provided salonId',
-      });
-    }
-
-    // Extract emails from customers and create an array of emails
-    const customerEmails = customers.map((customer) => customer.email);
-
-
+    const { subject, message, recipientEmails } = req.body;
 
     // Check if subject, message, and recipientEmails are present in the request body
-    if (!subject || !message || !customerEmails || !Array.isArray(customerEmails) || customerEmails.length === 0) {
+    if (!subject || !message || !recipientEmails || !Array.isArray(recipientEmails) || recipientEmails.length === 0) {
       return res.status(400).json({
         success: false,
         message: 'Please provide subject, message, and a valid array of recipientEmails in the request body.',
       });
     }
 
-    bulkEmail(subject, message, customerEmails)
+    // Call your bulk email function here passing subject, message, and recipientEmails
+    await bulkEmail(subject, message, recipientEmails);
 
     res.status(200).json({
       success: true,
-      message: "Mails have beeen sent successfully to Customers"
-    })
+      message: 'Emails have been sent successfully to customers',
+    });
 
   } catch (error) {
     // Handle errors that might occur during the operation
+    console.error(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while Sending mails to Customers",
+      message: 'An error occurred while sending emails to customers',
       error: error.message,
     });
   }
-}
+};
 
 //Upload Customer profile Picture
 const uploadCustomerprofilePic = async (req, res) => {
@@ -1036,7 +1023,7 @@ const customerDashboard = async (req, res) => {
     }
 
     // Find associated barbers using salonId
-    const barbers = await Barber.find({ salonId, isOnline: true });
+    const barbers = await Barber.find({ salonId, isOnline: true }).select("name");
     const barberCount = barbers.length;
 
     let barberWithLeastQueues = null;

@@ -94,10 +94,10 @@ const sendQueuePositionChangedEmail = (customerEmail, qPosition) => {
 
 
 //Send QueuePositionChange Email To Customer
-const bulkEmail = (subject, message, customerEmails) => {
+const bulkEmail = (subject, message, recipientEmails) => {
   const mailOptions = {
     from: 'arghyahimanstech@gmail.com', // Replace with your sender email address
-    to: customerEmails.join(', '),
+    to: recipientEmails.join(', '),
     subject: `${subject}`,
     html: `<p>${message}.</p>`
     // Customize the email content as per your requirements
