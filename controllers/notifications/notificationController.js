@@ -184,12 +184,15 @@ const multiplesendNotification = async(req, res) =>{
 
   try {
     const users = await UserTokenTable.find({ email: { $in: emails } });
-    const registrationTokens = users.reduce((tokens, user) => {
-      if (user.webFcmToken) tokens.push(user.webFcmToken);
-      if (user.androidFcmToken) tokens.push(user.androidFcmToken);
-      if (user.iosFcmToken) tokens.push(user.iosFcmToken);
-      return tokens;
-    }, []);
+    const registrationTokensSet = new Set();
+
+    for (const user of users) {
+      if (user.webFcmToken) registrationTokensSet.add(user.webFcmToken);
+      if (user.androidFcmToken) registrationTokensSet.add(user.androidFcmToken);
+      if (user.iosFcmToken) registrationTokensSet.add(user.iosFcmToken);
+    }
+
+    const registrationTokens = [...registrationTokensSet];
 
     const message = {
       notification: {
@@ -199,7 +202,7 @@ const multiplesendNotification = async(req, res) =>{
       tokens: registrationTokens, // Pass tokens as an array
     };
 
-    const response = await admin.messaging().sendMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast(message);
     console.log('Notification sent:', response);
 
     for (const user of users) {
