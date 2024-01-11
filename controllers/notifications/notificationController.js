@@ -175,6 +175,7 @@ const sendNotification = async (req, res) => {
   }
 }
 
+//Sendf multiple Tokens
 const multiplesendNotification = async(req, res) =>{
   const { title, body, emails } = req.body;
 
@@ -184,15 +185,12 @@ const multiplesendNotification = async(req, res) =>{
 
   try {
     const users = await UserTokenTable.find({ email: { $in: emails } });
-    const registrationTokensSet = new Set();
-
-    for (const user of users) {
-      if (user.webFcmToken) registrationTokensSet.add(user.webFcmToken);
-      if (user.androidFcmToken) registrationTokensSet.add(user.androidFcmToken);
-      if (user.iosFcmToken) registrationTokensSet.add(user.iosFcmToken);
-    }
-
-    const registrationTokens = [...registrationTokensSet];
+    const registrationTokens = users.reduce((tokens, user) => {
+      if (user.webFcmToken) tokens.push(user.webFcmToken);
+      if (user.androidFcmToken) tokens.push(user.androidFcmToken);
+      if (user.iosFcmToken) tokens.push(user.iosFcmToken);
+      return tokens;
+    }, []);
 
     const message = {
       notification: {
