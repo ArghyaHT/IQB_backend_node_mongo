@@ -14,7 +14,7 @@ router.route("/send-multiple-notification").post(handleProtectedRoute, multiples
 router.route("/send-notification-android").post(sendNotificationToAndroid)
 
 //Get All Notifications
-router.route("/getAllNotifications").post( getAllNotifications)
+router.route("/getAllNotifications").post(handleProtectedRoute, getAllNotifications)
 
 
 
