@@ -143,36 +143,36 @@ const matchVerificationCode = async (req, res) => {
       customer.verificationCode = '';
       await customer.save();
 
-       // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    switch (true) {
-      case !!webFcmToken:
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-        break;
-      case !!androidFcmToken:
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-        break;
-      case !!iosFcmToken:
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-        break;
-      default:
-        res.status(201).json({
-          success: false,
-          message: "No valid FCM tokens present"
-        })
-        break;
-    }
+    //    // Save FCM Tokens based on the switch-case logic
+    // let tokenType, tokenValue;
+    // switch (true) {
+    //   case !!webFcmToken:
+    //     tokenType = 'webFcmToken';
+    //     tokenValue = webFcmToken;
+    //     break;
+    //   case !!androidFcmToken:
+    //     tokenType = 'androidFcmToken';
+    //     tokenValue = androidFcmToken;
+    //     break;
+    //   case !!iosFcmToken:
+    //     tokenType = 'iosFcmToken';
+    //     tokenValue = iosFcmToken;
+    //     break;
+    //   default:
+    //     res.status(201).json({
+    //       success: false,
+    //       message: "No valid FCM tokens present"
+    //     })
+    //     break;
+    // }
 
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "customer" },
-        { upsert: true, new: true }
-      );
-    }
+    // if (tokenType && tokenValue) {
+    //   await UserTokenTable.findOneAndUpdate(
+    //     { email: email },
+    //     { [tokenType]: tokenValue, type: "customer" },
+    //     { upsert: true, new: true }
+    //   );
+    // }
 
 
       return res.status(200).json({
@@ -238,36 +238,36 @@ const signIn = async (req, res) => {
 
     const result = await customerService.signInCustomer(email, password);
 
-     // Save FCM Tokens based on the switch-case logic
-     let tokenType, tokenValue;
-     switch (true) {
-       case !!webFcmToken:
-         tokenType = 'webFcmToken';
-         tokenValue = webFcmToken;
-         break;
-       case !!androidFcmToken:
-         tokenType = 'androidFcmToken';
-         tokenValue = androidFcmToken;
-         break;
-       case !!iosFcmToken:
-         tokenType = 'iosFcmToken';
-         tokenValue = iosFcmToken;
-         break;
-       default:
-         res.status(201).json({
-           success: false,
-           message: "No valid FCM tokens present"
-         })
-         break;
-     }
+    //  // Save FCM Tokens based on the switch-case logic
+    //  let tokenType, tokenValue;
+    //  switch (true) {
+    //    case !!webFcmToken:
+    //      tokenType = 'webFcmToken';
+    //      tokenValue = webFcmToken;
+    //      break;
+    //    case !!androidFcmToken:
+    //      tokenType = 'androidFcmToken';
+    //      tokenValue = androidFcmToken;
+    //      break;
+    //    case !!iosFcmToken:
+    //      tokenType = 'iosFcmToken';
+    //      tokenValue = iosFcmToken;
+    //      break;
+    //    default:
+    //      res.status(201).json({
+    //        success: false,
+    //        message: "No valid FCM tokens present"
+    //      })
+    //      break;
+    //  }
  
-     if (tokenType && tokenValue) {
-       await UserTokenTable.findOneAndUpdate(
-         { email: email },
-         { [tokenType]: tokenValue, type: "customer" },
-         { new: true }
-       );
-     }
+    //  if (tokenType && tokenValue) {
+    //    await UserTokenTable.findOneAndUpdate(
+    //      { email: email },
+    //      { [tokenType]: tokenValue, type: "customer" },
+    //      { new: true }
+    //    );
+    //  }
  
 
     res.status(result.status).json({
