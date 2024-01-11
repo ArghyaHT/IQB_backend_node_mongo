@@ -247,10 +247,17 @@ const getAllNotifications = async (req, res) => {
         success: false,
         message: 'No notifications found for this email' });
     }
+   // Reverse the order of notifications
+  const latestnotifications = notifications.sentNotifications.reverse();
 
     res.status(200).json({
       success: true,
-      response:notifications });
+      response:{
+        _id: notifications._id,
+        email: notifications.email,
+        sentNotifications: latestnotifications
+      }
+     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ 
