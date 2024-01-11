@@ -175,6 +175,62 @@ const sendNotification = async (req, res) => {
   }
 }
 
+const multiplesendNotification = async(req, res) =>{
+  const { title, body, emails } = req.body;
+
+  if (!title || !body || !emails || !Array.isArray(emails) || emails.length === 0) {
+    return res.status(400).json({ error: 'Title, body, and valid emails array are required' });
+  }
+
+  try {
+    const users = await UserTokenTable.find({ email: { $in: emails } });
+    const registrationTokens = users.reduce((tokens, user) => {
+      if (user.webFcmToken) tokens.push(user.webFcmToken);
+      if (user.androidFcmToken) tokens.push(user.androidFcmToken);
+      if (user.iosFcmToken) tokens.push(user.iosFcmToken);
+      return tokens;
+    }, []);
+
+    const message = {
+      notification: {
+        title,
+        body,
+      },
+      tokens: registrationTokens, // Pass tokens as an array
+    };
+
+    const response = await admin.messaging().sendMulticast(message);
+    console.log('Notification sent:', response);
+
+    for (const user of users) {
+      const existingNotification = await Notification.findOne({ email: user.email });
+
+      if (existingNotification) {
+        // Email already exists, update the existing document
+        await Notification.findOneAndUpdate(
+          { email: user.email },
+          { $push: { sentNotifications: { title, body } } }
+        );
+      } else {
+        // Email doesn't exist, create a new document
+        await Notification.create({ email: user.email, sentNotifications: [{ title, body }] });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notifications sent and saved successfully'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+}
+
 const getAllNotifications = async (req, res) => {
   const { email } = req.body;
 
@@ -265,4 +321,5 @@ module.exports = {
   sendNotification,
   getAllNotifications,
   sendNotificationToAndroid,
+  multiplesendNotification
 }
