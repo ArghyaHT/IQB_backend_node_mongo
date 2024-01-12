@@ -694,6 +694,29 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
   }
 };
 
+//Served Appointment
+const barberServedAppointment = async(req, res) => {
+  try{
+    const { salonId, barberId, serviceId, _id } = req.body;
+
+    const appointments = await Appointment.findOne({salonId})
+    let updatedAppointmentList = [];
+    if(appointments && appointments.appointmentList && appointments.appointmentList.length> 0){
+      
+    }
+    
+
+  }
+  catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch appointments. Please try again.',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   createAppointment,
   editAppointment,
@@ -703,6 +726,7 @@ module.exports = {
   getAllAppointmentsBySalonId,
   getAllAppointmentsBySalonIdAndDate,
   getAllAppointmentsByBarberIdAndDate,
+  barberServedAppointment
 
 }
 

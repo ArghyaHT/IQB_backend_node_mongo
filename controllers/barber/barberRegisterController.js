@@ -669,7 +669,7 @@ const isBarberLogginMiddleware = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "User already logged in",
-      user: loggedinUser
+      user: [loggedinUser]
     })
 
   } catch (error) {
