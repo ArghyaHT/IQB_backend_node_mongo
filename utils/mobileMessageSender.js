@@ -29,8 +29,8 @@ const accountSid = process.env.TWILIO_ACC_SID ; // Your Twilio account SID
 //Function to send sms via twilio
 const sendSms = async(body) => {
   let msgOptions = {
-    from: twilioPhoneNumber,
-    to: process.env.TWILIO_TO_NO,
+    from: '+19083491303',
+    to: "+41796698395",
     body
   }
   try{

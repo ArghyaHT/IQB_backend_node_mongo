@@ -657,7 +657,7 @@ const isBarberLogginMiddleware = async (req, res) => {
     // Verify old refresh token
     const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-    const loggedinUser = await Barber.find({ email: decodeToken.user.email })
+    const loggedinUser = await Barber.findOne({ email: decodeToken.user.email })
 
     if (!decodeToken) {
       return res.status(401).json({
@@ -675,7 +675,7 @@ const isBarberLogginMiddleware = async (req, res) => {
   } catch (error) {
     return res.json({
       success: false,
-      message: error,
+      message: error.message,
     });
   }
 }
