@@ -1,4 +1,4 @@
-const BarberRating = require("../../models/barberratingModel");
+const BarberRating = require("../../models/barberRatingModel");
 
 const barberRating = async (req, res) => {
     try {
