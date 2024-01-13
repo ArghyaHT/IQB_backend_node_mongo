@@ -33,6 +33,8 @@ const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
 
 const notifications =  require("./routes/Notifications/notificationRoutes.js")
 
+const rating = require("./routes/Ratings/ratingRoutes.js")
+
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
   limit: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -78,8 +80,8 @@ const app = express()
 // }));
 
 app.use(cors({
-  // origin:"https://iqb-react-frontend.netlify.app",
-  origin: "http://localhost:5173",
+  origin:"https://iqb-react-frontend.netlify.app",
+  // origin: "http://localhost:5173",
   credentials: true
 }));
 
@@ -167,6 +169,8 @@ app.use("/api/appointments", appointments)
 app.use("/api/mobileRoutes", mobileRoutes)
 
 app.use("/api/advertisement", advertisement)
+
+app.use("/api/ratings", rating)
 
 
 // app.post('/send-notification', async (req, res) => {

@@ -1,5 +1,5 @@
 const express = require("express")
-const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue, sendQSms } = require("../../controllers/Queueing/joinQueueController")
+const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue, sendQSms, getQhistoryByCustomerEmail } = require("../../controllers/Queueing/joinQueueController")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 
 const router = express.Router()
@@ -30,6 +30,9 @@ router.route("/getQlistByBarberId").post(handleProtectedRoute, getQlistbyBarberI
 
 //Cancel Q List
 router.route("/cancelQ").post(cancelQueue)
+
+//Get Q History
+router.route("/getQhistory").post(getQhistoryByCustomerEmail)
 
 //SendSms
 router.route("/send-sms").post(sendQSms)

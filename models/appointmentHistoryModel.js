@@ -37,10 +37,13 @@ appointmentList:[{
     },
     methodUsed:{
         type: String
+    },
+    status:{
+        type: String
     }
 }]
 },{timestamps:true})
 
-const AppointmentHistory = mongoose.model('Appointment', appointmentHistorySchema);
+const AppointmentHistory = mongoose.model('AppointmentHistory', appointmentHistorySchema);
 
 module.exports = AppointmentHistory;

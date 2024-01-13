@@ -4,6 +4,7 @@ const SalonSettings = require("../../models/salonSettingsModel")
 const Admin = require("../../models/adminRegisterModel")
 const moment = require("moment");
 const { sendAppointmentsEmail } = require("../../utils/emailSender");
+const AppointmentHistory = require("../../models/appointmentHistoryModel");
 
 
 //Creating Appointment
@@ -695,27 +696,69 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
 };
 
 //Served Appointment
-const barberServedAppointment = async(req, res) => {
-  try{
-    const { salonId, barberId, serviceId, _id } = req.body;
+const barberServedAppointment = async (req, res) => {
+  try {
+    const { salonId, barberId, serviceId, _id, appointmentDate } = req.body;
 
-    const appointments = await Appointment.findOne({salonId})
-    let updatedAppointmentList = [];
-    if(appointments && appointments.appointmentList && appointments.appointmentList.length> 0){
-      
+    // Find the appointment to be served
+    const appointment = await Appointment.findOne({
+      salonId,
+      'appointmentList._id': _id,
+      'appointmentList.serviceId': serviceId,
+      'appointmentList.barberId': barberId,
+      'appointmentList.appointmentDate': appointmentDate,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
     }
-    
 
-  }
-  catch (error) {
+    // Find or create the AppointmentHistory document for the salonId
+    const historyEntry = await AppointmentHistory.findOneAndUpdate(
+      { salonId },
+      {
+        $push: {
+          appointmentList: {
+            ...appointment.appointmentList[0],
+            status: "served",
+          },
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    // Remove the served appointment from the Appointment table
+    await Appointment.updateOne(
+      { salonId },
+      {
+        $pull: {
+          'appointmentList': {
+            _id: _id,
+            serviceId: serviceId,
+            barberId: barberId,
+            appointmentDate: appointmentDate,
+          },
+        },
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment served successfully.',
+    });
+  } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch appointments. Please try again.',
-      error: error.message
+      message: 'Failed to serve appointments. Please try again.',
+      error: error.message,
     });
   }
-}
+};
+
 
 module.exports = {
   createAppointment,

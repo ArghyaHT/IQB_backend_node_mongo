@@ -17,6 +17,7 @@ const path = require("path");
 const fs = require('fs');
 const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
 const UserTokenTable = require("../../models/userTokenModel.js");
+const { getAverageBarberRating } = require("../Ratings/barberRatingController.js");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -1350,10 +1351,15 @@ const getBarberDetailsByEmail = async (req, res) => {
       });
     }
 
+    const getBarberRating = await getAverageBarberRating(barber.salonId, barber.barberId)
+
+    console.log(barber.salonId, barber.barberId)
+
     res.status(200).json({
       success: true,
       message: "Barber is Found",
       response: barber,
+      barberRating: getBarberRating
     });
   }
   catch (error) {

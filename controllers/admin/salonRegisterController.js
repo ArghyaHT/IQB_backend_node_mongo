@@ -5,6 +5,7 @@ const Barber = require("../../models/barberRegisterModel")
 
 const path = require("path");
 const fs = require('fs');
+const { getAverageRating } = require("../Ratings/salonRatingController");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -353,12 +354,15 @@ const getSalonInfo = async (req, res) => {
     // Find associated barbers using salonId
     const barbers = await Barber.find({ salonId });
 
+    const salonRating = await getAverageRating(salonId)
+
     res.status(200).json({
       success: true,
       message: 'Salon and barbers found successfully.',
       response: {
         salonInfo: salonInfo,
         barbers: barbers,
+        salonRating: salonRating
       },
     });
   } catch (error) {

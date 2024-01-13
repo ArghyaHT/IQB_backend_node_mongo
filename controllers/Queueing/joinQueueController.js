@@ -691,6 +691,40 @@ const getQlistbyBarberId = async (req, res) => {
   }
 };
 
+//Get Q history
+const getQhistoryByCustomerEmail = async (req, res) => {
+  try {
+    const { customerEmail, salonId } = req.body;
+
+    // Validate if the required fields are present in the request body
+    if (!salonId || !customerEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required parameters (salonId, customerEmail).',
+      });
+    }
+
+    const getQHistory = await JoinedQueueHistory.find({
+      salonId,
+      'queueList.customerEmail': customerEmail,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Successfully retrieved queue history.',
+      response: getQHistory,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve queue history',
+      error: error.message,
+    });
+  }
+};
+
+
 
 const sendQSms = async(req, res) => {
   try{
@@ -724,5 +758,6 @@ module.exports = {
   getBarberByMultipleServiceId,
   getQlistbyBarberId,
   cancelQueue,
-  sendQSms
+  sendQSms,
+  getQhistoryByCustomerEmail 
 }
