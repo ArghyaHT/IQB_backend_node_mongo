@@ -393,7 +393,7 @@ const isLogginMiddleware = async (req, res) => {
             });
         }
 
-        res.setHeader('Cache-Control', 'private, max-age=3600');
+        // res.setHeader('Cache-Control', 'private, max-age=3600');
 
         return res.status(200).json({
             success: true,
@@ -783,7 +783,7 @@ const getDefaultSalonByAdmin = async (req, res) => {
         else {
             const defaultSalon = await Salon.findOne({ salonId: admin.salonId })
 
-            res.setHeader('Cache-Control', 'private, max-age=3600');
+            // res.setHeader('Cache-Control', 'private, max-age=3600');
             res.status(200).json({
                 message: "Salon Found",
                 response: defaultSalon
