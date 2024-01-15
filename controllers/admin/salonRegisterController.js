@@ -602,7 +602,7 @@ const changeSalonOnlineStatus = async (req, res) => {
     if (!updatedSalon) {
       return res.status(404).json({ message: "Barber not found" });
     }
-
+    res.setHeader('Cache-Control', 'private, max-age=3600');
     return res.status(200).json(updatedSalon);
   } catch (error) {
     console.error(error);
