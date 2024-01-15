@@ -5,6 +5,9 @@ const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
 const admin = require('firebase-admin');
 
+require("dotenv").config();
+
+
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
 const registerAdmin = require("./routes/admin/adminRegisterRoutes.js")
@@ -80,8 +83,7 @@ const app = express()
 // }));
 
 app.use(cors({
-  // origin:"https://iqb-react-frontend.netlify.app",
-  origin: "http://localhost:5173",
+  origin: process.env.ALLOWED_ORIGIN,
   credentials: true
 }));
 
@@ -120,7 +122,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
-const dotenv = require("dotenv").config();
 
 console.log(process.env.CLOUDINARY_URL)
 
