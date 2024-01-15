@@ -392,8 +392,8 @@ const isLogginMiddleware = async (req, res) => {
                 message: "Invalid Access Token. UnAuthorize User",
             });
         }
-        
-        res.setHeader('Cache-Control', 'private, max-age=60');
+
+        res.setHeader('Cache-Control', 'private, max-age=3600');
 
         return res.status(200).json({
             success: true,
