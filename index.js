@@ -81,16 +81,20 @@ const app = express()
 //   },
 //   credentials: true
 // }));
-console.log(process.env.NODE_ENV)
-const result = require("dotenv").config({path: process.env.NODE_ENV === "development"? ".env.dev":".env.prod"})
 
-console.log(result)
-process.env = {
-  ...process.env,
-  ...result.parsed
-}
+
+
+// console.log(process.env.NODE_ENV)
+// const result = require("dotenv").config({path: process.env.NODE_ENV === "development"? ".env.dev":".env.prod"})
+// console.log(result)
+// process.env = {
+//   ...process.env,
+//   ...result.parsed
+// }
+
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN,
+  origin:"http://localhost:5173",
   credentials: true
 }));
 
