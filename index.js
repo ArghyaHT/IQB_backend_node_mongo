@@ -84,9 +84,9 @@ const app = express()
 
 
 
-// console.log(process.env.NODE_ENV)
-// const result = require("dotenv").config({path: process.env.NODE_ENV === "development"? ".env.dev":".env.prod"})
-// console.log(result)
+console.log(process.env.NODE_ENV)
+const result = require("dotenv").config({path: process.env.NODE_ENV == "development" ? ".env.dev":".env.prod"})
+console.log("Result", result.parsed.ALLOWED_ORIGIN)
 // process.env = {
 //   ...process.env,
 //   ...result.parsed
@@ -94,15 +94,18 @@ const app = express()
 
 
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin: result.parsed.ALLOWED_ORIGIN,
   credentials: true
 }));
+console.log("Arghyaaaa",process.env.ALLOWED_ORIGIN)
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require("./notification_push_service_key.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
+
 
 // notification_service_key.json
 
