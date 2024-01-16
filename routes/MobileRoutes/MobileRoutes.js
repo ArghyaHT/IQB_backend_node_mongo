@@ -1,6 +1,6 @@
 const express = require("express");
 const { getAllSalons, allSalonServices } = require("../../controllers/admin/salonRegisterController");
-const { singleJoinQueue, groupJoinQueue, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId } = require("../../controllers/Queueing/joinQueueController");
+const { singleJoinQueue, groupJoinQueue, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, getQueueListBySalonId } = require("../../controllers/Queueing/joinQueueController");
 const { createAppointment, editAppointment, deleteAppointment, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberId, getAllAppointmentsByBarberIdAndDate } = require("../../controllers/Appointments/appointmentsController");
 const { sendMailToCustomer, } = require("../../controllers/customer/customerRegisterController");
 const { getAllBarberbySalonId } = require("../../controllers/barber/barberRegisterController");
@@ -74,6 +74,9 @@ router.route("/getBarberByMultipleServiceId").post(getBarberByMultipleServiceId)
 
 //Get Q list by BarberId
 router.route("/getQlistByBarberId").post(getQlistbyBarberId)
+
+//Get Q list by Salon Id
+router.route("/getQlistBySalonId").get(getQueueListBySalonId)
 
 
 //Get Advertisements
