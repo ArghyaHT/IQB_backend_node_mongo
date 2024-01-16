@@ -366,6 +366,52 @@ const handleResetPassword = async (req, res, next) => {
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 
+// const isLogginMiddleware = async (req, res) => {
+//     try {
+//         const accessToken = req.cookies.accessToken;
+//         const refreshToken = req.cookies.refreshToken;
+
+//         if (!refreshToken) {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: "Refresh Token not present.Please Login Again",
+//             });
+//         }
+
+//         // Verify old refresh token
+//         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+//         const loggedinUser = await Admin.findOne({ email: decodeToken.user.email })
+
+//         // Fetch the salon details using the salonId of the logged-in admin
+//         const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
+
+//         if (!decodeToken) {
+//             return res.status(401).json({
+//                 success: false,
+//                 message: "Invalid Access Token. UnAuthorize User",
+//             });
+//         }
+
+//         // res.setHeader('Cache-Control', 'private, max-age=3600');
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "User already logged in",
+//             user: [loggedinUser]
+//         });
+
+//     } catch (error) {
+//         return res.json({
+//             success: false,
+//             message: "Problem",
+//             error: error.message
+//         });
+//     }
+// }
+
+
+
 const isLogginMiddleware = async (req, res) => {
     try {
         const accessToken = req.cookies.accessToken;
@@ -393,7 +439,26 @@ const isLogginMiddleware = async (req, res) => {
             });
         }
 
-        // res.setHeader('Cache-Control', 'private, max-age=3600');
+        res.setHeader('Cache-Control', 'no-cache');
+
+        const generateETag = (data) => {
+            const hash = crypto.createHash('sha256');
+            hash.update(JSON.stringify(data));
+            return hash.digest('hex')
+        }
+
+        const etag = generateETag(loggedinUser)
+
+        console.log("Sagnik",etag)
+
+        const clientEtag = req.get('If-None-Match');
+
+        if(clientEtag === etag){
+            return res.status(304).end();
+        }
+
+
+        res.setHeader('ETag', etag);
 
         return res.status(200).json({
             success: true,
