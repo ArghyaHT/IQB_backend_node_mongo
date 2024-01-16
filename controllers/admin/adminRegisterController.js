@@ -412,6 +412,69 @@ const handleResetPassword = async (req, res, next) => {
 
 
 
+// const isLogginMiddleware = async (req, res) => {
+//     try {
+//         const accessToken = req.cookies.accessToken;
+//         const refreshToken = req.cookies.refreshToken;
+
+//         if (!refreshToken) {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: "Refresh Token not present.Please Login Again",
+//             });
+//         }
+
+//         // Verify old refresh token
+//         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+//         const loggedinUser = await Admin.findOne({ email: decodeToken.user.email })
+
+//         // Fetch the salon details using the salonId of the logged-in admin
+//         const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
+
+//         if (!decodeToken) {
+//             return res.status(401).json({
+//                 success: false,
+//                 message: "Invalid Access Token. UnAuthorize User",
+//             });
+//         }
+
+//         res.setHeader('Cache-Control', 'no-cache');
+
+//         const generateETag = (data) => {
+//             const hash = crypto.createHash('sha256');
+//             hash.update(JSON.stringify(data));
+//             return hash.digest('hex')
+//         }
+
+//         const etag = generateETag(loggedinUser)
+
+//         console.log("Sagnik",etag)
+
+//         const clientEtag = req.get('If-None-Match');
+
+//         if(clientEtag === etag){
+//             return res.status(304).end();
+//         }
+
+
+//         res.setHeader('ETag', etag);
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "User already logged in",
+//             user: [loggedinUser]
+//         });
+
+//     } catch (error) {
+//         return res.json({
+//             success: false,
+//             message: "Problem",
+//             error: error.message
+//         });
+//     }
+// }
+
 const isLogginMiddleware = async (req, res) => {
     try {
         const accessToken = req.cookies.accessToken;
@@ -420,14 +483,14 @@ const isLogginMiddleware = async (req, res) => {
         if (!refreshToken) {
             return res.status(403).json({
                 success: false,
-                message: "Refresh Token not present.Please Login Again",
+                message: "Refresh Token not present. Please Login Again",
             });
         }
 
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email })
+        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email });
 
         // Fetch the salon details using the salonId of the logged-in admin
         const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
@@ -435,7 +498,7 @@ const isLogginMiddleware = async (req, res) => {
         if (!decodeToken) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid Access Token. UnAuthorize User",
+                message: "Invalid Access Token. Unauthorized User",
             });
         }
 
@@ -444,36 +507,36 @@ const isLogginMiddleware = async (req, res) => {
         const generateETag = (data) => {
             const hash = crypto.createHash('sha256');
             hash.update(JSON.stringify(data));
-            return hash.digest('hex')
-        }
+            return hash.digest('hex');
+        };
 
-        const etag = generateETag(loggedinUser)
+        const etag = generateETag(loggedinUser);
 
-        console.log("Sagnik",etag)
+        console.log("Sagnik", etag);
 
         const clientEtag = req.get('If-None-Match');
 
-        if(clientEtag === etag){
+        if (clientEtag === etag) {
             return res.status(304).end();
         }
-
 
         res.setHeader('ETag', etag);
 
         return res.status(200).json({
             success: true,
             message: "User already logged in",
-            user: [loggedinUser]
+            user: [loggedinUser],
         });
 
     } catch (error) {
         return res.json({
             success: false,
             message: "Problem",
-            error: error.message
+            error: error.message,
         });
     }
-}
+};
+
 
 const isLoggedOutMiddleware = async (req, res) => {
     try {
