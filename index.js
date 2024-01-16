@@ -94,7 +94,7 @@ process.env = {
 
 
 app.use(cors({
-  origin: result.parsed.ALLOWED_ORIGIN,
+  origin: "http://localhost:5173",
   credentials: true
 }));
 
