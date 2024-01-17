@@ -4,6 +4,8 @@ const SalonSettings = require("../../models/salonSettingsModel")
 const Admin = require("../../models/adminRegisterModel")
 const moment = require("moment");
 const { sendAppointmentsEmail } = require("../../utils/emailSender");
+const { getBarberbyId } = require("../../services/barber/barberRegisterService");
+const { getAppointmentbyId } = require("../../services/appointment/appointmentService");
 const AppointmentHistory = require("../../models/appointmentHistoryModel");
 
 
@@ -13,7 +15,7 @@ const createAppointment = async (req, res) => {
     const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
     // Fetch barber information
-    const barber = await Barber.findOne({ barberId: barberId });
+    const barber = getBarberbyId(barberId);
 
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
@@ -39,18 +41,18 @@ const createAppointment = async (req, res) => {
     const hours = Math.floor(totalServiceEWT / 60);
     const minutes = totalServiceEWT % 60;
 
-    const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+    // const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
 
     // Parse startTime from the request body into hours and minutes
-    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    // const [startHours, startMinutes] = startTime.split(':').map(Number);
 
     // Calculate endTime by adding formattedTime to startTime using Moment.js
     const startTimeMoment = moment(`${appointmentDate} ${startTime}`, 'YYYY-MM-DD HH:mm');
     const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
     const endTime = endTimeMoment.format('HH:mm');
 
-    const existingAppointmentList = await Appointment.findOne({ salonId });
-    const newAppointment = {
+    const existingAppointmentList = getAppointmentbyId(salonId);// make this call in appointmentService
+    const newAppointment = new Appointment({
       barberId,
       serviceId: serviceIds,
       appointmentDate,
@@ -62,7 +64,7 @@ const createAppointment = async (req, res) => {
       customerName,
       customerType,
       methodUsed,
-    };
+    });
 
     if (existingAppointmentList) {
       existingAppointmentList.appointmentList.push(newAppointment);

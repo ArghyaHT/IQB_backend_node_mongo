@@ -46,6 +46,11 @@ const insertBarberDetails = async (barberData) => {
     }
 }
 
+const getBarberbyId = async(barberId)=>{
+   const barber = await Barber.findOne({ barberId: barberId });
+   return barber;
+}
+
 //Update Barber By Email
 const updateBarberByEmail = async (barberData) => {
 
@@ -119,5 +124,6 @@ module.exports = {
     // getAllBarbersBySalonId,
     updateBarberByEmail,
     deleteBarberByEmail,
-    // addBarberServices
+    // addBarberServices,
+    getBarberbyId
 }

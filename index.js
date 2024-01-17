@@ -5,9 +5,6 @@ const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
 const admin = require('firebase-admin');
 
-require("dotenv").config();
-
-
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
 const registerAdmin = require("./routes/admin/adminRegisterRoutes.js")
@@ -37,6 +34,7 @@ const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
 const notifications =  require("./routes/Notifications/notificationRoutes.js")
 
 const rating = require("./routes/Ratings/ratingRoutes.js")
+const { ErrorHandler } = require("./middlewares/errorHandler.js")
 
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
@@ -97,6 +95,7 @@ app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
+app.use(ErrorHandler)
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require("./notification_push_service_key.json");
@@ -135,6 +134,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
+
+const dotenv = require("dotenv").config();
 
 console.log(process.env.CLOUDINARY_URL)
 
