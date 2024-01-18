@@ -59,36 +59,36 @@ const registerController = async (req, res) => {
       await user.save();
     }
 
-    // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    switch (true) {
-      case !!webFcmToken:
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-        break;
-      case !!androidFcmToken:
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-        break;
-      case !!iosFcmToken:
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-        break;
-      default:
-        res.status(201).json({
-          success: false,
-          message: "No valid FCM tokens present"
-        })
-        break;
-    }
+    // // Save FCM Tokens based on the switch-case logic
+    // let tokenType, tokenValue;
+    // switch (true) {
+    //   case !!webFcmToken:
+    //     tokenType = 'webFcmToken';
+    //     tokenValue = webFcmToken;
+    //     break;
+    //   case !!androidFcmToken:
+    //     tokenType = 'androidFcmToken';
+    //     tokenValue = androidFcmToken;
+    //     break;
+    //   case !!iosFcmToken:
+    //     tokenType = 'iosFcmToken';
+    //     tokenValue = iosFcmToken;
+    //     break;
+    //   default:
+    //     res.status(201).json({
+    //       success: false,
+    //       message: "No valid FCM tokens present"
+    //     })
+    //     break;
+    // }
 
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "barber" },
-        { upsert: true, new: true }
-      );
-    }
+    // if (tokenType && tokenValue) {
+    //   await UserTokenTable.findOneAndUpdate(
+    //     { email: email },
+    //     { [tokenType]: tokenValue, type: "barber" },
+    //     { upsert: true, new: true }
+    //   );
+    // }
 
 
     // Generate tokens
@@ -138,36 +138,36 @@ const loginController = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid Credentials" });
     }
 
-    // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    switch (true) {
-      case !!webFcmToken:
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-        break;
-      case !!androidFcmToken:
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-        break;
-      case !!iosFcmToken:
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-        break;
-      default:
-        res.status(201).json({
-          success: false,
-          message: "No valid FCM tokens present"
-        })
-        break;
-    }
+    // // Save FCM Tokens based on the switch-case logic
+    // let tokenType, tokenValue;
+    // switch (true) {
+    //   case !!webFcmToken:
+    //     tokenType = 'webFcmToken';
+    //     tokenValue = webFcmToken;
+    //     break;
+    //   case !!androidFcmToken:
+    //     tokenType = 'androidFcmToken';
+    //     tokenValue = androidFcmToken;
+    //     break;
+    //   case !!iosFcmToken:
+    //     tokenType = 'iosFcmToken';
+    //     tokenValue = iosFcmToken;
+    //     break;
+    //   default:
+    //     res.status(201).json({
+    //       success: false,
+    //       message: "No valid FCM tokens present"
+    //     })
+    //     break;
+    // }
 
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "barber" },
-        { new: true }
-      );
-    }
+    // if (tokenType && tokenValue) {
+    //   await UserTokenTable.findOneAndUpdate(
+    //     { email: email },
+    //     { [tokenType]: tokenValue, type: "barber" },
+    //     { new: true }
+    //   );
+    // }
 
     // Generate tokens
     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
@@ -649,36 +649,45 @@ const isBarberLogginMiddleware = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return res.status(403).json({
-        success: false,
-        message: "Refresh Token not present.Please Login Again",
-      });
+        return res.status(403).json({
+            success: false,
+            message: "Refresh Token not present. Please Login Again",
+        });
     }
 
     // Verify old refresh token
     const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-    const loggedinUser = await Barber.findOne({ email: decodeToken.user.email })
+    const loggedinUser = await Barber.findOne({ email: decodeToken.user.email, barber: true });
 
     if (!decodeToken) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Access Token. UnAuthorize User",
-      });
+        return res.status(401).json({
+            success: false,
+            message: "Invalid Access Token. Unauthorized User",
+        });
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "User already logged in",
-      user: [loggedinUser]
-    })
+    if (loggedinUser) {
+        return res.status(200).json({
+            success: true,
+            message: "User already logged in",
+            user: [loggedinUser]
+        });
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: "You are not a barber",
+            user: [loggedinUser]
+        });
+    }
 
-  } catch (error) {
-    return res.json({
-      success: false,
-      message: error.message,
+} catch (error) {
+    return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+        error: error.message
     });
-  }
+}
 }
 
 const isBarberLoggedOutMiddleware = async (req, res) => {

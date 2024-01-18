@@ -4,7 +4,7 @@ const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterC
 
 const router = express.Router();
 
-router.route("/createAppointment").post(handleProtectedRoute, createAppointment);
+router.route("/createAppointment").post(createAppointment);
 
 router.route("/editAppointments").put(handleProtectedRoute, editAppointment)
 

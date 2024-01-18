@@ -15,7 +15,7 @@ const createAppointment = async (req, res) => {
     const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
     // Fetch barber information
-    const barber = getBarberbyId(barberId);
+    const barber = await getBarberbyId(barberId);
 
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
@@ -51,8 +51,9 @@ const createAppointment = async (req, res) => {
     const endTimeMoment = startTimeMoment.clone().add(hours, 'hours').add(minutes, 'minutes');
     const endTime = endTimeMoment.format('HH:mm');
 
-    const existingAppointmentList = getAppointmentbyId(salonId);// make this call in appointmentService
-    const newAppointment = new Appointment({
+    const existingAppointmentList = await getAppointmentbyId(salonId);// make this call in appointmentService
+   console.log(existingAppointmentList, "appointment list")
+    const newAppointment = {
       barberId,
       serviceId: serviceIds,
       appointmentDate,
@@ -64,7 +65,7 @@ const createAppointment = async (req, res) => {
       customerName,
       customerType,
       methodUsed,
-    });
+    };
 
     if (existingAppointmentList) {
       existingAppointmentList.appointmentList.push(newAppointment);

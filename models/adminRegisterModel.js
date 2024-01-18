@@ -30,7 +30,7 @@ const adminSchema = new mongoose.Schema({
         type: String
     },
     admin: {
-        type: String,
+        type: Boolean,
         default: false
     },
     AuthType: {

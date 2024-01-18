@@ -22,7 +22,7 @@ const barberSchema = new mongoose.Schema({
         type: String
     },
     barber: {
-        type: String,
+        type: Boolean,
         default: false
     },
     AuthType: {
