@@ -383,6 +383,9 @@ const isLogginMiddleware = async (req, res) => {
 
         const loggedinUser = await Admin.findOne({ email: decodeToken.user.email});
 
+         //Fetch the salon details using the salonId of the logged-in admin
+        const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
+
         if (!decodeToken) {
             return res.status(401).json({
                 success: false,
