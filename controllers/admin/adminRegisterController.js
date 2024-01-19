@@ -366,61 +366,110 @@ const handleResetPassword = async (req, res, next) => {
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 
+// const isLogginMiddleware = async (req, res) => {
+//     try {
+//         const accessToken = req.cookies.accessToken;
+//         const refreshToken = req.cookies.refreshToken;
+
+//         if (!refreshToken) {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: "Refresh Token not present. Please Login Again",
+//             });
+//         }
+
+//         // Verify old refresh token
+//         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+//         const loggedinUser = await Admin.findOne({ email: decodeToken.user.email});
+
+//          //Fetch the salon details using the salonId of the logged-in admin
+//         const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
+
+//         if (!decodeToken) {
+//             return res.status(401).json({
+//                 success: false,
+//                 message: "Invalid Access Token. Unauthorized User",
+//             });
+//         }
+//         return res.status(200).json({
+//             success: true,
+//             message: "User already logged in",
+//             user: [loggedinUser]
+//         });
+//         // if (loggedinUser) {
+//         //     return res.status(200).json({
+//         //         success: true,
+//         //         message: "User already logged in",
+//         //         user: [loggedinUser]
+//         //     });
+//         // } else {
+//         //     return res.status(400).json({
+//         //         success: false,
+//         //         message: "You are not an admin",
+//         //         user: [loggedinUser]
+//         //     });
+//         // }
+
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: "Internal Server Error",
+//             error: error.message
+//         });
+//     }
+// }
+
 const isLogginMiddleware = async (req, res) => {
     try {
-        const accessToken = req.cookies.accessToken;
-        const refreshToken = req.cookies.refreshToken;
-
-        if (!refreshToken) {
-            return res.status(403).json({
-                success: false,
-                message: "Refresh Token not present. Please Login Again",
-            });
-        }
-
-        // Verify old refresh token
-        const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
-
-        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email});
-
-         //Fetch the salon details using the salonId of the logged-in admin
-        const loggedInSalon = await Salon.findOne({ salonId: loggedinUser.salonId });
-
-        if (!decodeToken) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid Access Token. Unauthorized User",
-            });
-        }
-        return res.status(200).json({
-            success: true,
-            message: "User already logged in",
-            user: [loggedinUser]
-        });
-        // if (loggedinUser) {
-        //     return res.status(200).json({
-        //         success: true,
-        //         message: "User already logged in",
-        //         user: [loggedinUser]
-        //     });
-        // } else {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "You are not an admin",
-        //         user: [loggedinUser]
-        //     });
-        // }
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
-}
-
-
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
+  
+      if (!refreshToken) {
+          return res.status(403).json({
+              success: false,
+              message: "Refresh Token not present. Please Login Again",
+          });
+      }
+  
+      // Verify old refresh token
+      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+  
+      const loggedinUser = await Admin.findOne({ email: decodeToken.user.email });
+  
+      if (!decodeToken) {
+          return res.status(401).json({
+              success: false,
+              message: "Invalid Access Token. Unauthorized User",
+          });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "User Admin already logged in",
+        user: [loggedinUser]
+    });
+      // if (loggedinUser) {
+      //     return res.status(200).json({
+      //         success: true,
+      //         message: "User already logged in",
+      //         user: [loggedinUser]
+      //     });
+      // } else {
+      //     return res.status(400).json({
+      //         success: false,
+      //         message: "You are not a barber",
+      //         user: [loggedinUser]
+      //     });
+      // }
+  
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message
+      });
+  }
+  }
 
 // const isLogginMiddleware = async (req, res) => {
 //     try {
