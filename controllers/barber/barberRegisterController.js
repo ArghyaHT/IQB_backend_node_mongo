@@ -666,11 +666,18 @@ const isBarberLogginMiddleware = async (req, res) => {
             message: "Invalid Access Token. Unauthorized User",
         });
     }
-    return res.status(200).json({
-      success: true,
-      message: "User already logged in",
-      user: [loggedinUser]
-  });
+    if (loggedinUser === null) {
+      return res.status(400).json({
+         success: false,
+         message: "You are not a Barber Logged in Error",
+         user: [loggedinUser]
+     });
+ }
+     return res.status(200).json({
+         success: true,
+         message: "User Barber already logged in",
+         user: [loggedinUser]
+     });
     // if (loggedinUser) {
     //     return res.status(200).json({
     //         success: true,
