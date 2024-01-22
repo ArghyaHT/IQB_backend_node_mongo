@@ -31,7 +31,7 @@ const mobileRoutes = require("./routes/MobileRoutes/MobileRoutes.js")
 
 const advertisement = require("./routes/Dashboard/advertisementRoutes.js")
 
-const notifications =  require("./routes/Notifications/notificationRoutes.js")
+const notifications = require("./routes/Notifications/notificationRoutes.js")
 
 const rating = require("./routes/Ratings/ratingRoutes.js")
 const { ErrorHandler } = require("./middlewares/errorHandler.js")
@@ -83,7 +83,7 @@ const app = express()
 
 
 console.log(process.env.NODE_ENV)
-const result = require("dotenv").config({path: process.env.NODE_ENV == "development" ? ".env.dev":".env.prod"})
+const result = require("dotenv").config({ path: process.env.NODE_ENV == "development" ? ".env.dev" : ".env.prod" })
 console.log("Result", result.parsed.ALLOWED_ORIGIN)
 process.env = {
   ...process.env,
@@ -92,7 +92,7 @@ process.env = {
 
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://iqb-react-frontend.netlify.app",
   credentials: true
 }));
 
