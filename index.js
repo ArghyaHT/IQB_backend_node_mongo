@@ -62,23 +62,23 @@ connectDB()
 
 const app = express()
 
-// const allowedOrigins = [
-//   "https://iqb-react-frontend.netlify.app",
-//   "http://localhost:5173"
-// ];
+const allowedOrigins = [
+  "https://iqb-react-frontend.netlify.app",
+  // "http://localhost:5173"
+];
 
 // //Use Multiple Cors
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     // Check if the origin is in the allowed origins list or if it's undefined (like in case of same-origin requests)
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true); // Allow the request
-//     } else {
-//       callback(new Error("Not allowed by CORS")); // Deny the request
-//     }
-//   },
-//   credentials: true
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Check if the origin is in the allowed origins list or if it's undefined (like in case of same-origin requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Deny the request
+    }
+  },
+  credentials: true
+}));
 
 
 
@@ -91,10 +91,10 @@ process.env = {
 }
 
 
-app.use(cors({
-  origin: "https://iqb-react-frontend.netlify.app",
-  credentials: true
-}));
+// app.use(cors({
+//   origin: "https://iqb-react-frontend.netlify.app",
+//   credentials: true
+// }));
 
 
 // Initialize Firebase Admin SDK
