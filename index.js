@@ -95,7 +95,7 @@ app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
-app.use(ErrorHandler)
+
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require("./notification_push_service_key.json");
@@ -218,7 +218,7 @@ app.use("/api/ratings", rating)
 
 
 app.use("/api/notifications", notifications)
-
+app.use(ErrorHandler)
 const PORT = 8080;
 
 app.listen(PORT, () => {

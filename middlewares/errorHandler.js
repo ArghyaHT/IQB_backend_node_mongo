@@ -5,7 +5,7 @@ exports.ErrorHandler = (err, req, res, next) => {
     res.status(errStatus).json({
         success: false,
         status: errStatus,
-        message: errMsg,
+        message: errMsg ,
         stack: process.env.NODE_ENV === 'development' ? err.stack : {}
     })
 }
