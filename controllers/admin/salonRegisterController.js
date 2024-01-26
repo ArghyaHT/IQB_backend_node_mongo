@@ -514,8 +514,7 @@ const searchSalonsByNameAndCity = async (req, res) => {
     const getAllSalons = await Salon.find(query).sort(sortOptions).limit(Number(limit));
     res.status(200).json({
       success: true,
-      message: "All Salons fetched successfully",
-      getAllSalons,
+      response: getAllSalons,
     })
   } catch (error) {
     console.log(error.message)
