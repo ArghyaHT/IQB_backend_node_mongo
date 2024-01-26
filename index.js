@@ -64,7 +64,7 @@ const app = express()
 
 const allowedOrigins = [
   "https://iqb-react-frontend.netlify.app",
-  // "http://localhost:5173"
+  "http://localhost:5173"
 ];
 
 // //Use Multiple Cors
