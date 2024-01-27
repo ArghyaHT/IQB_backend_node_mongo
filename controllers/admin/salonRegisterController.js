@@ -281,7 +281,191 @@ const deleteSalonImages = async (req, res) => {
   }
 }
 
+const uploadSalonLogo = async (req, res) => {
+  try {
+    const salonLogo = req.files.salonLogo;
+    const salonId = req.body.salonId;
 
+    // Ensure that salonLogo is an array, even for single uploads
+    const salonLogos = Array.isArray(salonLogo) ? salonLogo : [salonLogo];
+
+    const uploadPromises = salonLogos.map((logo) => {
+      return new Promise((resolve, reject) => {
+        const public_id = `${logo.name.split(".")[0]}`;
+
+        cloudinary.uploader.upload(logo.tempFilePath, {
+          public_id: public_id,
+          folder: "salons",
+        })
+          .then((image) => {
+            resolve({
+              public_id: image.public_id,
+              url: image.secure_url, // Store the URL
+            });
+          })
+          .catch((err) => {
+            reject(err);
+          })
+          .finally(() => {
+            // Delete the temporary file after uploading
+            fs.unlink(logo.tempFilePath, (unlinkError) => {
+              if (unlinkError) {
+                console.error('Failed to delete temporary file:', unlinkError);
+              }
+            });
+          });
+      });
+    });
+
+    const salonLogosUploaded = await Promise.all(uploadPromises);
+
+    const salon = await Salon.findOneAndUpdate(
+      { salonId }, { salonLogo: salonLogosUploaded }, { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Salon Logo Uploaded successfully",
+      salon
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const updateSalonLogo = async (req, res) => {
+  try {
+    const id = req.body.id;
+    const salonId = req.body.salonId;
+
+    const salonLogoInfo = await Salon.findOne({ "salonLogo._id": id }, { "salonLogo.$": 1 });
+
+    const public_imgid = req.body.public_imgid;
+    const salonLogo = req.files.salonLogo;
+
+    // Validate Image
+    const fileSize = salonLogo.size / 1000;
+    const fileExt = salonLogo.name.split(".")[1];
+
+    if (fileSize > 1000) {
+      return res.status(400).json({ message: "File size must be lower than 1000kb" });
+    }
+
+    if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
+      return res.status(400).json({ message: "File extension must be jpg or png" });
+    }
+
+    // Generate a unique public_id based on the original file name
+    const public_id = `${salonLogo.name.split(".")[0]}`;
+
+    const image = await cloudinary.uploader.upload(salonLogo.tempFilePath, {
+      public_id: public_id,
+      folder: "salons",
+    });
+
+    const result = await cloudinary.uploader.destroy(public_imgid);
+
+    if (result.result === 'ok') {
+      console.log("Cloud image deleted");
+    } else {
+      return res.status(500).json({ message: 'Failed to delete image.' });
+    }
+
+    // Delete the temporary file after uploading to Cloudinary
+    fs.unlink(salonLogo.tempFilePath, (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+
+    const updatedSalon = await Salon.findOneAndUpdate(
+      { salonId, "salonLogo._id": id },
+      {
+        $set: {
+          'salonLogo.$.public_id': image.public_id,
+          'salonLogo.$.url': image.secure_url
+        }
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "File Updated successfully",
+      updatedSalon
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+};
+
+const getSalonLogo = async (req, res) => {
+  try {
+    const salonId = req.body.salonId; // Assuming you pass salonId as a route parameter
+
+    // Find the salon in the database
+    const salon = await Salon.findOne({ salonId }).select("salonLogo");
+
+    if (!salon || !salon.salonLogo) {
+      return res.status(404).json({ success: false, message: 'Salon or logo not found.' });
+    }
+
+    // Send the salon logo information in the response
+    res.status(200).json({
+      success: true,
+     message: "Salon logo retrieved",
+     response: salon
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+    });
+  }
+};
+
+const deleteSalonLogo = async (req, res) => {
+  try {
+    const salonId = req.body.salonId;
+    const public_id = req.body.public_id
+    const img_id = req.body.img_id
+
+    const result = await cloudinary.uploader.destroy(public_id);
+
+    if (result.result === 'ok') {
+      console.log("cloud img deleted")
+
+    } else {
+      res.status(500).json({ message: 'Failed to delete image.' });
+    }
+
+    const updatedSalon = await Salon.findOneAndUpdate(
+      { salonId, 'salonLogo._id': img_id },
+      { $pull: { salonLogo: { _id: img_id } } },
+      { new: true }
+    );
+
+    if (updatedSalon) {
+      res.status(200).json({
+        success: true,
+        message: "Image successfully deleted"
+      })
+    } else {
+      res.status(404).json({ message: 'Image not found in the student profile' });
+    }
+
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
 
 const addServices = async (req, res) => {
   try {
@@ -632,5 +816,9 @@ module.exports = {
   deleteSalonImages,
   uploadMoreProfileImages,
   getAllSalons,
-  changeSalonOnlineStatus
+  changeSalonOnlineStatus,
+  uploadSalonLogo,
+  updateSalonLogo,
+  getSalonLogo,
+  deleteSalonLogo
 }

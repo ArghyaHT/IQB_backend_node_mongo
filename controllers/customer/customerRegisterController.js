@@ -1008,7 +1008,7 @@ const customerDashboard = async (req, res) => {
   const { salonId } = req.body;
   try {
     // Find salon information by salonId
-    const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline");
+  const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline salonName salonLogo");
 
     if (!salonInfo) {
       res.status(404).json({
@@ -1018,16 +1018,23 @@ const customerDashboard = async (req, res) => {
     }
 
     // Find associated barbers using salonId
-    const barbers = await Barber.find({ salonId, isOnline: true }).select("name");
+    const barbers = await Barber.find({ salonId, isOnline: true }).select("name queueCount barberEWT");
     const barberCount = barbers.length;
 
     let barberWithLeastQueues = null;
     let minQueueCount = Number.MAX_VALUE;
 
+    let barberWithLeastEWT = null;
+    let minEWt = Number.MAX_VALUE;
+
     barbers.forEach(barber => {
       if (barber.queueCount < minQueueCount) {
         minQueueCount = barber.queueCount;
-        barberWithLeastQueues = barber._id;
+        barberWithLeastQueues = barber;
+      }
+      if(barber.barberEWT < minEWt){
+        minEWt = barber.barberEWT;
+        barberWithLeastEWT = barber;
       }
     });
 
@@ -1050,7 +1057,8 @@ const customerDashboard = async (req, res) => {
         barbers: barbers,
         barberOnDuty: barberCount,
         totalQueueCount: totalQueueCount,
-        leastQueueCount: minQueueCount
+        leastQueueCount: minQueueCount,
+        leastBarberEWT: minEWt
       },
     });
   } catch (error) {
