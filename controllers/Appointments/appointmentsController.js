@@ -12,7 +12,7 @@ const AppointmentHistory = require("../../models/appointmentHistoryModel");
 //Creating Appointment
 const createAppointment = async (req, res, next) => {
   try {
-    const { salonId, barberIdj, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
+    const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
     // Fetch barber information
     const barber = await getBarberbyId(barberId);
@@ -170,11 +170,6 @@ const createAppointment = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     next(error);
-    // res.status(500).json({
-    //   success: false,
-    //   message: 'Your appointment is not done. Please Try Again',
-    //   error: error.message,
-    // });
   }
 };
 

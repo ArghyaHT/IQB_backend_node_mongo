@@ -896,7 +896,6 @@ const deleteCustomerProfilePicture = async (req, res) => {
   }
 }
 
-
 // Get All Appointments by Customers
 const getAllAppointmentsByCustomer = async (req, res) => {
   try {
@@ -971,10 +970,6 @@ const getAllSalonsByCustomer = async (req, res) => {
     });
   }
 }
-
-
-
-
 
 //Change Salon Id of Customer
 const changeDefaultSalonIdOfCustomer = async (req, res) => {
