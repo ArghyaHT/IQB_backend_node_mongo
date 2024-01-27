@@ -1057,7 +1057,7 @@ const customerDashboard = async (req, res) => {
         barbers: barbers,
         barberOnDuty: barberCount,
         totalQueueCount: totalQueueCount,
-        nextInQueue: minQueueCount,
+        leastQueueCount: minQueueCount,
         leastBarberEWT: minEWt
       },
     });
