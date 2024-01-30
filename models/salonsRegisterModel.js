@@ -69,7 +69,7 @@ const salonsSchema = new mongoose.Schema({
         type: String,
 
     },
-    twitterlink: {
+    twitterLink: {
         type: String,
     },
     instraLink: {
