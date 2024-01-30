@@ -89,6 +89,14 @@ const barberSchema = new mongoose.Schema({
         serviceName: {
             type: String
         },
+        serviceIcon: {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }, 
         servicePrice:{
             type: Number
         },
@@ -113,6 +121,9 @@ const barberSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    barberExp: {
+        type: Number,
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date

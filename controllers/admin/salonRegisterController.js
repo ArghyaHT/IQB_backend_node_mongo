@@ -40,24 +40,24 @@ const createSalonByAdmin = async (req, res) => {
 };
 
 //Upload Salon Images
-const uploadProfile = async (req, res) => {
+const uploadSalonGallery = async (req, res) => {
   try {
-    let profiles = req.files.profile;
+    let galleries = req.files.gallery;
     let salonId = req.body.salonId
 
-    // Ensure that profiles is an array, even for single uploads
-    if (!Array.isArray(profiles)) {
-      profiles = [profiles];
+    // Ensure that galleries is an array, even for single uploads
+    if (!Array.isArray(galleries)) {
+      galleries = [galleries];
     }
 
     const uploadPromises = [];
 
-    for (const profile of profiles) {
+    for (const gallery of galleries) {
       uploadPromises.push(
         new Promise((resolve, reject) => {
-          const public_id = `${profile.name.split(".")[0]}`;
+          const public_id = `${gallery.name.split(".")[0]}`;
 
-          cloudinary.uploader.upload(profile.tempFilePath, {
+          cloudinary.uploader.upload(gallery.tempFilePath, {
             public_id: public_id,
             folder: "students",
           })
@@ -72,7 +72,7 @@ const uploadProfile = async (req, res) => {
             })
             .finally(() => {
               // Delete the temporary file after uploading
-              fs.unlink(profile.tempFilePath, (unlinkError) => {
+              fs.unlink(gallery.tempFilePath, (unlinkError) => {
                 if (unlinkError) {
                   console.error('Failed to delete temporary file:', unlinkError);
                 }
@@ -83,11 +83,11 @@ const uploadProfile = async (req, res) => {
     }
 
     Promise.all(uploadPromises)
-      .then(async (profileimg) => {
-        console.log(profileimg);
+      .then(async (galleryimg) => {
+        console.log(galleryimg);
 
         const salon = await Salon.findOneAndUpdate(
-          { salonId }, { profile: profileimg }, { new: true });
+          { salonId }, { gallery: galleryimg }, { new: true });
 
         res.status(200).json({
           success: true,
@@ -105,21 +105,21 @@ const uploadProfile = async (req, res) => {
   }
 }
 
-const uploadMoreProfileImages = async (req, res) => {
+const uploadMoreSalonGalleryImages = async (req, res) => {
   try {
-    let profiles = req.files.profile;
+    let galleries = req.files.gallery;
     let salonId = req.body.salonId;
 
     // Ensure that profiles is an array, even for single uploads
-    if (!Array.isArray(profiles)) {
-      profiles = [profiles];
+    if (!Array.isArray(galleries)) {
+      galleries = [galleries];
     }
 
-    const uploadPromises = profiles.map(profile => {
+    const uploadPromises = galleries.map(gallery => {
       return new Promise((resolve, reject) => {
-        const public_id = `${profile.name.split(".")[0]}`;
+        const public_id = `${gallery.name.split(".")[0]}`;
 
-        cloudinary.uploader.upload(profile.tempFilePath, {
+        cloudinary.uploader.upload(gallery.tempFilePath, {
           public_id: public_id,
           folder: "students",
         })
@@ -133,7 +133,7 @@ const uploadMoreProfileImages = async (req, res) => {
             reject(err);
           })
           .finally(() => {
-            fs.unlink(profile.tempFilePath, (unlinkError) => {
+            fs.unlink(gallery.tempFilePath, (unlinkError) => {
               if (unlinkError) {
                 console.error('Failed to delete temporary file:', unlinkError);
               }
@@ -146,7 +146,7 @@ const uploadMoreProfileImages = async (req, res) => {
 
     const updatedSalon = await Salon.findOneAndUpdate(
       { salonId },
-      { $push: { profile: { $each: uploadedImages } } },
+      { $push: { gallery: { $each: uploadedImages } } },
       { new: true }
     );
 
@@ -174,14 +174,14 @@ const updateSalonImages = async (req, res) => {
   try {
     const id = req.body.id;
 
-    const salonProfile = await Salon.findOne({ "profile._id": id }, { "profile.$": 1 })
+    const salonProfile = await Salon.findOne({ "gallery._id": id }, { "gallery.$": 1 })
 
     const public_imgid = req.body.public_imgid;
-    const profile = req.files.profile;
+    const gallery = req.files.gallery;
 
     // Validate Image
-    const fileSize = profile.size / 1000;
-    const fileExt = profile.name.split(".")[1];
+    const fileSize = gallery.size / 1000;
+    const fileExt = gallery.name.split(".")[1];
 
     if (fileSize > 500) {
       return res.status(400).json({ message: "File size must be lower than 500kb" });
@@ -192,9 +192,9 @@ const updateSalonImages = async (req, res) => {
     }
 
     // Generate a unique public_id based on the original file name
-    const public_id = `${profile.name.split(".")[0]}`;
+    const public_id = `${gallery.name.split(".")[0]}`;
 
-    cloudinary.uploader.upload(profile.tempFilePath, {
+    cloudinary.uploader.upload(gallery.tempFilePath, {
       public_id: public_id,
       folder: "students",
     })
@@ -210,18 +210,18 @@ const updateSalonImages = async (req, res) => {
         }
 
         // Delete the temporary file after uploading to Cloudinary
-        fs.unlink(profile.tempFilePath, (err) => {
+        fs.unlink(gallery.tempFilePath, (err) => {
           if (err) {
             console.error(err);
           }
         });
 
         const updatedSalon = await Salon.findOneAndUpdate(
-          { "profile._id": id },
+          { "gallery._id": id },
           {
             $set: {
-              'profile.$.public_id': image.public_id,
-              'profile.$.url': image.url
+              'gallery.$.public_id': image.public_id,
+              'gallery.$.url': image.url
             }
           },
           { new: true }
@@ -261,8 +261,8 @@ const deleteSalonImages = async (req, res) => {
     }
 
     const updatedSalon = await Salon.findOneAndUpdate(
-      { 'profile._id': img_id },
-      { $pull: { profile: { _id: img_id } } },
+      { 'gallery._id': img_id },
+      { $pull: { gallery: { _id: img_id } } },
       { new: true }
     );
 
@@ -278,6 +278,34 @@ const deleteSalonImages = async (req, res) => {
   } catch (error) {
     console.error('Error deleting image:', error);
     res.status(500).json({ message: 'Internal server error.' });
+  }
+}
+
+const getSalonImages = async(req, res) => {
+  try {
+    const { salonId } = req.body;
+
+    // Find SalonSettings by salonId and retrieve only the advertisements field
+    const salongallery = await Salon.findOne({ salonId }).select('gallery');
+
+    if (!salongallery) {
+      return res.status(404).json({ message: "Salon not found" });
+    }
+    // Sort advertisements array in descending order
+    const sortedSalonGallery = salongallery.gallery.reverse();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Salon images retrieved successfully',
+      response: sortedSalonGallery
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 }
 
@@ -797,7 +825,6 @@ const changeSalonOnlineStatus = async (req, res) => {
 }
 
 
-
 module.exports = {
   createSalonByAdmin,
   // searchSalonsByCity,
@@ -811,14 +838,15 @@ module.exports = {
   getAllSalonsByAdmin,
   searchSalonsByNameAndCity,
   deleteSalon,
-  uploadProfile,
+  uploadSalonGallery,
+  getSalonImages,
   updateSalonImages,
   deleteSalonImages,
-  uploadMoreProfileImages,
+  uploadMoreSalonGalleryImages,
   getAllSalons,
   changeSalonOnlineStatus,
   uploadSalonLogo,
   updateSalonLogo,
   getSalonLogo,
-  deleteSalonLogo
+  deleteSalonLogo,
 }

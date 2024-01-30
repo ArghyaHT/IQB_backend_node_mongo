@@ -1378,8 +1378,10 @@ const getBarberDetailsByEmail = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Barber is Found",
-      response: barber,
-      barberRating: getBarberRating
+      response: {
+        ...barber.toObject(), // Convert Mongoose document to plain JavaScript object
+        barberRating: getBarberRating,
+      },
     });
   }
   catch (error) {

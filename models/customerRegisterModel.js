@@ -12,6 +12,9 @@ const customerSchema = new mongoose.Schema({
     connectedSalon: [{
         type: Number
     }],
+    favoriteSalons: [{
+        type: Number
+    }],
     customerId: {
         type: Number
     },

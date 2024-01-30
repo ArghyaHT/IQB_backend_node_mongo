@@ -143,36 +143,36 @@ const matchVerificationCode = async (req, res) => {
       customer.verificationCode = '';
       await customer.save();
 
-    //    // Save FCM Tokens based on the switch-case logic
-    // let tokenType, tokenValue;
-    // switch (true) {
-    //   case !!webFcmToken:
-    //     tokenType = 'webFcmToken';
-    //     tokenValue = webFcmToken;
-    //     break;
-    //   case !!androidFcmToken:
-    //     tokenType = 'androidFcmToken';
-    //     tokenValue = androidFcmToken;
-    //     break;
-    //   case !!iosFcmToken:
-    //     tokenType = 'iosFcmToken';
-    //     tokenValue = iosFcmToken;
-    //     break;
-    //   default:
-    //     res.status(201).json({
-    //       success: false,
-    //       message: "No valid FCM tokens present"
-    //     })
-    //     break;
-    // }
+      //    // Save FCM Tokens based on the switch-case logic
+      // let tokenType, tokenValue;
+      // switch (true) {
+      //   case !!webFcmToken:
+      //     tokenType = 'webFcmToken';
+      //     tokenValue = webFcmToken;
+      //     break;
+      //   case !!androidFcmToken:
+      //     tokenType = 'androidFcmToken';
+      //     tokenValue = androidFcmToken;
+      //     break;
+      //   case !!iosFcmToken:
+      //     tokenType = 'iosFcmToken';
+      //     tokenValue = iosFcmToken;
+      //     break;
+      //   default:
+      //     res.status(201).json({
+      //       success: false,
+      //       message: "No valid FCM tokens present"
+      //     })
+      //     break;
+      // }
 
-    // if (tokenType && tokenValue) {
-    //   await UserTokenTable.findOneAndUpdate(
-    //     { email: email },
-    //     { [tokenType]: tokenValue, type: "customer" },
-    //     { upsert: true, new: true }
-    //   );
-    // }
+      // if (tokenType && tokenValue) {
+      //   await UserTokenTable.findOneAndUpdate(
+      //     { email: email },
+      //     { [tokenType]: tokenValue, type: "customer" },
+      //     { upsert: true, new: true }
+      //   );
+      // }
 
 
       return res.status(200).json({
@@ -260,7 +260,7 @@ const signIn = async (req, res) => {
     //      })
     //      break;
     //  }
- 
+
     //  if (tokenType && tokenValue) {
     //    await UserTokenTable.findOneAndUpdate(
     //      { email: email },
@@ -268,7 +268,7 @@ const signIn = async (req, res) => {
     //      { new: true }
     //    );
     //  }
- 
+
 
     res.status(result.status).json({
       success: true,
@@ -279,7 +279,7 @@ const signIn = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to sign in',
-    }); 
+    });
   }
 };
 
@@ -960,7 +960,7 @@ const getAllSalonsByCustomer = async (req, res) => {
 
     res.status(200).json({
       message: 'Salons retrieved successfully',
-      salons: salons,
+      response: salons,
     });
   } catch (error) {
     console.error(error);
@@ -1008,7 +1008,7 @@ const customerDashboard = async (req, res) => {
   const { salonId } = req.body;
   try {
     // Find salon information by salonId
-  const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline salonName salonLogo");
+    const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline salonName salonLogo");
 
     if (!salonInfo) {
       res.status(404).json({
@@ -1032,7 +1032,7 @@ const customerDashboard = async (req, res) => {
         minQueueCount = barber.queueCount;
         barberWithLeastQueues = barber;
       }
-      if(barber.barberEWT < minEWt){
+      if (barber.barberEWT < minEWt) {
         minEWt = barber.barberEWT;
         barberWithLeastEWT = barber;
       }
@@ -1070,6 +1070,132 @@ const customerDashboard = async (req, res) => {
   }
 }
 
+const customerFavoriteSalon = async (req, res) => {
+  try {
+    const { email, salonId } = req.body;
+
+    // Find the Customer by emailId
+    const customer = await Customer.findOne({ email });
+
+    // If customer is not found
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    // Check if the salonId is already present in the connectedSalon array
+    const salonExists = customer.favoriteSalons.includes(salonId);
+
+    if (!salonExists) {
+      // If salonId is not present, push it into the connectedSalon array
+      customer.favoriteSalons.push(salonId);
+
+      // Save the changes
+      await customer.save();
+      res.status(200).json({
+        success: true,
+        message: "Your favourite salon is added successfully",
+        response: customer,
+      });
+    }
+    else{
+      res.status(200).json({
+        success: true,
+        message: "Your favourite salon is already added",
+      });
+    }
+
+  } catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while connecting customer to the salon",
+      error: error.message,
+    });
+  }
+}
+
+const getAllCustomerFavoriteSalons = async(req, res) => {
+  try {
+    const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
+
+    // Find the admin based on the email
+    const customer = await Customer.findOne({ email: customerEmail });
+
+    if (!customer) {
+      return res.status(404).json({
+        message: 'Customer not found',
+      });
+    }
+
+    // Fetch all salons associated with the admin from registeredSalons array
+    const salons = await Salon.find({
+      salonId: { $in: customer.favoriteSalons },
+      isDeleted: false,
+    }).select("salonName");
+
+    res.status(200).json({
+      message: 'Salons retrieved successfully',
+      response: salons,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Failed to retrieve salons',
+      error: error.message,
+    });
+  }
+}
+
+const deleteCustomerFavoriteSalon = async (req, res) => {
+  try {
+    const { email, salonId } = req.body;
+
+    // Find the Customer by emailId
+    const customer = await Customer.findOne({ email });
+
+    // If customer is not found
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    // Check if the salonId is already present in the favoriteSalons array
+    const salonExists = customer.favoriteSalons.includes(salonId);
+
+    if (!salonExists) {
+      // If salonId is not present, respond accordingly
+      res.status(200).json({
+        success: true,
+        message: "The salon is not in your favorites.",
+      });
+    } else {
+      // If salonId is present, remove it from the favoriteSalons array
+      customer.favoriteSalons.pull(salonId);
+
+      // Save the changes
+      await customer.save();
+
+      res.status(200).json({
+        success: true,
+        message: "The salon has been removed from your favorites successfully.",
+        response: customer,
+      });
+    }
+  } catch (error) {
+    // Handle errors that might occur during the operation
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating customer's favorite salons",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
@@ -1094,5 +1220,8 @@ module.exports = {
   getAllAppointmentsByCustomer,
   getAllSalonsByCustomer,
   changeDefaultSalonIdOfCustomer,
-  customerDashboard
+  customerDashboard,
+  customerFavoriteSalon,
+  getAllCustomerFavoriteSalons,
+  deleteCustomerFavoriteSalon
 }

@@ -1,5 +1,5 @@
 const express = require("express")
-const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture, getAllAppointmentsByCustomer, getAllSalonsByCustomer, changeDefaultSalonIdOfCustomer, customerDashboard,  } = require("../../controllers/customer/customerRegisterController.js")
+const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture, getAllAppointmentsByCustomer, getAllSalonsByCustomer, changeDefaultSalonIdOfCustomer, customerDashboard, customerFavoriteSalon, getAllCustomerFavoriteSalons, deleteCustomerFavoriteSalon,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
 const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
 
@@ -78,5 +78,15 @@ router.route("/changeDefaultSalonOfCustomer").post(changeDefaultSalonIdOfCustome
 
 //Customer Dashboard 
 router.route("/customerDashboard").post(customerDashboard)
+
+//Customer Favourite Salon 
+router.route("/customerFavouriteSalon").post(customerFavoriteSalon)
+
+
+//Get Customer Favourite Salon 
+router.route("/getCustomerFavouriteSalon").post(getAllCustomerFavoriteSalons)
+
+//Delete Customer Favourite Salon 
+router.route("/deleteCustomerFavouriteSalon").delete(deleteCustomerFavoriteSalon)
 
 module.exports = router

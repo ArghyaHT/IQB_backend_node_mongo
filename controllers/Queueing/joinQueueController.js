@@ -10,77 +10,158 @@ const singleJoinQueue = async (req, res) => {
   try {
     const { salonId, name, customerEmail, joinedQType,mobileNumber, methodUsed, barberName, barberId, services } = req.body;
 
-    let totalServiceEWT = 0;
-    let serviceIds = "";
-    let serviceNames = "";
+    if(barberName === "anybarber"){
+      const serviceIds = services.map(service => service.serviceId);
 
-    //Code for storing the services names and serviceIds and calculating the ServiceEWT
-    for (const service of services) {
-      totalServiceEWT += service.barberServiceEWT || service.serviceEWT;
-      if (serviceIds) {
-        serviceIds += "-";
+      let totalServiceEWT = 0;
+      let serviceIds1 = serviceIds.join('-');
+      let serviceNames = "";
+  
+      for (const service of services) {
+        totalServiceEWT += service.barberServiceEWT;
+        if (serviceNames) {
+          serviceNames += ",";
+        }
+        serviceNames += service.serviceName;
       }
-      serviceIds += service.serviceId.toString();
-      if (serviceNames) {
-        serviceNames += ",";
+      // Query barbers that are online and provide the specified service
+      const availableBarber = await Barber.findOneAndUpdate(
+        {
+          salonId: salonId,
+          isOnline: true,
+          'barberServices.serviceId': { $all: serviceIds },
+        },
+        {
+          $inc: { barberEWT: totalServiceEWT, queueCount: 1 },
+        },
+        { new: true, sort: { barberEWT: 1 } }
+      );
+  
+      // if no single barbers provide the multiple services 
+      if (!availableBarber) {
+        return res.status(400).json({
+          success: false,
+          message: 'No single barber provide the services.',
+        });
       }
-      serviceNames += service.serviceName;
+      // // Retrieve the service name from the barber's details
+      // const serviceName = availableBarber.barberServices.find(service => service.serviceId === serviceId)?.serviceName;
+  
+      //Add the customer to the existing queue or new queue for the salon
+      const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
+  
+      const newQueue = {
+        customerName: name,
+        customerEmail,
+        joinedQ: true,
+        joinedQType: joinedQType,
+        qPosition: availableBarber.queueCount,
+        dateJoinedQ: new Date(),
+        timeJoinedQ: new Date().toLocaleTimeString(),
+        methodUsed,
+        mobileNumber,
+        barberName: availableBarber.name,
+        barberId: availableBarber.barberId,
+        serviceId: serviceIds1,
+        serviceName: serviceNames,
+        serviceEWT: totalServiceEWT,
+        customerEWT: availableBarber.barberEWT - totalServiceEWT,
+      }
+  
+      if (existingQueue) {
+        existingQueue.queueList.push(newQueue);
+        await existingQueue.save();
+        res.status(200).json({
+          success: true,
+          message: "Joined Queue",
+          response: existingQueue,
+        });
+      } else {
+        const newQueueData = new SalonQueueList({
+          salonId: salonId,
+          queueList: [newQueue],
+        });
+        const savedInQueue = await newQueueData.save();
+        res.status(200).json({
+          success: true,
+          message: "Joined Queue",
+          response: savedInQueue,
+        });
+      }
     }
-    // Update the barberEWT and queueCount For the Barber
-    const updatedBarber = await Barber.findOneAndUpdate(
-      { salonId: salonId, barberId: barberId, isOnline: true },
-      { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
-      { new: true }
-    );
-
-    if (!updatedBarber) {
-      res.status(400).json({
-        success: false,
-        message: "The Barber Is not online",
-      });
-    }
-
-
-    //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
-    const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
-
-    const newQueue = {
-      customerName: name,
-      customerEmail,
-      joinedQ: true,
-      joinedQType: joinedQType,
-      qPosition: updatedBarber.queueCount,
-      dateJoinedQ: new Date(),
-      timeJoinedQ: new Date().toLocaleTimeString(),
-      methodUsed,
-      barberName,
-      mobileNumber,
-      barberId,
-      serviceId: serviceIds,
-      serviceName: serviceNames,
-      serviceEWT: totalServiceEWT,
-      customerEWT: updatedBarber.barberEWT - totalServiceEWT,
-    }
-
-    if (existingQueue) {
-      existingQueue.queueList.push(newQueue);
-      await existingQueue.save();
-      res.status(200).json({
-        success: true,
-        message: "Joined Queue",
-        response: existingQueue,
-      });
-    } else {
-      const newQueueData = new SalonQueueList({
-        salonId: salonId,
-        queueList: [newQueue],
-      });
-      const savedInQueue = await newQueueData.save();
-      res.status(200).json({
-        success: true,
-        message: "Joined Queue",
-        response: savedInQueue,
-      });
+    else{
+      let totalServiceEWT = 0;
+      let serviceIds = "";
+      let serviceNames = "";
+  
+      //Code for storing the services names and serviceIds and calculating the ServiceEWT
+      for (const service of services) {
+        totalServiceEWT += service.barberServiceEWT || service.serviceEWT;
+        if (serviceIds) {
+          serviceIds += "-";
+        }
+        serviceIds += service.serviceId.toString();
+        if (serviceNames) {
+          serviceNames += ",";
+        }
+        serviceNames += service.serviceName;
+      }
+      // Update the barberEWT and queueCount For the Barber
+      const updatedBarber = await Barber.findOneAndUpdate(
+        { salonId: salonId, barberId: barberId, isOnline: true },
+        { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
+        { new: true }
+      );
+  
+      if (!updatedBarber) {
+        res.status(400).json({
+          success: false,
+          message: "The Barber Is not online",
+        });
+      }
+  
+  
+      //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
+      const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
+  
+      const newQueue = {
+        customerName: name,
+        customerEmail,
+        joinedQ: true,
+        joinedQType: joinedQType,
+        qPosition: updatedBarber.queueCount,
+        dateJoinedQ: new Date(),
+        timeJoinedQ: new Date().toLocaleTimeString(),
+        methodUsed,
+        barberName,
+        mobileNumber,
+        barberId,
+        serviceId: serviceIds,
+        serviceName: serviceNames,
+        serviceEWT: totalServiceEWT,
+        customerEWT: updatedBarber.barberEWT - totalServiceEWT,
+      }
+  
+      if (existingQueue) {
+        existingQueue.queueList.push(newQueue);
+        await existingQueue.save();
+        res.status(200).json({
+          success: true,
+          message: "Joined Queue",
+          response: existingQueue,
+        });
+      } else {
+        const newQueueData = new SalonQueueList({
+          salonId: salonId,
+          queueList: [newQueue],
+        });
+        const savedInQueue = await newQueueData.save();
+        res.status(200).json({
+          success: true,
+          message: "Joined Queue",
+          response: savedInQueue,
+        });
+      }
     }
   }
   catch (error) {

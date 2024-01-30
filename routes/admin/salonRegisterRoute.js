@@ -1,5 +1,5 @@
 const express = require("express")
-const { salonSignUp, getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalon, uploadProfile, createSalonByAdmin, updateSalonImages, deleteSalonImages, uploadMoreProfileImages, getAllSalons, changeSalonOnlineStatus, uploadSalonLogo, getSalonLogo, deleteSalonLogo,  } = require("../../controllers/admin/salonRegisterController")
+const {  getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalonByAdmin, updateSalonImages, deleteSalonImages, getAllSalons, changeSalonOnlineStatus, uploadSalonLogo, getSalonLogo, deleteSalonLogo, uploadSalonGallery, uploadMoreSalonGalleryImages, getSalonImages, updateSalonLogo,  } = require("../../controllers/admin/salonRegisterController")
 const { handleProtectedRoute, changeDefaultSalonIdOfAdmin } = require("../../controllers/admin/adminRegisterController")
 
 
@@ -11,16 +11,18 @@ router.route("/getAllSalonsByAdminEmail").get(handleProtectedRoute,getAllSalonsB
 router.route("/createSalonByAdmin").post(handleProtectedRoute,createSalonByAdmin) //api integrated
 
 //UPLOAD SALON IMAGE
-router.route("/uploadSalonImage").post(handleProtectedRoute,uploadProfile)
+router.route("/uploadSalonImage").post(handleProtectedRoute,uploadSalonGallery)
 
 //UPLOAD MORE IMAGES TO THE EXISTING ARRAY OF IMAGES
-router.route("/uploadMoreImages").post(handleProtectedRoute, uploadMoreProfileImages)
+router.route("/uploadMoreImages").post(handleProtectedRoute, uploadMoreSalonGalleryImages)
 
 //UPDATE SALON IMAGES
 router.route("/updateSalonImages").put(handleProtectedRoute,updateSalonImages)
 
 //DELETE SALON IMAGES
-router.route("/deleteSalonImages").delete(handleProtectedRoute,deleteSalonImages)
+router.route("/deleteSalonImages").delete(handleProtectedRoute, deleteSalonImages)
+//DELETE SALON IMAGES
+router.route("/getSalonImages").post(getSalonImages)
 
 //UPDATE SALON BY ADMIN EMAIL AND SALON ID
 router.route("/updateSalonBySalonIdAndAdminEmail").put(handleProtectedRoute,updateSalonBySalonIdAndAdminEmail)
@@ -55,7 +57,7 @@ router.route("/changeSalonOnlineStatus").post(handleProtectedRoute,changeSalonOn
 router.route("/uploadSalonLogo").post(uploadSalonLogo)
 
 //Update Salon Logo
-router.route("/updateSalonLogo").put(uploadSalonLogo)
+router.route("/updateSalonLogo").put(updateSalonLogo)
 
 //Get Salon Logo
 router.route("/getSalonLogo").post(getSalonLogo)

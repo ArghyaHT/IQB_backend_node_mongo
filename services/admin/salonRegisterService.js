@@ -51,6 +51,10 @@ const createSalon = async (salonData) => {
       serviceId: `${salonId}${i + 1}`,
       serviceCode: `${s.serviceName.slice(0, 2).toUpperCase()}${salonId}${i + 1}`,
       serviceName: s.serviceName,
+      serviceIcon: {
+        public_id: s.serviceIcon.public_id,
+        url: s.serviceIcon.url,
+      },
       serviceDesc: s.serviceDesc,
       servicePrice: s.servicePrice,
       serviceEWT: s.serviceEWT

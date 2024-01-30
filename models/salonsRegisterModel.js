@@ -105,6 +105,14 @@ const salonsSchema = new mongoose.Schema({
             type: String,
             // required: true,
         },
+        serviceIcon: {
+            public_id: {
+                type: String
+            },
+            url: {
+                type: String,
+            }
+        }, 
         serviceDesc: {
             type: String,
             // required: true,
@@ -116,14 +124,6 @@ const salonsSchema = new mongoose.Schema({
         serviceEWT: {
             type: Number
         },
-        supportedBarbers: [{
-            barberId: {
-                type: Number,
-            },
-            barberEmail: {
-                type: String,
-            }
-        }]
     }],
 
     isLicensed: {
@@ -142,15 +142,7 @@ const salonsSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    registeredBarber: [{
-        barberId: {
-            type: Number,
-        },
-        barberEmail: {
-            type: String,
-        }
-    }],
-    profile: [
+    gallery: [
         {
             public_id: {
                 type: String

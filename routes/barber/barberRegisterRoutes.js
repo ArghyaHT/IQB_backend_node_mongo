@@ -46,7 +46,7 @@ router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdm
 router.route("/updateBarberByAdmin").put(handleProtectedRoute,updateBarberByAdmin)
 
 //GET BARBER DETAILS BY EMAIL
-router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,getBarberDetailsByEmail)
+router.route("/getBarberDetailsByEmail").post(getBarberDetailsByEmail)
 
 router.route("/getAllBarberBySalonId").post(handleProtectedRoute ,getAllBarberbySalonId) //api integrated
 
