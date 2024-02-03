@@ -29,7 +29,7 @@ cloudinary.config({
 
 //DESC:REGISTER A Barber 
 //====================
-const registerController = async (req, res) => {
+const registerController = async (req, res, next) => {
   try {
     const email = req.body.email
     const password = req.body.password
@@ -60,35 +60,25 @@ const registerController = async (req, res) => {
     }
 
     // // Save FCM Tokens based on the switch-case logic
-    // let tokenType, tokenValue;
-    // switch (true) {
-    //   case !!webFcmToken:
-    //     tokenType = 'webFcmToken';
-    //     tokenValue = webFcmToken;
-    //     break;
-    //   case !!androidFcmToken:
-    //     tokenType = 'androidFcmToken';
-    //     tokenValue = androidFcmToken;
-    //     break;
-    //   case !!iosFcmToken:
-    //     tokenType = 'iosFcmToken';
-    //     tokenValue = iosFcmToken;
-    //     break;
-    //   default:
-    //     res.status(201).json({
-    //       success: false,
-    //       message: "No valid FCM tokens present"
-    //     })
-    //     break;
-    // }
+    let tokenType, tokenValue;
+    if (webFcmToken) {
+      tokenType = 'webFcmToken';
+      tokenValue = webFcmToken;
+    } else if (androidFcmToken) {
+      tokenType = 'androidFcmToken';
+      tokenValue = androidFcmToken;
+    } else if (iosFcmToken) {
+      tokenType = 'iosFcmToken';
+      tokenValue = iosFcmToken;
+    }
 
-    // if (tokenType && tokenValue) {
-    //   await UserTokenTable.findOneAndUpdate(
-    //     { email: email },
-    //     { [tokenType]: tokenValue, type: "barber" },
-    //     { upsert: true, new: true }
-    //   );
-    // }
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
 
 
     // Generate tokens
@@ -115,16 +105,13 @@ const registerController = async (req, res) => {
       user
     })
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to create user",
-      error: error.message
-    })
+    console.log(error);
+    next(error);
   }
 }
 
 //DESC:LOGIN A USER =========================
-const loginController = async (req, res) => {
+const loginController = async (req, res, next) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -139,35 +126,25 @@ const loginController = async (req, res) => {
     }
 
     // // Save FCM Tokens based on the switch-case logic
-    // let tokenType, tokenValue;
-    // switch (true) {
-    //   case !!webFcmToken:
-    //     tokenType = 'webFcmToken';
-    //     tokenValue = webFcmToken;
-    //     break;
-    //   case !!androidFcmToken:
-    //     tokenType = 'androidFcmToken';
-    //     tokenValue = androidFcmToken;
-    //     break;
-    //   case !!iosFcmToken:
-    //     tokenType = 'iosFcmToken';
-    //     tokenValue = iosFcmToken;
-    //     break;
-    //   default:
-    //     res.status(201).json({
-    //       success: false,
-    //       message: "No valid FCM tokens present"
-    //     })
-    //     break;
-    // }
+    let tokenType, tokenValue;
+    if (webFcmToken) {
+      tokenType = 'webFcmToken';
+      tokenValue = webFcmToken;
+    } else if (androidFcmToken) {
+      tokenType = 'androidFcmToken';
+      tokenValue = androidFcmToken;
+    } else if (iosFcmToken) {
+      tokenType = 'iosFcmToken';
+      tokenValue = iosFcmToken;
+    }
 
-    // if (tokenType && tokenValue) {
-    //   await UserTokenTable.findOneAndUpdate(
-    //     { email: email },
-    //     { [tokenType]: tokenValue, type: "barber" },
-    //     { new: true }
-    //   );
-    // }
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
 
     // Generate tokens
     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
@@ -192,11 +169,8 @@ const loginController = async (req, res) => {
       message: "Barber signed in successfully"
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
@@ -357,7 +331,7 @@ const loginController = async (req, res) => {
 //     res.status(401).json({ success: false, message: "Invalid Credentials" })
 //   }
 // }
-const googleLoginController = async (req, res) => {
+const googleLoginController = async (req, res, next) => {
   try {
     const CLIENT_ID = process.env.CLIENT_ID;
     const token = req.body.token;
@@ -390,28 +364,18 @@ const googleLoginController = async (req, res) => {
         AuthType: "google"
       });
       await user.save();
-
       let tokenType, tokenValue;
-      switch (true) {
-        case !!webFcmToken:
-          tokenType = 'webFcmToken';
-          tokenValue = webFcmToken;
-          break;
-        case !!androidFcmToken:
-          tokenType = 'androidFcmToken';
-          tokenValue = androidFcmToken;
-          break;
-        case !!iosFcmToken:
-          tokenType = 'iosFcmToken';
-          tokenValue = iosFcmToken;
-          break;
-        default:
-          return res.status(201).json({
-            success: false,
-            message: "No valid FCM tokens present"
-          });
+      if (webFcmToken) {
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+      } else if (androidFcmToken) {
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+      } else if (iosFcmToken) {
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
       }
-
+  
       if (tokenType && tokenValue) {
         await UserTokenTable.findOneAndUpdate(
           { email: payload.email },
@@ -442,31 +406,22 @@ const googleLoginController = async (req, res) => {
       });
     } else if (user) {
       let tokenType, tokenValue;
-      switch (true) {
-        case !!webFcmToken:
-          tokenType = 'webFcmToken';
-          tokenValue = webFcmToken;
-          break;
-        case !!androidFcmToken:
-          tokenType = 'androidFcmToken';
-          tokenValue = androidFcmToken;
-          break;
-        case !!iosFcmToken:
-          tokenType = 'iosFcmToken';
-          tokenValue = iosFcmToken;
-          break;
-        default:
-          return res.status(201).json({
-            success: false,
-            message: "No valid FCM tokens present"
-          });
+      if (webFcmToken) {
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+      } else if (androidFcmToken) {
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+      } else if (iosFcmToken) {
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
       }
-
+  
       if (tokenType && tokenValue) {
         await UserTokenTable.findOneAndUpdate(
           { email: payload.email },
           { [tokenType]: tokenValue, type: "barber" },
-          { new: true }
+          { upsert: true, new: true }
         );
       }
 
@@ -494,16 +449,13 @@ const googleLoginController = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid Credentials" });
     }
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      status: 500,
-      error: 'Failed to authenticate user',
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //DESC:REFRESH TOKEN ==============================
-const refreshTokenController = async (req, res) => {
+const refreshTokenController = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -524,8 +476,9 @@ const refreshTokenController = async (req, res) => {
     });
 
     res.status(201).json({ success: true, message: "New accessToken generated" });
-  } catch (error) {
-    return res.status(401).json({ success: false, message: "Invalid refresh token." });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
@@ -539,11 +492,9 @@ const handleLogout = async (req, res, next) => {
       success: true,
       message: "Barber logged out successfully"
     })
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error
-    })
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
@@ -578,10 +529,8 @@ const handleForgetPassword = async (req, res, next) => {
     try {
       await emailWithNodeMail(emailData)
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to send reset password email'
-      })
+      console.log(error);
+      next(error);
     }
 
     res.status(200).json({
@@ -591,11 +540,9 @@ const handleForgetPassword = async (req, res, next) => {
         resetToken
       }
     })
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    })
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
@@ -633,17 +580,15 @@ const handleResetPassword = async (req, res, next) => {
     })
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    })
+    console.log(error);
+    next(error);
   }
 }
 
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 
-const isBarberLogginMiddleware = async (req, res) => {
+const isBarberLogginMiddleware = async (req, res, next) => {
   try {
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
@@ -693,15 +638,12 @@ const isBarberLogginMiddleware = async (req, res) => {
     // }
 
 } catch (error) {
-    return res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message
-    });
+  console.log(error);
+  next(error);
 }
 }
 
-const isBarberLoggedOutMiddleware = async (req, res) => {
+const isBarberLoggedOutMiddleware = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
@@ -712,11 +654,9 @@ const isBarberLoggedOutMiddleware = async (req, res) => {
         message: "Refresh Token not present.Please Login Again",
       });
     }
-  } catch (error) {
-    return res.json({
-      success: false,
-      message: error,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 // const handleProtectedRoute = async (req, res, next) => {
@@ -772,7 +712,7 @@ const profileController = async (req, res) => {
   });
 };
 
-const insertDetailsByBarber = async (req, res) => {
+const insertDetailsByBarber = async (req, res, next) => {
   try {
     const barberData = req.body;
 
@@ -787,18 +727,14 @@ const insertDetailsByBarber = async (req, res) => {
 
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create Barber',
-
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //DESC Create Barber By Admin
-const createBarberByAdmin = async (req, res) => {
+const createBarberByAdmin = async (req, res, next) => {
   try {
     const {
       email,
@@ -864,11 +800,8 @@ const createBarberByAdmin = async (req, res) => {
     try {
       await sendPasswordResetEmail(emailData);
     } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to Verify email',
-        error: error.message
-      });
+      console.log(error);
+      next(error);
     }
 
     res.status(201).json({
@@ -877,17 +810,13 @@ const createBarberByAdmin = async (req, res) => {
       response: savedBarber
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create barber',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //DESC Update BarberBy Admin
-const updateBarberByAdmin = async (req, res) => {
+const updateBarberByAdmin = async (req, res, next) => {
   try {
     const { email, name, nickName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
@@ -945,18 +874,14 @@ const updateBarberByAdmin = async (req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to Update barber',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 
 }
 
 //Upload Barber profile Picture
-const uploadBarberprofilePic = async (req, res) => {
+const uploadBarberprofilePic = async (req, res, next) => {
   try {
     let profiles = req.files.profile;
     const email = req.body.email;
@@ -983,8 +908,9 @@ const uploadBarberprofilePic = async (req, res) => {
                 url: image.secure_url, // Store the URL
               });
             })
-            .catch((err) => {
-              reject(err);
+            .catch((error) => {
+              console.log(error);
+              next(error);
             })
             .finally(() => {
               // Delete the temporary file after uploading
@@ -1010,24 +936,18 @@ const uploadBarberprofilePic = async (req, res) => {
           barberImage
         });
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({
-          message: "Cloudinary upload failed",
-          err: err.message
-        });
+      .catch((error) => {
+        console.log(error);
+        next(error);
       });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Update Barber Profile Picture
-const updateBarberProfilePic = async (req, res) => {
+const updateBarberProfilePic = async (req, res, next) => {
   try {
     const id = req.body.id;
 
@@ -1094,19 +1014,14 @@ const updateBarberProfilePic = async (req, res) => {
 
       })
 
-
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Delete Barber Profile Picture
-const deleteBarberProfilePicture = async (req, res) => {
+const deleteBarberProfilePicture = async (req, res, next) => {
   try {
     const public_id = req.body.public_id
     const img_id = req.body.img_id
@@ -1135,16 +1050,13 @@ const deleteBarberProfilePicture = async (req, res) => {
       res.status(404).json({ message: 'Image not found in the student profile' });
     }
   } catch (error) {
-    console.error('Error deleting image:', error);
-    res.status(500).json({
-      message: 'Internal server error.',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Get all barber By SalonId
-const getAllBarberbySalonId = async (req, res) => {
+const getAllBarberbySalonId = async (req, res, next) => {
   try {
     const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
     let query = {}; // Filter for isDeleted set to false
@@ -1183,16 +1095,13 @@ const getAllBarberbySalonId = async (req, res) => {
       totalBarbers,
     });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Update Barber Account Details
-const updateBarberAccountDetails = async (req, res) => {
+const updateBarberAccountDetails = async (req, res, next) => {
   const barberData = req.body;
   try {
     const result = await barberService.updateBarberByEmail(barberData)
@@ -1203,15 +1112,12 @@ const updateBarberAccountDetails = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to Update Barber'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const deleteBarber = async (req, res) => {
+const deleteBarber = async (req, res, next) => {
   const { salonId } = req.query;
   const { email } = req.body
   try {
@@ -1223,16 +1129,13 @@ const deleteBarber = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to Update Barber'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Change Barber Working Status
-const chnageBarberWorkingStatus = async (req, res) => {
+const chnageBarberWorkingStatus = async (req, res, next) => {
   try {
     const { barberId } = req.params;
     const { isActive } = req.body;
@@ -1246,14 +1149,14 @@ const chnageBarberWorkingStatus = async (req, res) => {
 
     return res.status(200).json(updatedBarber);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.log(error);
+    next(error);
   }
 
 }
 
 //To Check If The Barber Is Online 
-const isBarberOnline = async (req, res) => {
+const isBarberOnline = async (req, res, next) => {
   try {
     const { barberId, salonId, isOnline } = req.body;
 
@@ -1269,13 +1172,13 @@ const isBarberOnline = async (req, res) => {
 
     return res.status(200).json(updatedBarber);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.log(error);
+    next(error);
   }
 };
 
 //Get All Barbers By Service Id
-const getAllBarbersByServiceId = async (req, res) => {
+const getAllBarbersByServiceId = async (req, res, next) => {
   try {
     const { serviceId } = req.query;
 
@@ -1291,16 +1194,13 @@ const getAllBarbersByServiceId = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
-const getBarberServicesByBarberId = async (req, res) => {
+const getBarberServicesByBarberId = async (req, res, next) => {
   try {
     const { barberId } = req.query;
 
@@ -1318,15 +1218,15 @@ const getBarberServicesByBarberId = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.log(error);
+    next(error);
   }
 
 }
 
 
 //CONNECT BARBER TO SALON API
-const connectBarbertoSalon = async (req, res) => {
+const connectBarbertoSalon = async (req, res, next) => {
   try {
     const { email, salonId, barberServices } = req.body;
 
@@ -1347,18 +1247,14 @@ const connectBarbertoSalon = async (req, res) => {
     });
   }
   catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while connecting Barber to the salon",
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //Get BarberDetails by barberEmail
-const getBarberDetailsByEmail = async (req, res) => {
+const getBarberDetailsByEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -1385,17 +1281,13 @@ const getBarberDetailsByEmail = async (req, res) => {
     });
   }
   catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while connecting Barber to the salon",
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Send Email Verification code
-const sendVerificationCodeForBarberEmail = async (req, res) => {
+const sendVerificationCodeForBarberEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -1423,11 +1315,8 @@ const sendVerificationCodeForBarberEmail = async (req, res) => {
     try {
       await sendPasswordResetEmail(emailData);
     } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to Verify email',
-        error: error.message
-      });
+      console.log(error);
+      next(error);
     }
 
     return res.status(200).json({
@@ -1436,17 +1325,13 @@ const sendVerificationCodeForBarberEmail = async (req, res) => {
       verificationCode: verificationCode
     });
   } catch (error) {
-    console.error('Failed to handle forget password:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to verify your Email',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Match Verification Code and change EmailVerified Status
-const changeBarberEmailVerifiedStatus = async (req, res) => {
+const changeBarberEmailVerifiedStatus = async (req, res, next) => {
   try {
     const { email, verificationCode } = req.body;
 
@@ -1472,12 +1357,8 @@ const changeBarberEmailVerifiedStatus = async (req, res) => {
       message: "Enter a valid Verification code",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to match Verification Code',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 

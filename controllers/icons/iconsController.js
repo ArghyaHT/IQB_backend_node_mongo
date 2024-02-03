@@ -12,7 +12,7 @@ cloudinary.config({
 
 
 //AddAdvertisements api
-const addIcons = async (req, res) => {
+const addIcons = async (req, res, next) => {
     try {
       let icons = req.files.icons;
   
@@ -36,8 +36,9 @@ const addIcons = async (req, res) => {
                 url: image.secure_url,
               });
             })
-            .catch((err) => {
-              reject(err);
+            .catch ((error) => {
+              console.log(error);
+              next(error);
             })
             .finally(() => {
               fs.unlink(icon.tempFilePath, (unlinkError) => {
@@ -60,18 +61,14 @@ const addIcons = async (req, res) => {
         response: updatedIcons.icons,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message
-      });
+      console.log(error);
+      next(error);
     }
   };
 
 
 
-  const getAllIcons = async (req, res) => {
+  const getAllIcons = async (req, res, next) => {
     try {
       // Fetch all icons from the database
       const allIcons = await Icons.findOne({}, { icons: 1 });
@@ -88,13 +85,9 @@ const addIcons = async (req, res) => {
         message: "All icons retrieved successfully",
         response: allIcons.icons,
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    }catch (error) {
+      console.log(error);
+      next(error);
     }
   };
 

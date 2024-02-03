@@ -1,7 +1,7 @@
 const SalonSettings = require("../../models/salonSettingsModel")
 const Appointment = require("../../models/appointmentsModel")
 
-const createSalonSettings = async (req, res) => {
+const createSalonSettings = async (req, res, next) => {
     try {
         const { salonId, appointmentSettings } = req.body;
         const { startTime, endTime } = appointmentSettings;
@@ -22,12 +22,13 @@ const createSalonSettings = async (req, res) => {
             message: "Salon Settings Created",
             response: newSalonSettings
         });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to create salon settings', details: error.message });
-    }
+    }catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
-const getSalonSettings = async (req, res) => {
+const getSalonSettings = async (req, res, next) => {
     try{
         const {salonId} = req. body;
         // Find the existing SalonSettings document based on salonId
@@ -44,13 +45,12 @@ const getSalonSettings = async (req, res) => {
         });
 
     }catch (error) {
-        res.status(500).json({ 
-            response: 'Failed to update salon settings', 
-            error: error.message });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
-const updateSalonSettings = async (req, res) => {
+const updateSalonSettings = async (req, res, next) => {
     try {
         const { salonId, appointmentSettings } = req.body;
         const { startTime, endTime } = appointmentSettings;
@@ -79,10 +79,9 @@ const updateSalonSettings = async (req, res) => {
             response: existingSalonSettings
         });
     } catch (error) {
-        res.status(500).json({ 
-            response: 'Failed to update salon settings', 
-            error: error.message });
-    }
+        console.log(error);
+        next(error);
+      }
 };
 
 const deleteSalonSettings = async (req, res) => {

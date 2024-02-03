@@ -120,7 +120,7 @@ const UserTokenTable = require("../../models/userTokenModel");
 
 
 //This is for web notification 
-const sendNotification = async (req, res) => {
+const sendNotification = async (req, res, next) => {
   const { title, body } = req.body;
   if (!title || !body) {
     return res.status(400).json({ error: 'Title and body are required' });
@@ -166,17 +166,13 @@ const sendNotification = async (req, res) => {
       message: 'Bulk notifications sent and saved successfully'
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Sendf multiple Tokens
-const multiplesendNotification = async(req, res) =>{
+const multiplesendNotification = async(req, res, next) =>{
   const { title, body, emails } = req.body;
 
   if (!title || !body || !emails || !Array.isArray(emails) || emails.length === 0) {
@@ -223,16 +219,12 @@ const multiplesendNotification = async(req, res) =>{
       message: 'Notifications sent and saved successfully'
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const getAllNotifications = async (req, res) => {
+const getAllNotifications = async (req, res, next) => {
   const { email } = req.body;
 
   if (!email) {
@@ -259,16 +251,13 @@ const getAllNotifications = async (req, res) => {
       }
      });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ 
-      success:false,
-      message: 'Internal server error',
-     error: error.message});
+    console.log(error);
+    next(error);
   }
 };
 
 //Send notification to android
-const sendNotificationToAndroid = async (req, res) => {
+const sendNotificationToAndroid = async (req, res, next) => {
   const { title, body } = req.body;
 
   if (!title || !body) {
@@ -315,12 +304,8 @@ const sendNotificationToAndroid = async (req, res) => {
       message: 'Notifications sent to Android devices and saved successfully'
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 

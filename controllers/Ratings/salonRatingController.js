@@ -1,6 +1,6 @@
 const SalonRating = require("../../models/salonRatingModel");
 
-const salonRating = async (req, res) => {
+const salonRating = async (req, res, next) => {
     try {
         const { salonId, rating, email } = req.body;
 
@@ -35,13 +35,9 @@ const salonRating = async (req, res) => {
             response: salonRatingDoc,
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to add rating. Please try again.',
-            error: error.message,
-        });
-    }
+        console.log(error);
+        next(error);
+ }
 };
 
 async function getAverageRating(salonId) {

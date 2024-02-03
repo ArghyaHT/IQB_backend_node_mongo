@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 //AddAdvertisements api
-const addAdvertisements = async (req, res) => {
+const addAdvertisements = async (req, res, next) => {
   try {
     let advertisements = req.files.advertisements;
     let salonId = req.body.salonId;
@@ -70,18 +70,14 @@ const addAdvertisements = async (req, res) => {
       response: updatedSalon.advertisements,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 
 //GetAdvertisements api
-const getAdvertisements = async (req, res) => {
+const getAdvertisements = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
@@ -100,18 +96,14 @@ const getAdvertisements = async (req, res) => {
       message: 'Advertisement images retrieved successfully',
       advertisements: sortedAdvertisements
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
 //Update Advertisements
-const updateAdvertisements = async (req, res) => {
+const updateAdvertisements = async (req, res, next) => {
   try {
     const id = req.body.id;
 
@@ -175,26 +167,20 @@ const updateAdvertisements = async (req, res) => {
         });
 
       })
-      .catch((uploadError) => {
-        console.error(uploadError);
-        return res.status(500).json({
-          message: "Failed to upload image to Cloudinary",
-          error: uploadError.message
-        });
-      });
+      .catch ((error) =>  {
+        console.log(error);
+        next(error);
+      })
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //Delete Advertisements
-const deleteAdvertisements = async (req, res) => {
+const deleteAdvertisements = async (req, res, next) => {
   try {
     const public_id = req.body.public_id;
     const img_id = req.body.img_id;
@@ -221,19 +207,16 @@ const deleteAdvertisements = async (req, res) => {
     } else {
       return res.status(500).json({ message: 'Failed to delete image.' });
     }
-  } catch (error) {
-    console.error('Error deleting image:', error);
-    return res.status(500).json({
-      message: 'Internal server error.',
-      error: error.message
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 
 
 //GetDashboardQList
-const getDashboardAppointmentList = async (req, res) => {
+const getDashboardAppointmentList = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
 
@@ -311,13 +294,9 @@ const getDashboardAppointmentList = async (req, res) => {
       message: 'Appointments retrieved successfully for Dashboard',
       response: appointments
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 

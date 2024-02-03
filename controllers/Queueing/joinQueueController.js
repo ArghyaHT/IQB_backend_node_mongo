@@ -6,7 +6,7 @@ const { sendSms } = require("../../utils/mobileMessageSender");
 
 
 //Single Join queue api
-const singleJoinQueue = async (req, res) => {
+const singleJoinQueue = async (req, res, next) => {
   try {
     const { salonId, name, customerEmail, joinedQType,mobileNumber, methodUsed, barberName, barberId, services } = req.body;
 
@@ -84,18 +84,13 @@ const singleJoinQueue = async (req, res) => {
     }
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to join queue',
-      error: error.message
-
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Group Join Queue api
-const groupJoinQueue = async (req, res) => {
+const groupJoinQueue = async (req, res, next) => {
   try {
     const { salonId, groupInfo } = req.body;
 
@@ -189,17 +184,13 @@ const groupJoinQueue = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to join group queue",
-      error: error.message
-    });
+    next(error);
   }
 };
 
 
 //Auto join queue api
-const autoJoin = async (req, res) => {
+const autoJoin = async (req, res, next) => {
 
   try {
     const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
@@ -282,16 +273,12 @@ const autoJoin = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to join queue',
-      error: error.message
-    });
+    next(error);
   }
 }
 
 //Get Queue List By SalonId
-const getQueueListBySalonId = async (req, res) => {
+const getQueueListBySalonId = async (req, res, next) => {
 
   try {
     const salonId = parseInt(req.query.salonId, 10);
@@ -358,18 +345,14 @@ const getQueueListBySalonId = async (req, res) => {
 
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'QList not retrieved',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //Barber Served Queue Api
-const barberServedQueue = async (req, res) => {
+const barberServedQueue = async (req, res, next) => {
   try {
     const { salonId, barberId, serviceId, _id } = req.body;
 
@@ -449,18 +432,14 @@ const barberServedQueue = async (req, res) => {
       success: false,
       message: 'Queue position is not 1. No service to be served.',
     });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'There is a problem in the API.',
-      error: error.message,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 //Cancel Queue
-const cancelQueue = async (req, res) => {
+const cancelQueue = async (req, res, next) => {
   try {
     const { salonId, barberId, _id } = req.body;
 
@@ -532,17 +511,13 @@ const cancelQueue = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to cancel queue',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Get Available barbers for Queue
-const getAvailableBarbersForQ = async (req, res) => {
+const getAvailableBarbersForQ = async (req, res, next) => {
   try {
     const { salonId } = req.query;
 
@@ -564,17 +539,13 @@ const getAvailableBarbersForQ = async (req, res) => {
     }
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //To find the Barber with the Multiple ServiceIds
-const getBarberByMultipleServiceId = async (req, res) => {
+const getBarberByMultipleServiceId = async (req, res, next) => {
   try {
     const { salonId, serviceIds } = req.query; // Assuming serviceIds are passed as query parameters, e.g., /barbers?serviceIds=1,2,3
 
@@ -605,16 +576,12 @@ const getBarberByMultipleServiceId = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch barbers by Services',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
-const getQlistbyBarberId = async (req, res) => {
+const getQlistbyBarberId = async (req, res, next) => {
   try {
     const { salonId, barberId } = req.body;
 
@@ -682,17 +649,13 @@ const getQlistbyBarberId = async (req, res) => {
       queueList: qList[0].queueList // Extracting the queue list from the result
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch queue list by barber Id',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Get Q history
-const getQhistoryByCustomerEmail = async (req, res) => {
+const getQhistoryByCustomerEmail = async (req, res, next) => {
   try {
     const { customerEmail, salonId } = req.body;
 
@@ -714,19 +677,15 @@ const getQhistoryByCustomerEmail = async (req, res) => {
       message: 'Successfully retrieved queue history.',
       response: getQHistory,
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve queue history',
-      error: error.message,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 
 
-const sendQSms = async(req, res) => {
+const sendQSms = async(req, res, next) => {
   try{
     const {body} = req.body;
    sendSms(body)
@@ -736,15 +695,9 @@ const sendQSms = async(req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send sms',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
- 
-
 }
 
 

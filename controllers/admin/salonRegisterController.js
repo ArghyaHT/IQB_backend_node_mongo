@@ -15,7 +15,7 @@ cloudinary.config({
 });
 
 // Create a new Salon By Admin
-const createSalonByAdmin = async (req, res) => {
+const createSalonByAdmin = async (req, res, next) => {
   try {
     const salonData = req.body;
     const { adminEmail } = req.body
@@ -31,16 +31,13 @@ const createSalonByAdmin = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create Salon'
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Upload Salon Images
-const uploadSalonGallery = async (req, res) => {
+const uploadSalonGallery = async (req, res, next) => {
   try {
     let galleries = req.files.gallery;
     let salonId = req.body.salonId
@@ -67,8 +64,9 @@ const uploadSalonGallery = async (req, res) => {
                 url: image.secure_url, // Store the URL
               });
             })
-            .catch((err) => {
-              reject(err);
+            .catch((error) => {
+              console.log(error);
+              next(error);
             })
             .finally(() => {
               // Delete the temporary file after uploading
@@ -95,17 +93,17 @@ const uploadSalonGallery = async (req, res) => {
           salon
         });
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({ message: "Cloudinary upload failed" });
+      .catch((error) => {
+        console.log(error);
+        next(error);
       });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.log(error);
+    next(error);
   }
 }
 
-const uploadMoreSalonGalleryImages = async (req, res) => {
+const uploadMoreSalonGalleryImages = async (req, res, next) => {
   try {
     let galleries = req.files.gallery;
     let salonId = req.body.salonId;
@@ -129,8 +127,9 @@ const uploadMoreSalonGalleryImages = async (req, res) => {
               url: image.secure_url,
             });
           })
-          .catch((err) => {
-            reject(err);
+          .catch((error) => {
+            console.log(error);
+            next(error);
           })
           .finally(() => {
             fs.unlink(gallery.tempFilePath, (unlinkError) => {
@@ -160,17 +159,13 @@ const uploadMoreSalonGalleryImages = async (req, res) => {
       salon: updatedSalon,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Update Salon  Images
-const updateSalonImages = async (req, res) => {
+const updateSalonImages = async (req, res, next) => {
   try {
     const id = req.body.id;
 
@@ -237,16 +232,13 @@ const updateSalonImages = async (req, res) => {
 
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Delete Salon Images
-const deleteSalonImages = async (req, res) => {
+const deleteSalonImages = async (req, res, next) => {
   try {
     const public_id = req.body.public_id
     const img_id = req.body.img_id
@@ -276,12 +268,12 @@ const deleteSalonImages = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error deleting image:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    console.log(error);
+    next(error);
   }
 }
 
-const getSalonImages = async(req, res) => {
+const getSalonImages = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
@@ -293,23 +285,19 @@ const getSalonImages = async(req, res) => {
     }
     // Sort advertisements array in descending order
     const sortedSalonGallery = salongallery.gallery.reverse();
-    
+
     res.status(200).json({
       success: true,
       message: 'Salon images retrieved successfully',
       response: sortedSalonGallery
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const uploadSalonLogo = async (req, res) => {
+const uploadSalonLogo = async (req, res, next) => {
   try {
     const salonLogo = req.files.salonLogo;
     const salonId = req.body.salonId;
@@ -331,8 +319,9 @@ const uploadSalonLogo = async (req, res) => {
               url: image.secure_url, // Store the URL
             });
           })
-          .catch((err) => {
-            reject(err);
+          .catch((error) => {
+            console.log(error);
+            next(error);
           })
           .finally(() => {
             // Delete the temporary file after uploading
@@ -357,12 +346,12 @@ const uploadSalonLogo = async (req, res) => {
       salon
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.log(error);
+    next(error);
   }
 };
 
-const updateSalonLogo = async (req, res) => {
+const updateSalonLogo = async (req, res, next) => {
   try {
     const id = req.body.id;
     const salonId = req.body.salonId;
@@ -425,15 +414,12 @@ const updateSalonLogo = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
-const getSalonLogo = async (req, res) => {
+const getSalonLogo = async (req, res, next) => {
   try {
     const salonId = req.body.salonId; // Assuming you pass salonId as a route parameter
 
@@ -447,19 +433,16 @@ const getSalonLogo = async (req, res) => {
     // Send the salon logo information in the response
     res.status(200).json({
       success: true,
-     message: "Salon logo retrieved",
-     response: salon
+      message: "Salon logo retrieved",
+      response: salon
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal Server Error',
-    });
+    console.log(error);
+    next(error);
   }
 };
 
-const deleteSalonLogo = async (req, res) => {
+const deleteSalonLogo = async (req, res, next) => {
   try {
     const salonId = req.body.salonId;
     const public_id = req.body.public_id
@@ -490,12 +473,12 @@ const deleteSalonLogo = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error deleting image:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    console.log(error);
+    next(error);
   }
 };
 
-const addServices = async (req, res) => {
+const addServices = async (req, res, next) => {
   try {
     const { serviceName, serviceDesc, servicePrice } = req.body;
     const { salonId } = req.body;
@@ -507,15 +490,13 @@ const addServices = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: 'Failed to create Salon'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //SEARCH SALONS BY LOCATION
-const getSalonsByLocation = async (req, res) => {
+const getSalonsByLocation = async (req, res, next) => {
 
   // try {
   //   const { longitude, latitude } = req.query;
@@ -541,16 +522,13 @@ const getSalonsByLocation = async (req, res) => {
       response: salons
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      response: 'Server Error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //GET SALON INFO
-const getSalonInfo = async (req, res) => {
+const getSalonInfo = async (req, res, next) => {
   const { salonId } = req.query;
   try {
     // Find salon information by salonId
@@ -578,16 +556,13 @@ const getSalonInfo = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to search salons and barbers by the SalonId.',
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Update Salon By Admin
-const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
+const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
 
   try {
     const result = req.body != null ? await salonService.updateSalonBySalonId(req.body) : null;
@@ -598,17 +573,14 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to Update Salon',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Update Salon Image and DeleteSalon Image
 
-const allSalonServices = async (req, res) => {
+const allSalonServices = async (req, res, next) => {
   const { salonId } = req.query;
   try {
     const result = await salonService.getAllSalonServices(salonId);
@@ -621,15 +593,12 @@ const allSalonServices = async (req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      error: 'Failed to get services'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const updateSalonServiceByServiceId = async (req, res) => {
+const updateSalonServiceByServiceId = async (req, res, next) => {
   const { salonId, serviceId } = req.body
   const newServiceData = req.body;
   try {
@@ -643,15 +612,12 @@ const updateSalonServiceByServiceId = async (req, res) => {
 
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      error: 'Failed to update services'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const deleteServiceByServiceIdSalonId = async (req, res) => {
+const deleteServiceByServiceIdSalonId = async (req, res, next) => {
   const { salonId, serviceId } = req.body;
   try {
     const result = await salonService.deleteSalonService(salonId, serviceId);
@@ -664,17 +630,14 @@ const deleteServiceByServiceIdSalonId = async (req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      error: 'Failed to update services'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //GET ALL SALONS BY ADMIN EMAIL
-const getAllSalonsByAdmin = async (req, res) => {
+const getAllSalonsByAdmin = async (req, res, next) => {
 
   try {
     const { adminEmail } = req.query;
@@ -688,17 +651,14 @@ const getAllSalonsByAdmin = async (req, res) => {
     })
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to search Salons'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //SEARCH SALONS BY NAME AND CITY
-const searchSalonsByNameAndCity = async (req, res) => {
+const searchSalonsByNameAndCity = async (req, res, next) => {
   try {
     const { searchValue, limit = 10, sortField, sortOrder } = req.query;
 
@@ -729,11 +689,8 @@ const searchSalonsByNameAndCity = async (req, res) => {
       response: getAllSalons,
     })
   } catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: error.message,
-    };
+    console.log(error);
+    next(error);
   }
   // try {
   //   const salons = await Salon.find({}); // Retrieve all salons from the database
@@ -751,7 +708,7 @@ const searchSalonsByNameAndCity = async (req, res) => {
 }
 
 //Delete Salon
-const deleteSalon = async (req, res) => {
+const deleteSalon = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
@@ -771,17 +728,14 @@ const deleteSalon = async (req, res) => {
     })
   }
   catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: error.message,
-    };
+    console.log(error);
+    next(error);
   }
 }
 
 //Get All Salons
 
-const getAllSalons = async (req, res) => {
+const getAllSalons = async (req, res, next) => {
   try {
     const salons = await Salon.find({}); // Retrieve all salons from the database
     res.status(200).json({
@@ -789,17 +743,14 @@ const getAllSalons = async (req, res) => {
       response: salons
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      response: 'Server Error',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //Change Salon Online Status
-const changeSalonOnlineStatus = async (req, res) => {
+const changeSalonOnlineStatus = async (req, res, next) => {
 
   try {
     const { salonId, isOnline } = req.body;
@@ -816,11 +767,8 @@ const changeSalonOnlineStatus = async (req, res) => {
     // res.setHeader('Cache-Control', 'private, max-age=3600');
     return res.status(200).json(updatedSalon);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 

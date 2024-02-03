@@ -1,6 +1,6 @@
 const BarberRating = require("../../models/barberRatingModel");
 
-const barberRating = async (req, res) => {
+const barberRating = async (req, res, next) => {
     try {
       const { salonId, barberId, rating, email } = req.body;
   
@@ -35,13 +35,9 @@ const barberRating = async (req, res) => {
         message: 'Rating added successfully.',
         response: barberRatingDoc,
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to add rating. Please try again.',
-        error: error.message,
-      });
+    }catch (error) {
+      console.log(error);
+      next(error);
     }
   };
 

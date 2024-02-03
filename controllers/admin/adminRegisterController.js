@@ -30,7 +30,7 @@ cloudinary.config({
 
 //DESC:REGISTER A ADMIN 
 //====================
-const registerController = async (req, res) => {
+const registerController = async (req, res, next) => {
     try {
         const email = req.body.email
         const password = req.body.password
@@ -83,16 +83,13 @@ const registerController = async (req, res) => {
 
 
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: "Failed to create user",
-            error: error.message
-        })
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 //DESC:LOGIN A USER =========================
-const loginController = async (req, res) => {
+const loginController = async (req, res, next) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
@@ -128,18 +125,16 @@ const loginController = async (req, res) => {
             message: "Admin signed in successfully",
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 };
 
 
 //GOOGLE SIGNIN ===================================
-const googleLoginController = async (req, res) => {
-    const CLIENT_ID = process.env.CLIENT_ID;
+const googleLoginController = async (req, res, next) => {
+ try{
+        const CLIENT_ID = process.env.CLIENT_ID;
     const token = req.body.token;
 
     if (!token) {
@@ -223,10 +218,16 @@ const googleLoginController = async (req, res) => {
     } else {
         res.status(401).json({ success: false, message: "Invalid Credentials" })
     }
+
+    }catch (error) {
+    console.log(error);
+    next(error);
+  }
+    
 }
 
 //DESC:REFRESH TOKEN ==============================
-const refreshTokenController = async (req, res) => {
+const refreshTokenController = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
@@ -248,8 +249,9 @@ const refreshTokenController = async (req, res) => {
 
         res.status(201).json({ success: true, message: "New accessToken generated" });
     } catch (error) {
-        return res.status(401).json({ success: false, message: "Invalid refresh token." });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 //DESC:LOGOUT A USER ========================
@@ -262,12 +264,10 @@ const handleLogout = async (req, res, next) => {
             success: true,
             message: "User logged out successfully"
         })
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error
-        })
-    }
+    }catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 //DESC:FORGOT PASSWORD SENDING EMAIL TO USER ===========
@@ -301,11 +301,9 @@ const handleForgetPassword = async (req, res, next) => {
         try {
             await emailWithNodeMail(emailData)
         } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Failed to send reset password email'
-            })
-        }
+            console.log(error);
+            next(error);
+          }
 
         res.status(200).json({
             success: true,
@@ -315,11 +313,9 @@ const handleForgetPassword = async (req, res, next) => {
             }
         })
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 
@@ -356,11 +352,9 @@ const handleResetPassword = async (req, res, next) => {
         })
 
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 
@@ -420,7 +414,7 @@ const handleResetPassword = async (req, res, next) => {
 //     }
 // }
 
-const isLogginMiddleware = async (req, res) => {
+const isLogginMiddleware = async (req, res, next) => {
     try {
         const accessToken = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
@@ -473,12 +467,9 @@ const isLogginMiddleware = async (req, res) => {
         // }
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 // const isLogginMiddleware = async (req, res) => {
@@ -607,7 +598,7 @@ const isLogginMiddleware = async (req, res) => {
 // };
 
 
-const isLoggedOutMiddleware = async (req, res) => {
+const isLoggedOutMiddleware = async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken;
 
@@ -619,11 +610,9 @@ const isLoggedOutMiddleware = async (req, res) => {
             });
         }
     } catch (error) {
-        return res.json({
-            success: false,
-            message: error,
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
@@ -679,7 +668,7 @@ const handleProtectedRoute = async (req, res, next) => {
 //     });
 // };
 
-const deleteSingleAdmin = async (req, res) => {
+const deleteSingleAdmin = async (req, res, next) => {
     const { email } = req.body;
     try {
         const result = await adminService.deleteAdmin(email)
@@ -687,18 +676,15 @@ const deleteSingleAdmin = async (req, res) => {
             response: result.response,
         });
     }
-
     catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to Delete Admins'
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 
 //TO UPDATE ADMIN ACCOUNT DETAILS
-const updateAdminAccountDetails = async (req, res) => {
+const updateAdminAccountDetails = async (req, res, next) => {
     const adminData = req.body;
     try {
         const result = await adminService.updateAdmin(adminData);
@@ -709,17 +695,14 @@ const updateAdminAccountDetails = async (req, res) => {
         });
     }
     catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to update admin'
-
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 
 //APPROVE BARBER API
-const approveBarber = async (req, res) => {
+const approveBarber = async (req, res, next) => {
     try {
         const { salonId, email, isApproved } = req.body;
 
@@ -738,16 +721,13 @@ const approveBarber = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 //Upload Admin profile Picture
-const uploadAdminprofilePic = async (req, res) => {
+const uploadAdminprofilePic = async (req, res, next) => {
     try {
         let profiles = req.files.profile;
         const email = req.body.email;
@@ -774,8 +754,9 @@ const uploadAdminprofilePic = async (req, res) => {
                                 url: image.secure_url, // Store the URL
                             });
                         })
-                        .catch((err) => {
-                            reject(err);
+                        .catch((error) => {
+                            console.log(error);
+                            next(error);
                         })
                         .finally(() => {
                             // Delete the temporary file after uploading
@@ -801,24 +782,18 @@ const uploadAdminprofilePic = async (req, res) => {
                     adminImage
                 });
             })
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json({
-                    message: "Cloudinary upload failed",
-                    err: err.message
-                });
+            .catch((error) => {
+                console.log(error);
+        next(error);
             });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
+    }catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 //Update Admin Profile Picture
-const updateAdminProfilePic = async (req, res) => {
+const updateAdminProfilePic = async (req, res, next) => {
     try {
         const id = req.body.id;
 
@@ -887,17 +862,14 @@ const updateAdminProfilePic = async (req, res) => {
 
 
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Internal Server Error",
-            error: error.message
-        });
-    }
+    }  catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 //Delete Admin Profile Picture
-const deleteAdminProfilePicture = async (req, res) => {
+const deleteAdminProfilePicture = async (req, res, next) => {
     try {
         const public_id = req.body.public_id
         const img_id = req.body.img_id
@@ -925,17 +897,14 @@ const deleteAdminProfilePicture = async (req, res) => {
         } else {
             res.status(404).json({ message: 'Image not found in the student profile' });
         }
-    } catch (error) {
-        console.error('Error deleting image:', error);
-        res.status(500).json({
-            message: 'Internal server error.',
-            error: error.message
-        });
-    }
+    }  catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 //Get Salons by Admin
-const getAllSalonsByAdmin = async (req, res) => {
+const getAllSalonsByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
@@ -959,16 +928,13 @@ const getAllSalonsByAdmin = async (req, res) => {
             salons: salons,
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to retrieve salons',
-            error: error.message,
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 //Get Default Salon Details Of Admin
-const getDefaultSalonByAdmin = async (req, res) => {
+const getDefaultSalonByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body;
         const admin = await Admin.findOne({ email: adminEmail })
@@ -988,17 +954,14 @@ const getDefaultSalonByAdmin = async (req, res) => {
         }
     }
     catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to retrieve salons',
-            error: error.message,
-        });
-    }
+        console.log(error);
+        next(error);
+      }
 }
 
 
 //Change Salon Id of Admin
-const changeDefaultSalonIdOfAdmin = async (req, res) => {
+const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
     try {
         const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
 
@@ -1020,17 +983,14 @@ const changeDefaultSalonIdOfAdmin = async (req, res) => {
             message: 'Default salon ID of admin updated successfully',
             admin: admin,
         });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'Failed to update default salon ID of admin',
-            error: error.message,
-        });
-    }
+    }  catch (error) {
+        console.log(error);
+        next(error);
+      }
 };
 
 //Send Email Verification code
-const sendVerificationCodeForAdminEmail = async (req, res) => {
+const sendVerificationCodeForAdminEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
 
@@ -1057,31 +1017,24 @@ const sendVerificationCodeForAdminEmail = async (req, res) => {
 
         try {
             await sendPasswordResetEmail(emailData);
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to Verify email',
-                error: error.message
-            });
-        }
+        }  catch (error) {
+            console.log(error);
+            next(error);
+          }
 
         return res.status(200).json({
             success: true,
             message: `Please check your email (${email}) for verification.`,
             verificationCode: verificationCode
         });
-    } catch (error) {
-        console.error('Failed to handle forget password:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to verify your Email',
-            error: error.message
-        });
-    }
+    }  catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 //Match Verification Code and change EmailVerified Status
-const changeEmailVerifiedStatus = async (req, res) => {
+const changeEmailVerifiedStatus = async (req, res, next) => {
     try {
         const { email, verificationCode } = req.body;
 
@@ -1106,14 +1059,10 @@ const changeEmailVerifiedStatus = async (req, res) => {
             response: "Verification Code didn't match",
             message: "Enter a valid Verification code",
         });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to match Verification Code',
-            error: error.message
-        });
-    }
+    }  catch (error) {
+        console.log(error);
+        next(error);
+      }
 }
 
 

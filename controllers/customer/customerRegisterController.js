@@ -34,7 +34,7 @@ cloudinary.config({
 });
 
 //CHECK WEATHER THE EMAIL ALREADY EXISTS IN THE DATABASE-------
-const checkEmail = async (req, res) => {
+const checkEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -55,16 +55,13 @@ const checkEmail = async (req, res) => {
     }
   }
   catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      error: 'Failed to create customer'
-    };
+    console.log(error);
+    next(error);
   }
 }
 
 // SIGNUP A NEW CUSTOMER WHEN THE NEW EMAIL 
-const signUp = async (req, res) => {
+const signUp = async (req, res, next) => {
   try {
     const {
       email,
@@ -120,18 +117,15 @@ const signUp = async (req, res) => {
         message: 'Customer data could not be saved',
       });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to create customer',
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 
 //MATCH VERIFICATION CODE FOR NEW CUSTOMER
-const matchVerificationCode = async (req, res) => {
+const matchVerificationCode = async (req, res, next) => {
   try {
     const { email, verificationCode, webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
@@ -188,16 +182,13 @@ const matchVerificationCode = async (req, res) => {
       message: "Enter a valid Verification code",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      status: 500,
-      error: 'Failed to match Verification Code',
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Save Password
-const savePassword = async (req, res) => {
+const savePassword = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -222,17 +213,13 @@ const savePassword = async (req, res) => {
       response: customer
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      status: 500,
-      message: 'Internal Server Error. Password did not get saved',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //-----------SignIn Customer-------------//
-const signIn = async (req, res) => {
+const signIn = async (req, res, next) => {
   try {
     const { email, password, webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
@@ -275,16 +262,13 @@ const signIn = async (req, res) => {
       response: result.response,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to sign in',
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //--------Forget Password------//
-const forgetPassword = async (req, res) => {
+const forgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -312,11 +296,8 @@ const forgetPassword = async (req, res) => {
     try {
       await sendPasswordResetEmail(emailData);
     } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to send reset password email',
-        error: error.message
-      });
+      console.log(error);
+      next(error);
     }
 
     return res.status(200).json({
@@ -324,18 +305,14 @@ const forgetPassword = async (req, res) => {
       message: `Please check your email (${email}) for resetting the password`,
       verificationCode: verificationCode
     });
-  } catch (error) {
-    console.error('Failed to handle forget password:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to initiate password reset',
-      error: error.message
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 //Verify Password Reset Code
-const verifyPasswordResetCode = async (req, res) => {
+const verifyPasswordResetCode = async (req, res, next) => {
   try {
     const { email, verificationCode, } = req.body;
 
@@ -366,17 +343,13 @@ const verifyPasswordResetCode = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Failed to verify password reset code:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to verify password reset code',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Reset Password
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   try {
     const { email, newPassword } = req.body;
 
@@ -405,15 +378,13 @@ const resetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 
-const googleLoginControllerCustomer = async (req, res) => {
+const googleLoginControllerCustomer = async (req, res, next) => {
   try {
     const CLIENT_ID = process.env.CLIENT_ID;
     const token = req.body.token;
@@ -496,16 +467,13 @@ const allCustomers = async (req, res) => {
 
   }
   catch (error) {
-    console.log(error.message)
-    return {
-      status: 500,
-      message: error.message,
-    };
+    console.log(error);
+    next(error);
   }
 }
 
 //UPDATE CUSTOMER PROFILE
-const updateCustomer = async (req, res) => {
+const updateCustomer = async (req, res, next) => {
   const customerData = req.body;
   try {
     const result = await customerService.updateCustomer(customerData);
@@ -515,15 +483,12 @@ const updateCustomer = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update Customer'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
-const deleteSingleCustomer = async (req, res) => {
+const deleteSingleCustomer = async (req, res, next) => {
   const { email } = req.body;
   try {
     const result = await customerService.deleteCustomer(email)
@@ -533,19 +498,15 @@ const deleteSingleCustomer = async (req, res) => {
       response: result.response,
     });
   }
-
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: 'Failed to Delete Customer'
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 
 //Sending Mail to Customer
-const sendMailToCustomer = async (req, res) => {
+const sendMailToCustomer = async (req, res, next) => {
   const { email, subject, text } = req.body;
 
   try {
@@ -557,18 +518,15 @@ const sendMailToCustomer = async (req, res) => {
     });
   }
   catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send mail'
-    });
+    console.log(error);
+    next(error);
   }
 
 }
 
 
 //Get Appointments for Customer
-const getAppointmentForCustomer = async (req, res) => {
+const getAppointmentForCustomer = async (req, res, next) => {
   try {
     const { customerEmail } = req.body;
 
@@ -599,13 +557,13 @@ const getAppointmentForCustomer = async (req, res) => {
       res.status(404).json({ message: "No appointments found for the customer" });
     }
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.log(error);
+    next(error);
   }
 };
 
 //CUSTOMER CONNECT SALON AFTER LOGIN
-const customerConnectSalon = async (req, res) => {
+const customerConnectSalon = async (req, res, next) => {
   try {
     const { email, salonId } = req.body;
 
@@ -639,18 +597,14 @@ const customerConnectSalon = async (req, res) => {
       message: "Customer is added to the salon",
       response: customer,
     });
-  } catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while connecting customer to the salon",
-      error: error.message,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 //Get Customer Details
-const getCustomerDetails = async (req, res) => {
+const getCustomerDetails = async (req, res, next) => {
   try {
     const { email } = req.body;
     const customer = await Customer.findOne({ email }).select('-password');
@@ -667,17 +621,13 @@ const getCustomerDetails = async (req, res) => {
     });
   }
   catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while connecting customer to the salon",
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Bulk Send Email to Customers
-const sendBulkEmailToCustomers = async (req, res) => {
+const sendBulkEmailToCustomers = async (req, res, next) => {
   try {
     const { subject, message, recipientEmails } = req.body;
 
@@ -698,18 +648,13 @@ const sendBulkEmailToCustomers = async (req, res) => {
     });
 
   } catch (error) {
-    // Handle errors that might occur during the operation
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'An error occurred while sending emails to customers',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Upload Customer profile Picture
-const uploadCustomerprofilePic = async (req, res) => {
+const uploadCustomerprofilePic = async (req, res, next) => {
   try {
     let profiles = req.files.profile;
     const email = req.body.email;
@@ -736,9 +681,11 @@ const uploadCustomerprofilePic = async (req, res) => {
                 url: image.secure_url, // Store the URL
               });
             })
-            .catch((err) => {
-              reject(err);
-            })
+            .catch ((error) => {
+              console.log(error);
+              next(error);
+            }
+            )
             .finally(() => {
               // Delete the temporary file after uploading
               fs.unlink(profile.tempFilePath, (unlinkError) => {
@@ -763,24 +710,19 @@ const uploadCustomerprofilePic = async (req, res) => {
           customerImage
         });
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({
-          message: "Cloudinary upload failed",
-          err: err.message
-        });
-      });
+      .catch ((error)  => {
+        console.log(error);
+        next(error);
+      }
+      );
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Update Barber Profile Picture
-const updateCustomerProfilePic = async (req, res) => {
+const updateCustomerProfilePic = async (req, res, next) => {
   try {
     const id = req.body.id;
 
@@ -847,19 +789,14 @@ const updateCustomerProfilePic = async (req, res) => {
 
       })
 
-
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Delete Barber Profile Picture
-const deleteCustomerProfilePicture = async (req, res) => {
+const deleteCustomerProfilePicture = async (req, res, next) => {
   try {
     const public_id = req.body.public_id
     const img_id = req.body.img_id
@@ -888,16 +825,13 @@ const deleteCustomerProfilePicture = async (req, res) => {
       res.status(404).json({ message: 'Image not found in the student profile' });
     }
   } catch (error) {
-    console.error('Error deleting image:', error);
-    res.status(500).json({
-      message: 'Internal server error.',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 // Get All Appointments by Customers
-const getAllAppointmentsByCustomer = async (req, res) => {
+const getAllAppointmentsByCustomer = async (req, res, next) => {
   try {
     const { customerEmail, salonId } = req.body;
 
@@ -928,18 +862,14 @@ const getAllAppointmentsByCustomer = async (req, res) => {
       message: "Appointments Found for the Customer",
       response: appointments
     });
-  } catch (error) {
-    // Handle errors
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 //Get All Connected Salons by Customer
-const getAllSalonsByCustomer = async (req, res) => {
+const getAllSalonsByCustomer = async (req, res, next) => {
   try {
     const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
 
@@ -963,16 +893,13 @@ const getAllSalonsByCustomer = async (req, res) => {
       response: salons,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to retrieve salons',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 }
 
 //Change Salon Id of Customer
-const changeDefaultSalonIdOfCustomer = async (req, res) => {
+const changeDefaultSalonIdOfCustomer = async (req, res, next) => {
   try {
     const { customerEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
 
@@ -995,16 +922,13 @@ const changeDefaultSalonIdOfCustomer = async (req, res) => {
       response: customer,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to update default salon ID of admin',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Customer Dashboard Api
-const customerDashboard = async (req, res) => {
+const customerDashboard = async (req, res, next) => {
   const { salonId } = req.body;
   try {
     // Find salon information by salonId
@@ -1061,16 +985,13 @@ const customerDashboard = async (req, res) => {
         leastBarberEWT: minEWt
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to search salons and barbers by the SalonId.',
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
-const customerFavoriteSalon = async (req, res) => {
+const customerFavoriteSalon = async (req, res, next) => {
   try {
     const { email, salonId } = req.body;
 
@@ -1107,17 +1028,13 @@ const customerFavoriteSalon = async (req, res) => {
       });
     }
 
-  } catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while connecting customer to the salon",
-      error: error.message,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
-const getAllCustomerFavoriteSalons = async(req, res) => {
+const getAllCustomerFavoriteSalons = async(req, res, next) => {
   try {
     const { customerEmail } = req.body; // Assuming customer's email is provided in the request body
 
@@ -1140,16 +1057,13 @@ const getAllCustomerFavoriteSalons = async(req, res) => {
       message: 'Salons retrieved successfully',
       response: salons,
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to retrieve salons',
-      error: error.message,
-    });
+  }catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
-const deleteCustomerFavoriteSalon = async (req, res) => {
+const deleteCustomerFavoriteSalon = async (req, res, next) => {
   try {
     const { email, salonId } = req.body;
 
@@ -1187,12 +1101,8 @@ const deleteCustomerFavoriteSalon = async (req, res) => {
       });
     }
   } catch (error) {
-    // Handle errors that might occur during the operation
-    res.status(500).json({
-      success: false,
-      message: "An error occurred while updating customer's favorite salons",
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 

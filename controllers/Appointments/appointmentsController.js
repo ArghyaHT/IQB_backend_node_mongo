@@ -174,7 +174,7 @@ const createAppointment = async (req, res, next) => {
 };
 
 //Edit Appointments By Admin and Barber
-const editAppointment = async (req, res) => {
+const editAppointment = async (req, res, next) => {
   try {
     const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
 
@@ -245,17 +245,13 @@ const editAppointment = async (req, res) => {
       response: existingAppointment,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update appointment',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Delete Appointment
-const deleteAppointment = async (req, res) => {
+const deleteAppointment = async (req, res, next) => {
   try {
     const { salonId, appointmentId } = req.body; // Assuming appointmentId is passed as a parameter
 
@@ -282,17 +278,13 @@ const deleteAppointment = async (req, res) => {
       message: 'Appointment deleted successfully',
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete appointment',
-      error: error.message,
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 //Get Engage BarberTimeSLots Api
-const getEngageBarberTimeSlots = async (req, res) => {
+const getEngageBarberTimeSlots = async (req, res, next) => {
   try {
     const { salonId, barberId, date } = req.body;
 
@@ -373,10 +365,8 @@ const getEngageBarberTimeSlots = async (req, res) => {
       timeSlots: timeSlots
     });
   } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fetch time slots',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
@@ -396,7 +386,7 @@ function generateTimeSlots(start, end, intervalInMinutes) {
 
 
 //Get All Appointments by SalonId
-const getAllAppointmentsBySalonId = async (req, res) => {
+const getAllAppointmentsBySalonId = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
@@ -453,18 +443,15 @@ const getAllAppointmentsBySalonId = async (req, res) => {
       message: 'Appointments retrieved successfully',
       response: appointments.map(appointment => appointment.appointmentList),
     });
-  } catch (error) {
+  }catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch appointments. Please try again.',
-    });
+    next(error);
   }
 };
 
 
 //Get All Appointments By SalonId and Date
-const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
+const getAllAppointmentsBySalonIdAndDate = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
 
@@ -534,17 +521,13 @@ const getAllAppointmentsBySalonIdAndDate = async (req, res) => {
       response: appointments
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch appointments. Please try again.',
-      error: error.message
-    });
+    console.log(error);
+    next(error);
   }
 };
 
 // Get all appointments by salonid and barberid
-const getAllAppointmentsByBarberId = async (req, res) => {
+const getAllAppointmentsByBarberId = async (req, res, next) => {
   try {
     const { salonId, barberId } = req.body;
 
@@ -608,16 +591,13 @@ const getAllAppointmentsByBarberId = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch appointments. Please try again.',
-    });
+    next(error);
   }
 };
 
 
 //Get All Appointments By SalonId and Date
-const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
+const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
   try {
     const { salonId, barberId, appointmentDate } = req.body;
 
@@ -687,16 +667,12 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch appointments. Please try again.',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 //Served Appointment
-const barberServedAppointment = async (req, res) => {
+const barberServedAppointment = async (req, res, next) => {
   try {
     const { salonId, barberId, serviceId, _id, appointmentDate } = req.body;
 
@@ -751,11 +727,7 @@ const barberServedAppointment = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to serve appointments. Please try again.',
-      error: error.message,
-    });
+    next(error);
   }
 };
 
