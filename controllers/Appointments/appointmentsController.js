@@ -21,6 +21,7 @@ const createAppointment = async (req, res, next) => {
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
     let serviceIds = "";
+    let serviceNames = "";
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -31,10 +32,16 @@ const createAppointment = async (req, res, next) => {
           totalServiceEWT += service.barberServiceEWT || 0;
 
           if (serviceIds) {
-            serviceIds += "-";
+            serviceIds += "- ";
           }
           serviceIds += service.serviceId.toString();
+
+          if (serviceNames) {
+            serviceNames += ", ";
+          }
+          serviceNames += service.serviceName;
         }
+
       });
     }
 
@@ -57,6 +64,7 @@ const createAppointment = async (req, res, next) => {
     const newAppointment = {
       barberId,
       serviceId: serviceIds,
+      serviceName: serviceNames,
       appointmentDate,
       startTime,
       endTime,
@@ -183,6 +191,7 @@ const editAppointment = async (req, res, next) => {
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
     let serviceIds = "";
+    let serviceNames = "";
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -196,6 +205,11 @@ const editAppointment = async (req, res, next) => {
             serviceIds += "-";
           }
           serviceIds += service.serviceId.toString();
+
+          if (serviceNames) {
+            serviceNames += ", ";
+          }
+          serviceNames += service.serviceName;
         }
       });
     }
@@ -221,6 +235,7 @@ const editAppointment = async (req, res, next) => {
         $set: {
           'appointmentList.$.barberId': barberId,
           'appointmentList.$.serviceId': serviceIds,
+          'appointmentList.$.serviceName': serviceNames,
           'appointmentList.$.appointmentDate': appointmentDate,
           'appointmentList.$.appointmentNotes': appointmentNotes,
           'appointmentList.$.startTime': startTime,

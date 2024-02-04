@@ -305,6 +305,10 @@ const updateSalonBySalonId = async (salonData) => {
           return {
             ...existingService.toObject(),
             serviceName: matchingService.serviceName,
+            serviceIcon: {
+              public_id: matchingService.serviceIcon.public_id,
+              url: matchingService.serviceIcon.url,
+            },
             servicePrice: matchingService.servicePrice,
             serviceDesc: matchingService.serviceDesc,
             serviceEWT: matchingService.serviceEWT,
@@ -327,6 +331,10 @@ const updateSalonBySalonId = async (salonData) => {
             serviceId: `${salonId}${serviceCounter}`,
             serviceCode: `${newService.serviceName.slice(0, 2).toUpperCase()}${salonId}${serviceCounter}`,
             serviceName: newService.serviceName,
+            serviceIcon: {
+              public_id: newService.serviceIcon.public_id,
+              url: newService.serviceIcon.url,
+            },
             servicePrice: newService.servicePrice,
             serviceDesc: newService.serviceDesc,
             serviceEWT: newService.serviceEWT,
