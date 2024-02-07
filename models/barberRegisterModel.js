@@ -77,7 +77,8 @@ const barberSchema = new mongoose.Schema({
         }
     ],
     isOnline: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     barberServices: [{
         serviceId: {

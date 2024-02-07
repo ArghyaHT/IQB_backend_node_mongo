@@ -942,7 +942,7 @@ const customerDashboard = async (req, res, next) => {
     }
 
     // Find associated barbers using salonId
-    const barbers = await Barber.find({ salonId, isOnline: true }).select("name queueCount barberEWT");
+    const barbers = await Barber.find({ salonId, isOnline: true }).select("name queueCount profile barberEWT");
     const barberCount = barbers.length;
 
     let barberWithLeastQueues = null;

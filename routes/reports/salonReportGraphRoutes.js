@@ -4,6 +4,6 @@ const { salonReports } = require("../../controllers/reports/salonReportGraphCont
 
 const router = express.Router();
 
-router.route("/salonReportsGraph").get(salonReports)
+router.route("/salonReportsGraph").post(salonReports)
 
 module.exports = router
