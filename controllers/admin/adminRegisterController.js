@@ -437,7 +437,6 @@ const isLogginMiddleware = async (req, res, next) => {
                 message: "Invalid Access Token. Unauthorized User",
             });
         }
-    
         if (loggedinUser === null) {
              return res.status(400).json({
                 success: false,
@@ -627,21 +626,21 @@ const handleProtectedRoute = async (req, res, next) => {
         }
 
         req.user = decodeToken.user;
-        next();
-    } catch (error) {
-        //This Error is for access Token getting expired or JWT must be provided
-        if (error.message == "jwt must be provided") {
-            res.status(500).json({
+
+        // console.log(req.user.barber)
+
+        if(req.user && !req.user.barber){
+            next();
+        }else{
+            return res.status(404).json({
                 success: false,
-                message: error,
-            });
-        } else {
-            return res.json({
-                success: false,
-                message: error,
-            });
+                message:"You are not Authenticated Admin"})
         }
-    }
+        
+    } catch (error) {
+        console.log(error);
+        next(error);
+      }
 
 };
 

@@ -5,13 +5,13 @@ const { handleProtectedRoute, isLogginMiddleware } = require("../../controllers/
 const router = express.Router();
 
 //Add Advertisements
-router.route("/addAdvertisements").post(handleProtectedRoute,isLogginMiddleware, addAdvertisements)
+router.route("/addAdvertisements").post(handleProtectedRoute, addAdvertisements)
 
 //Get Advertisements
 router.route("/getAdvertisements").post(handleProtectedRoute,getAdvertisements)
 
 //Update Advertisements
-router.route("/updateAdvertisements").put(updateAdvertisements)
+router.route("/updateAdvertisements").put(handleProtectedRoute, updateAdvertisements)
 
 //Delete Advertisements
 router.route("/deleteAdvertisements").delete(handleProtectedRoute, deleteAdvertisements)

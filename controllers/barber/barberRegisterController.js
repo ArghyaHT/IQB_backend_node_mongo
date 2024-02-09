@@ -688,6 +688,50 @@ const isBarberLoggedOutMiddleware = async (req, res, next) => {
 
 // };
 
+//MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
+const handleBarberProtectedRoute = async (req, res, next) => {
+  try {
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+          return res.status(403).json({
+              success: false,
+              message: "Refresh Token not present.Please Login Again",
+          });
+      }
+
+      // Verify old refresh token
+      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+      console.log(decodeToken)
+
+      if (!decodeToken) {
+          return res.status(401).json({
+              success: false,
+              message: "Invalid Access Token. UnAuthorize User",
+          });
+      }
+
+      req.user = decodeToken.user;
+
+      // console.log(req.user.barber)
+
+      if(req.user && !req.user.admin){
+          next();
+      }else{
+          return res.status(404).json({
+              success: false,
+              message:"You are not Authenticated Barber"})
+      }
+      
+  } catch (error) {
+      console.log(error);
+      next(error);
+    }
+
+};
+
 
 //PROETCTED ROUTE =============================
 const profileController = async (req, res) => {
@@ -1383,7 +1427,8 @@ module.exports = {
   isBarberLogginMiddleware,
   isBarberLoggedOutMiddleware,
   sendVerificationCodeForBarberEmail,
-  changeBarberEmailVerifiedStatus
+  changeBarberEmailVerifiedStatus,
+  handleBarberProtectedRoute
 
 }
 

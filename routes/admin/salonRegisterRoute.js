@@ -54,10 +54,10 @@ router.route("/getAllSalons").get(handleProtectedRoute,getAllSalons)
 router.route("/changeSalonOnlineStatus").post(handleProtectedRoute,changeSalonOnlineStatus )
 
 //Upload Salon Logo
-router.route("/uploadSalonLogo").post(uploadSalonLogo)
+router.route("/uploadSalonLogo").post(handleProtectedRoute, uploadSalonLogo)
 
 //Update Salon Logo
-router.route("/updateSalonLogo").put(updateSalonLogo)
+router.route("/updateSalonLogo").put(handleProtectedRoute, updateSalonLogo)
 
 //Get Salon Logo
 router.route("/getSalonLogo").post(getSalonLogo)

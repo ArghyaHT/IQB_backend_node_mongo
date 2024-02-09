@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus } = require("../../controllers/barber/barberRegisterController");
+const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 const {  handleProtectedRoute, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController");
 
 
@@ -27,58 +27,58 @@ router.route("/google-login").post(googleLoginController)
 router.route("/refresh-token").post(refreshTokenController)
 
 //ISLOGOUT MIDDLEWARE
-router.route("/barberLoggedoutmiddleware").get(handleProtectedRoute,isBarberLoggedOutMiddleware)
+router.route("/barberLoggedoutmiddleware").get(handleBarberProtectedRoute,isBarberLoggedOutMiddleware)
 
 //ISLOGIN MIDDLEWARE
-router.route("/barberLoggedinmiddleware").get(handleProtectedRoute, isBarberLogginMiddleware)
+router.route("/barberLoggedinmiddleware").get(handleBarberProtectedRoute, isBarberLogginMiddleware)
 
 //ALL PROTECTED ROUTES
 // router.route("/profile").get(handleProtectedRoute,profileController)
 
 
 //CONNECT BARBER TO SALON
-router.route("/connectBarberToSalon").post(handleProtectedRoute,isBarberLogginMiddleware,connectBarbertoSalon)
+router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBarbertoSalon)
 
 //CREATE BARBER BY ADMIN
-router.route("/createBarberByAdmin").post(handleProtectedRoute,isLogginMiddleware,createBarberByAdmin)
+router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdmin)
 
 //UPDATE BARBER BY ADMIN
-router.route("/updateBarberByAdmin").put(handleProtectedRoute,isLogginMiddleware,updateBarberByAdmin)
+router.route("/updateBarberByAdmin").put(handleProtectedRoute,updateBarberByAdmin)
 
 //GET BARBER DETAILS BY EMAIL
-router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,isBarberLogginMiddleware,getBarberDetailsByEmail)
+router.route("/getBarberDetailsByEmail").post(handleBarberProtectedRoute,getBarberDetailsByEmail)
 
-router.route("/getAllBarberBySalonId").post(handleProtectedRoute ,getAllBarberbySalonId) //api integrated
+router.route("/getAllBarberBySalonId").post(handleBarberProtectedRoute ,getAllBarberbySalonId) //api integrated
 
 //Update Barber Account Details
-router.route("/updateBarberAccountDetails").put(handleProtectedRoute,isBarberLogginMiddleware,updateBarberAccountDetails)
+router.route("/updateBarberAccountDetails").put(handleBarberProtectedRoute,updateBarberAccountDetails)
 
 //Upload Barber Profile Picture
-router.route("/uploadBarberProfilePicture").post(handleProtectedRoute,isBarberLogginMiddleware,uploadBarberprofilePic)
+router.route("/uploadBarberProfilePicture").post(handleBarberProtectedRoute,uploadBarberprofilePic)
 
 //UPDATE BARBER PROFILE PICTURE
-router.route("/updateBarberProfilePicture").put(handleProtectedRoute,isBarberLogginMiddleware,updateBarberProfilePic)
+router.route("/updateBarberProfilePicture").put(handleBarberProtectedRoute,updateBarberProfilePic)
 
 //DELETE BARBER PROFILE PICTURE
-router.route("/deleteBarberProfilePicture").delete(handleProtectedRoute,isBarberLogginMiddleware,deleteBarberProfilePicture)
+router.route("/deleteBarberProfilePicture").delete(handleBarberProtectedRoute,deleteBarberProfilePicture)
 
 
 
-router.route("/deleteBarberByEmail").post(handleProtectedRoute,isBarberLogginMiddleware,deleteBarber)
+router.route("/deleteBarberByEmail").post(handleBarberProtectedRoute,deleteBarber)
 
 
-router.route("/changeBarberWorkingStatus").post(handleProtectedRoute,isBarberLogginMiddleware,chnageBarberWorkingStatus) //api working
+router.route("/changeBarberWorkingStatus").post(handleBarberProtectedRoute,chnageBarberWorkingStatus) //api working
 
-router.route("/getAllBarbersByServiceId").get(handleProtectedRoute,getAllBarbersByServiceId)
+router.route("/getAllBarbersByServiceId").get(handleBarberProtectedRoute,getAllBarbersByServiceId)
 
-router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
+router.route("/getBarberServicesByBarberId").get(handleBarberProtectedRoute,getBarberServicesByBarberId)
 
-router.route("/changeBarberOnlineStatus").post(handleProtectedRoute, isBarberLogginMiddleware, isBarberOnline)
+router.route("/changeBarberOnlineStatus").post(handleBarberProtectedRoute, isBarberOnline)
 
 //Send Mail to Admin for Verification
-router.route("/sendVerificationCodeForBarberEmail").post(handleProtectedRoute, sendVerificationCodeForBarberEmail )
+router.route("/sendVerificationCodeForBarberEmail").post(handleBarberProtectedRoute, sendVerificationCodeForBarberEmail )
 
 //Send EmailVerifiedStatus
-router.route("/changeBarberEmailVerifiedStatus").post(isBarberLogginMiddleware, changeBarberEmailVerifiedStatus )
+router.route("/changeBarberEmailVerifiedStatus").post(handleBarberProtectedRoute, changeBarberEmailVerifiedStatus )
 
 module.exports = router;
