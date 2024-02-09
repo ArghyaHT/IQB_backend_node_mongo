@@ -1,6 +1,7 @@
 const express = require("express");
 const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 const {  handleProtectedRoute, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController");
+const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
 
 
 const router = express.Router();
@@ -50,6 +51,8 @@ router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberS
 
 //---------==========================================================================------------//
 
+//GET ALL SALON SERVICES
+router.route("/barberAllSalonServices").get(handleBarberProtectedRoute, allSalonServices)
 //CONNECT BARBER TO SALON
 router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBarbertoSalon)
 //GET BARBER DETAILS BY EMAIL
