@@ -1,6 +1,7 @@
 const express = require("express")
 const {  getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalonByAdmin, updateSalonImages, deleteSalonImages, getAllSalons, changeSalonOnlineStatus, uploadSalonLogo, getSalonLogo, deleteSalonLogo, uploadSalonGallery, uploadMoreSalonGalleryImages, getSalonImages, updateSalonLogo,  } = require("../../controllers/admin/salonRegisterController")
 const { handleProtectedRoute, changeDefaultSalonIdOfAdmin, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController")
+const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController")
 
 
 const router = express.Router()
@@ -48,7 +49,7 @@ router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSa
 router.route("/deleteSalon").post(handleProtectedRoute,deleteSalon)
 
 //GetAll Salons
-router.route("/getAllSalons").get(handleProtectedRoute,getAllSalons)
+router.route("/getAllSalons").get(handleBarberProtectedRoute,getAllSalons)
 
 //Change Salon online Status
 router.route("/changeSalonOnlineStatus").post(handleProtectedRoute,changeSalonOnlineStatus )
