@@ -1,11 +1,11 @@
 const express = require("express");
 const { addAdvertisements, getDashboardAppointmentList, getAdvertisements, updateAdvertisements, deleteAdvertisements } = require("../../controllers/Dashboard/dashboardController");
-const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
+const { handleProtectedRoute, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController");
 
 const router = express.Router();
 
 //Add Advertisements
-router.route("/addAdvertisements").post(handleProtectedRoute, addAdvertisements)
+router.route("/addAdvertisements").post(handleProtectedRoute,isLogginMiddleware, addAdvertisements)
 
 //Get Advertisements
 router.route("/getAdvertisements").post(handleProtectedRoute,getAdvertisements)

@@ -57,8 +57,8 @@ const registerController = async (req, res, next) => {
             await user.save();
 
             // Generate tokens
-            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
             // Set cookies in the response
             res.cookie('refreshToken', refreshToken, {
@@ -103,8 +103,8 @@ const loginController = async (req, res, next) => {
         }
 
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
@@ -167,8 +167,8 @@ const googleLoginController = async (req, res, next) => {
         await user.save()
 
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
@@ -191,8 +191,8 @@ const googleLoginController = async (req, res, next) => {
     }
 
     else if (user) {
-        const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
 
         // Set cookies in the response
@@ -211,7 +211,7 @@ const googleLoginController = async (req, res, next) => {
         });
 
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Admin signed in successfully"
         })
@@ -429,7 +429,7 @@ const isLogginMiddleware = async (req, res, next) => {
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email });
+        const loggedinUser = await Admin.findOne({ email: decodeToken.user.email, admin: decodeToken.user.admin });
 
         if (!decodeToken) {
             return res.status(401).json({
@@ -441,7 +441,7 @@ const isLogginMiddleware = async (req, res, next) => {
         if (loggedinUser === null) {
              return res.status(400).json({
                 success: false,
-                message: "You are not a Admin.",
+                message: "You are not an Admin.",
                 user: [loggedinUser]
             });
         }
@@ -615,6 +615,8 @@ const handleProtectedRoute = async (req, res, next) => {
 
         // Verify old refresh token
         const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+        console.log(decodeToken)
 
         if (!decodeToken) {
             return res.status(401).json({

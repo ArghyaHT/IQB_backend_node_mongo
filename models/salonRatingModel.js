@@ -1,10 +1,6 @@
 const mongoose = require("mongoose")
 
 const salonRatingSchema = new mongoose.Schema({
-    salonId: {
-        type: Number
-    },
-    ratings: [{
         rating: {
             type: Number,
             min: 0, // Assuming ratings should be non-negative
@@ -13,7 +9,6 @@ const salonRatingSchema = new mongoose.Schema({
         email:{
             type: String
         }
-    }]
    
 },{timestamps: true})
 

@@ -82,8 +82,8 @@ const registerController = async (req, res, next) => {
 
 
     // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
@@ -147,8 +147,8 @@ const loginController = async (req, res, next) => {
     }
 
     // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
     // Set cookies in the response
     res.cookie('refreshToken', refreshToken, {
@@ -384,8 +384,8 @@ const googleLoginController = async (req, res, next) => {
         );
       }
 
-      const accessToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-      const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+      const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+      const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -425,8 +425,8 @@ const googleLoginController = async (req, res, next) => {
         );
       }
 
-      const accessToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-      const refreshToken = jwt.sign({ user: { name: user.name, email: user.email } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+      const accessToken = jwt.sign({ user: { name: user.name, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+      const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -603,8 +603,9 @@ const isBarberLogginMiddleware = async (req, res, next) => {
     // Verify old refresh token
     const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
 
-    const loggedinUser = await Barber.findOne({ email: decodeToken.user.email });
+    console.log(decodeToken)
 
+    const loggedinUser = await Barber.findOne({ email: decodeToken.user.email, barber: decodeToken.user.barber });
     if (!decodeToken) {
         return res.status(401).json({
             success: false,

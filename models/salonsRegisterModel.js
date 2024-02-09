@@ -92,6 +92,10 @@ const salonsSchema = new mongoose.Schema({
         }
 
     },
+    salonRating:  [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SalonRating'
+    }],
     services: [{
         serviceId: {
             type: Number,

@@ -27,37 +27,37 @@ router.route("/loggedinmiddleware").get(handleProtectedRoute, isLogginMiddleware
 // router.route("/profile").get(handleProtectedRoute,profileController)
 // router.route("/getAllAdmins").get(allAdmins)
 
-router.route("/deleteAdmin").post(handleProtectedRoute,deleteSingleAdmin)
+router.route("/deleteAdmin").post(handleProtectedRoute, isLogginMiddleware,deleteSingleAdmin)
 
 //Upload Admin Profile Picture
-router.route("/uploadAdminProfilePicture").post(handleProtectedRoute,uploadAdminprofilePic)
+router.route("/uploadAdminProfilePicture").post(handleProtectedRoute,isLogginMiddleware, uploadAdminprofilePic)
 
 //UPDATE BARBER PROFILE PICTURE
-router.route("/updateAdminProfilePicture").put(handleProtectedRoute,updateAdminProfilePic)
+router.route("/updateAdminProfilePicture").put(handleProtectedRoute,isLogginMiddleware, updateAdminProfilePic)
 
 //DELETE BARBER PROFILE PICTURE
-router.route("/deleteAdminProfilePicture").delete(handleProtectedRoute,deleteAdminProfilePicture)
+router.route("/deleteAdminProfilePicture").delete(handleProtectedRoute,isLogginMiddleware, deleteAdminProfilePicture)
 
 //UPDATE ADMIN ACCOUNT DETAILS
-router.route("/updateAdminAcoountDetails").put(handleProtectedRoute,updateAdminAccountDetails)
+router.route("/updateAdminAcoountDetails").put(handleProtectedRoute,isLogginMiddleware, updateAdminAccountDetails)
 
 //Approve Barber By Admin
-router.route("/approvedBarber").post(handleProtectedRoute,approveBarber)
+router.route("/approvedBarber").post(handleProtectedRoute,isLogginMiddleware,approveBarber)
 
 //Get All Salons By Admin
-router.route("/getAllSalonsByAdmin").post(handleProtectedRoute,getAllSalonsByAdmin)
+router.route("/getAllSalonsByAdmin").post(handleProtectedRoute,isLogginMiddleware,getAllSalonsByAdmin)
 
 //Change Default SalonId Of Admin
-router.route("/changeDefaultSalonIdofAdmin").post(handleProtectedRoute, changeDefaultSalonIdOfAdmin)
+router.route("/changeDefaultSalonIdofAdmin").post(handleProtectedRoute,isLogginMiddleware, changeDefaultSalonIdOfAdmin)
 
 //Send Mail to Admin for Verification
-router.route("/sendVerificationCodeForAdminEmail").post(handleProtectedRoute, sendVerificationCodeForAdminEmail)
+router.route("/sendVerificationCodeForAdminEmail").post(handleProtectedRoute,isLogginMiddleware, sendVerificationCodeForAdminEmail)
 
 //Send EmailVerifiedStatus
-router.route("/changeEmailVerifiedStatus").post(handleProtectedRoute, changeEmailVerifiedStatus)
+router.route("/changeEmailVerifiedStatus").post(handleProtectedRoute,isLogginMiddleware, changeEmailVerifiedStatus)
 
 //Get Default Salon Of Admin
-router.route("/getDefaultSalonByAdmin").post(handleProtectedRoute, getDefaultSalonByAdmin)
+router.route("/getDefaultSalonByAdmin").post(handleProtectedRoute,isLogginMiddleware, getDefaultSalonByAdmin)
 
 
 module.exports = router
