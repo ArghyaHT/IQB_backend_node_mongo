@@ -39,7 +39,7 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 
 //GET ALL SALON SERVICES
-router.route("/allSalonServices").get(handleProtectedRoute ,allSalonServices) //api working
+router.route("/allSalonServices").get(handleBarberProtectedRoute, allSalonServices) //api working
 
 router.route("/updateSalonServiceByServiceId").put(handleProtectedRoute,updateSalonServiceByServiceId) //api working perfectly
 
