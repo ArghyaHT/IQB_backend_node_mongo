@@ -36,8 +36,7 @@ router.route("/barberLoggedinmiddleware").get(handleBarberProtectedRoute, isBarb
 // router.route("/profile").get(handleProtectedRoute,profileController)
 
 
-//CONNECT BARBER TO SALON
-router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBarbertoSalon)
+
 
 //CREATE BARBER BY ADMIN
 router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdmin)
@@ -47,6 +46,12 @@ router.route("/updateBarberByAdmin").put(handleProtectedRoute, updateBarberByAdm
 
 router.route("/getAllBarberBySalonId").post(handleProtectedRoute, getAllBarberbySalonId) 
 
+router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
+
+//---------==========================================================================------------//
+
+//CONNECT BARBER TO SALON
+router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBarbertoSalon)
 //GET BARBER DETAILS BY EMAIL
 router.route("/getBarberDetailsByEmail").post(handleBarberProtectedRoute,getBarberDetailsByEmail)
 
@@ -71,7 +76,6 @@ router.route("/changeBarberWorkingStatus").post(handleBarberProtectedRoute,chnag
 
 router.route("/getAllBarbersByServiceId").get(handleBarberProtectedRoute,getAllBarbersByServiceId)
 
-router.route("/getBarberServicesByBarberId").get(handleBarberProtectedRoute,getBarberServicesByBarberId)
 
 router.route("/changeBarberOnlineStatus").post(handleBarberProtectedRoute, isBarberOnline)
 
