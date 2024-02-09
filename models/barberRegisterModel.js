@@ -117,7 +117,8 @@ const barberSchema = new mongoose.Schema({
         default: 0
     },
     isOnline: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     isDeleted: {
         type: Boolean,
