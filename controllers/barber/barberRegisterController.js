@@ -620,7 +620,7 @@ const isBarberLogginMiddleware = async (req, res, next) => {
  }
      return res.status(200).json({
          success: true,
-         message: "User Admin already logged in",
+         message: "User Barber already logged in",
          user: [loggedinUser]
      });
 
