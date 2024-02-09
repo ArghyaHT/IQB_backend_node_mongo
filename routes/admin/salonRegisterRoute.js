@@ -5,27 +5,27 @@ const { handleProtectedRoute, changeDefaultSalonIdOfAdmin, isLogginMiddleware } 
 
 const router = express.Router()
 
-router.route("/getAllSalonsByAdminEmail").get(handleProtectedRoute, isLogginMiddleware,getAllSalonsByAdmin) //api integrated
+router.route("/getAllSalonsByAdminEmail").get(handleProtectedRoute,getAllSalonsByAdmin) //api integrated
 
 //CREATE SALON BY ADMIN
-router.route("/createSalonByAdmin").post(handleProtectedRoute,isLogginMiddleware,createSalonByAdmin) //api integrated
+router.route("/createSalonByAdmin").post(handleProtectedRoute,createSalonByAdmin) //api integrated
 
 //UPLOAD SALON IMAGE
-router.route("/uploadSalonImage").post(handleProtectedRoute,isLogginMiddleware,uploadSalonGallery)
+router.route("/uploadSalonImage").post(handleProtectedRoute,uploadSalonGallery)
 
 //UPLOAD MORE IMAGES TO THE EXISTING ARRAY OF IMAGES
-router.route("/uploadMoreImages").post(handleProtectedRoute,isLogginMiddleware, uploadMoreSalonGalleryImages)
+router.route("/uploadMoreImages").post(handleProtectedRoute, uploadMoreSalonGalleryImages)
 
 //UPDATE SALON IMAGES
-router.route("/updateSalonImages").put(handleProtectedRoute,isLogginMiddleware,updateSalonImages)
+router.route("/updateSalonImages").put(handleProtectedRoute,updateSalonImages)
 
 //DELETE SALON IMAGES
-router.route("/deleteSalonImages").delete(handleProtectedRoute,isLogginMiddleware, deleteSalonImages)
+router.route("/deleteSalonImages").delete(handleProtectedRoute, deleteSalonImages)
 //DELETE SALON IMAGES
 router.route("/getSalonImages").post(getSalonImages)
 
 //UPDATE SALON BY ADMIN EMAIL AND SALON ID
-router.route("/updateSalonBySalonIdAndAdminEmail").put(handleProtectedRoute,isLogginMiddleware,updateSalonBySalonIdAndAdminEmail)
+router.route("/updateSalonBySalonIdAndAdminEmail").put(handleProtectedRoute,updateSalonBySalonIdAndAdminEmail)
 
 // router.route("/addSalonServices").post(addServices)
 
@@ -40,12 +40,12 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 //GET ALL SALON SERVICES
 router.route("/allSalonServices").get(handleProtectedRoute ,allSalonServices) //api working
 
-router.route("/updateSalonServiceByServiceId").put(handleProtectedRoute,isLogginMiddleware,updateSalonServiceByServiceId) //api working perfectly
+router.route("/updateSalonServiceByServiceId").put(handleProtectedRoute,updateSalonServiceByServiceId) //api working perfectly
 
 router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSalonId)
 
 //SOFT DELETE SALON
-router.route("/deleteSalon").post(handleProtectedRoute,isLogginMiddleware,deleteSalon)
+router.route("/deleteSalon").post(handleProtectedRoute,deleteSalon)
 
 //GetAll Salons
 router.route("/getAllSalons").get(handleProtectedRoute,getAllSalons)

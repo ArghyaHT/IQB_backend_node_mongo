@@ -43,12 +43,12 @@ router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBar
 router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdmin)
 
 //UPDATE BARBER BY ADMIN
-router.route("/updateBarberByAdmin").put(handleProtectedRoute,updateBarberByAdmin)
+router.route("/updateBarberByAdmin").put(handleProtectedRoute, updateBarberByAdmin)
+
+router.route("/getAllBarberBySalonId").post(handleProtectedRoute, getAllBarberbySalonId) 
 
 //GET BARBER DETAILS BY EMAIL
 router.route("/getBarberDetailsByEmail").post(handleBarberProtectedRoute,getBarberDetailsByEmail)
-
-router.route("/getAllBarberBySalonId").post(handleBarberProtectedRoute ,getAllBarberbySalonId) //api integrated
 
 //Update Barber Account Details
 router.route("/updateBarberAccountDetails").put(handleBarberProtectedRoute,updateBarberAccountDetails)
