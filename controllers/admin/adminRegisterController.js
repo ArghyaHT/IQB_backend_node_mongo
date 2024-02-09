@@ -446,13 +446,11 @@ const isLogginMiddleware = async (req, res, next) => {
             });
         }
        
-        // return res.status(200).json({
-        //     success: true,
-        //     message: "User already logged in",
-        //     user: [loggedinUser]
-        // });
-
-        next();
+        return res.status(200).json({
+            success: true,
+            message: "User already logged in",
+            user: [loggedinUser]
+        });
 
     } catch (error) {
         console.log(error);
