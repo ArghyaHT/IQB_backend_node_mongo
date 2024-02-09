@@ -441,7 +441,7 @@ const isLogginMiddleware = async (req, res, next) => {
         if (loggedinUser === null) {
              return res.status(400).json({
                 success: false,
-                message: "You are not a Admin Logged in Error",
+                message: "You are not a Admin.",
                 user: [loggedinUser]
             });
         }
@@ -450,21 +450,6 @@ const isLogginMiddleware = async (req, res, next) => {
                 message: "User Admin already logged in",
                 user: [loggedinUser]
             });
-        
-        
-        // if (loggedinUser) {
-        //     return res.status(200).json({
-        //         success: true,
-        //         message: "User already logged in",
-        //         user: [loggedinUser]
-        //     });
-        // } else {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "You are not a barber",
-        //         user: [loggedinUser]
-        //     });
-        // }
 
     } catch (error) {
         console.log(error);
