@@ -219,13 +219,20 @@ const deleteAdvertisements = async (req, res, next) => {
 const getDashboardAppointmentList = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
+    
+  // Split the date string into day, month, and year
+const [day, month, year] = appointmentDate.split('/');
+
+// Create a new date string in the format YYYY-MM-DD
+const isoAppointmentDate = `${year}-${month}-${day}`;
+console.log(isoAppointmentDate);
 
     const appointments = await Appointment.aggregate([
       {
         $match: {
           salonId: salonId,
           "appointmentList.appointmentDate": {
-            $eq: new Date(appointmentDate)
+            $eq: new Date(isoAppointmentDate) // <-- This line needs adjustment
           }
         }
       },
@@ -235,7 +242,7 @@ const getDashboardAppointmentList = async (req, res, next) => {
       {
         $match: {
           "appointmentList.appointmentDate": {
-            $eq: new Date(appointmentDate)
+            $eq: new Date(isoAppointmentDate)
           }
         }
       },
