@@ -32,7 +32,7 @@ const createAppointment = async (req, res, next) => {
           totalServiceEWT += service.barberServiceEWT || 0;
 
           if (serviceIds) {
-            serviceIds += "- ";
+            serviceIds += "-";
           }
           serviceIds += service.serviceId.toString();
 
@@ -497,6 +497,14 @@ const getAllAppointmentsBySalonIdAndDate = async (req, res, next) => {
           localField: "appointmentList.barberId",
           foreignField: "barberId",
           as: "barberInfo"
+        }
+      },
+      {
+        $lookup: {
+          from: "salon",
+          localField: "appointmentList.serviceIds",
+          foreignField: "services.serviceId",
+          as: "serviceInfo"
         }
       },
       {

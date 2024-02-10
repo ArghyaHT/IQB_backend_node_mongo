@@ -728,7 +728,7 @@ const approveBarber = async (req, res, next) => {
         const approvedStatus = await Barber.findOneAndUpdate({ salonId, email }, { isApproved }, { new: true });
 
         if (!email) {
-            res.status(201).json({
+            res.status(400).json({
                 success: false,
                 message: "Barber with the EmailId not found for the Salon",
             });

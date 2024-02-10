@@ -532,7 +532,7 @@ const getSalonInfo = async (req, res, next) => {
   const { salonId } = req.query;
   try {
     // Find salon information by salonId
-    const salonInfo = await Salon.findOne({ salonId });
+    const salonInfo = await Salon.findOne({ salonId }).populate("salonRatings");
 
     if (!salonInfo) {
       res.status(404).json({

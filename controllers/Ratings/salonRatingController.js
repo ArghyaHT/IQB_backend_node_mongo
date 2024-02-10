@@ -24,7 +24,7 @@ const salonRating = async (req, res, next) => {
             { salonId: salonId }, // Filter object specifying which document to update
             { $push: { salonRatings: salonRating._id } }, // Update operation
             { new: true } // Optional: to return the updated document
-        );x
+        );
 
         res.status(200).json({
             success: true,

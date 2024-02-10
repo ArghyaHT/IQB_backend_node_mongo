@@ -813,7 +813,6 @@ const createBarberByAdmin = async (req, res, next) => {
       isApproved: true,
       barberCode,
       barberId,
-      isActive: true,
       barberServices // Assigning the received services array
     });
 

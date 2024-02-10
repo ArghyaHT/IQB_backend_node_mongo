@@ -262,7 +262,7 @@ const getDashboardAppointmentList = async (req, res, next) => {
           _id: 0, // Exclude MongoDB generated _id field
           barberId: "$appointmentList.barberId",
           serviceId: "$appointmentList.serviceId",
-          appointmentName: "$appointmentList.appointmentName",
+          appointmentNotes: "$appointmentList.appointmentNotes",
           appointmentDate: {
             $dateToString: {
               format: "%Y-%m-%d", // Format the date as YYYY-MM-DD

@@ -55,8 +55,12 @@ router.route("/getBarberServicesByBarberId").get(handleAdminProtectedRoute,getBa
 router.route("/barberAllSalonServices").get(handleBarberProtectedRoute, allSalonServices)
 //CONNECT BARBER TO SALON
 router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBarbertoSalon)
+
+
+//==============================================//
 //GET BARBER DETAILS BY EMAIL
-router.route("/getBarberDetailsByEmail").post(handleBarberProtectedRoute,getBarberDetailsByEmail)
+router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,getBarberDetailsByEmail)
+//==============================================//
 
 //Update Barber Account Details
 router.route("/updateBarberAccountDetails").put(handleBarberProtectedRoute,updateBarberAccountDetails)
