@@ -263,6 +263,7 @@ const getDashboardAppointmentList = async (req, res, next) => {
           barberId: "$appointmentList.barberId",
           serviceId: "$appointmentList.serviceId",
           appointmentNotes: "$appointmentList.appointmentNotes",
+          appointmentServices: "$appointmentList.serviceName",
           appointmentDate: {
             $dateToString: {
               format: "%Y-%m-%d", // Format the date as YYYY-MM-DD

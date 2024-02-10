@@ -66,6 +66,10 @@ const barberSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    barberRatings:  [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BarberRating'
+    }],
     profile: [
         {
             public_id: {
