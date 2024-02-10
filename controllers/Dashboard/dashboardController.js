@@ -220,15 +220,23 @@ const getDashboardAppointmentList = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
 
-    // Parse appointmentDate as a date object
-    const date = new Date(appointmentDate);
+  // Parse appointmentDate as a timestamp using Date.parse()
+const timestamp = Date.parse(appointmentDate);
+
+// Convert the timestamp to a date object
+const date = new Date(timestamp);
+
+// Convert to ISO format and extract the date part
+const isoDate = date.toISOString().split('T')[0];
+
+console.log(isoDate);
 
     const appointments = await Appointment.aggregate([
       {
         $match: {
           salonId: salonId,
           "appointmentList.appointmentDate": {
-            $eq: new Date(date)
+            $eq: new Date(isoDate)
           }
         }
       },
@@ -238,7 +246,7 @@ const getDashboardAppointmentList = async (req, res, next) => {
       {
         $match: {
           "appointmentList.appointmentDate": {
-            $eq: new Date(date)
+            $eq: new Date(isoDate)
           }
         }
       },
