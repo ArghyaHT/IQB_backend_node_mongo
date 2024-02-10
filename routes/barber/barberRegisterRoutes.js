@@ -1,6 +1,6 @@
 const express = require("express");
 const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
-const {  handleProtectedRoute, isLogginMiddleware } = require("../../controllers/admin/adminRegisterController");
+const {  handleProtectedRoute, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
 
 
@@ -40,14 +40,14 @@ router.route("/barberLoggedinmiddleware").get(handleBarberProtectedRoute, isBarb
 
 
 //CREATE BARBER BY ADMIN
-router.route("/createBarberByAdmin").post(handleProtectedRoute,createBarberByAdmin)
+router.route("/createBarberByAdmin").post(handleAdminProtectedRoute,createBarberByAdmin)
 
 //UPDATE BARBER BY ADMIN
-router.route("/updateBarberByAdmin").put(handleProtectedRoute, updateBarberByAdmin)
+router.route("/updateBarberByAdmin").put(handleAdminProtectedRoute, updateBarberByAdmin)
 
-router.route("/getAllBarberBySalonId").post(handleProtectedRoute, getAllBarberbySalonId) 
+router.route("/getAllBarberBySalonId").post(handleAdminProtectedRoute, getAllBarberbySalonId) 
 
-router.route("/getBarberServicesByBarberId").get(handleProtectedRoute,getBarberServicesByBarberId)
+router.route("/getBarberServicesByBarberId").get(handleAdminProtectedRoute,getBarberServicesByBarberId)
 
 //---------==========================================================================------------//
 

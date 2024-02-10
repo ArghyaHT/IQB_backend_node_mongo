@@ -1,4 +1,5 @@
 const SalonRating = require("../../models/salonRatingModel");
+const Salon = require("../../models/salonsRegisterModel");
 
 const salonRating = async (req, res, next) => {
     try {
@@ -11,28 +12,24 @@ const salonRating = async (req, res, next) => {
                 message: 'Missing required parameters (salonId, rating, email).',
             });
         }
+        //Saving Salonrating
+        const salonRating = new SalonRating({
+            salonId: salonId,
+            rating: rating,
+            email: email
+        })
+        await salonRating.save();
 
-        // Find the SalonRating document based on salonId
-        let salonRatingDoc = await SalonRating.findOne({ salonId });
-
-        // If SalonRating document doesn't exist, create a new one
-        if (!salonRatingDoc) {
-            salonRatingDoc = new SalonRating({
-                salonId,
-                ratings: [{ rating, email }],
-            });
-        } else {
-            // SalonRating document exists, add the new rating to the ratings array
-            salonRatingDoc.ratings.push({ rating, email });
-        }
-
-        // Save the updated SalonRating document
-        await salonRatingDoc.save();
+        const salon = await Salon.findOneAndUpdate(
+            { salonId: salonId }, // Filter object specifying which document to update
+            { $push: { salonRatings: salonRating._id } }, // Update operation
+            { new: true } // Optional: to return the updated document
+        );x
 
         res.status(200).json({
             success: true,
             message: 'Rating added successfully.',
-            response: salonRatingDoc,
+            response: salonRating,
         });
     } catch (error) {
         console.log(error);
@@ -40,10 +37,10 @@ const salonRating = async (req, res, next) => {
  }
 };
 
+// Function to calculate the average rating for a salon
 async function getAverageRating(salonId) {
     try {
-
-        const numsalonId = Number(salonId)
+        const numsalonId = Number(salonId);
         // Validate if salonId is provided
         if (!numsalonId) {
             throw new Error('Missing required parameter: salonId.');
@@ -56,13 +53,10 @@ async function getAverageRating(salonId) {
                 },
             },
             {
-                $unwind: "$ratings",
-            },
-            {
                 $group: {
                     _id: null,
                     averageRating: {
-                        $avg: "$ratings.rating",
+                        $avg: "$rating",
                     },
                 },
             },
@@ -85,7 +79,6 @@ async function getAverageRating(salonId) {
         throw new Error('Failed to get average rating. Please try again.');
     }
 }
-
 
 module.exports = {
     salonRating,

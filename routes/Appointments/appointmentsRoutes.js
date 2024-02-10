@@ -1,24 +1,24 @@
 const express =  require("express");
 const { createAppointment, getAllAppointmentsByBarberId, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberIdAndDate, editAppointment, deleteAppointment, barberServedAppointment } = require("../../controllers/Appointments/appointmentsController");
-const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController");
+const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 
 const router = express.Router();
 
 router.route("/createAppointment").post(createAppointment);
 
-router.route("/editAppointments").put(handleProtectedRoute, editAppointment)
+router.route("/editAppointments").put(handleAdminProtectedRoute, editAppointment)
 
-router.route("/deleteAppointments").delete(handleProtectedRoute, deleteAppointment)
+router.route("/deleteAppointments").delete(handleAdminProtectedRoute, deleteAppointment)
 
-router.route("/getEngageBarberTimeSlots").post(handleProtectedRoute ,getEngageBarberTimeSlots)
+router.route("/getEngageBarberTimeSlots").post(handleAdminProtectedRoute ,getEngageBarberTimeSlots)
 
-router.route("/getAllAppointmentsBySalonId").post(handleProtectedRoute ,getAllAppointmentsBySalonId)
+router.route("/getAllAppointmentsBySalonId").post(handleAdminProtectedRoute ,getAllAppointmentsBySalonId)
 
-router.route("/getAllAppointmentsBySalonIdAndDate").post(handleProtectedRoute ,getAllAppointmentsBySalonIdAndDate)
+router.route("/getAllAppointmentsBySalonIdAndDate").post(handleAdminProtectedRoute ,getAllAppointmentsBySalonIdAndDate)
 
-router.route("/getAllAppointmentsByBarberId").post(handleProtectedRoute ,getAllAppointmentsByBarberId)
+router.route("/getAllAppointmentsByBarberId").post(handleAdminProtectedRoute ,getAllAppointmentsByBarberId)
 
-router.route("/getAllAppointmentsByBarberIdAndDate").post(handleProtectedRoute ,getAllAppointmentsByBarberIdAndDate)
+router.route("/getAllAppointmentsByBarberIdAndDate").post(handleAdminProtectedRoute ,getAllAppointmentsByBarberIdAndDate)
 
 router.route("/barberServedAppointment").post(barberServedAppointment)
 

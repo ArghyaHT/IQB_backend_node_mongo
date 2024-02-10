@@ -601,7 +601,7 @@ const isLoggedOutMiddleware = async (req, res, next) => {
 }
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
-const handleProtectedRoute = async (req, res, next) => {
+const handleAdminProtectedRoute = async (req, res, next) => {
     try {
         const accessToken = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
@@ -641,6 +641,38 @@ const handleProtectedRoute = async (req, res, next) => {
         console.log(error);
         next(error);
       }
+
+};
+
+//COMMON MIDDLEWARES FOR ALL
+const handleProtectedRoute = async (req, res, next) => {
+    try {
+        const accessToken = req.cookies.accessToken;
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(200).json({
+                success: false,
+                message: "Refresh Token not present.Please Login Again",
+            });
+        }
+
+        // Verify old refresh token
+        const decodeToken = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+
+        if (!decodeToken) {
+            return res.status(200).json({
+                success: false,
+                message: "Invalid Access Token. UnAuthorize User",
+            });
+        }
+
+        req.user = decodeToken.user;
+        next();
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
 
 };
 
@@ -1058,7 +1090,7 @@ module.exports = {
     updateAdminAccountDetails,
     loginController,
     refreshTokenController,
-    handleProtectedRoute,
+    handleAdminProtectedRoute,
     // profileController,
     handleLogout,
     isLogginMiddleware,
@@ -1075,5 +1107,6 @@ module.exports = {
     changeDefaultSalonIdOfAdmin,
     sendVerificationCodeForAdminEmail,
     changeEmailVerifiedStatus,
-    getDefaultSalonByAdmin
+    getDefaultSalonByAdmin,
+    handleProtectedRoute
 }

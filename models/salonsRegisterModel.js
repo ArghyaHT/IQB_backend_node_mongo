@@ -92,7 +92,7 @@ const salonsSchema = new mongoose.Schema({
         }
 
     },
-    salonRating:  [{
+    salonRatings:  [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SalonRating'
     }],

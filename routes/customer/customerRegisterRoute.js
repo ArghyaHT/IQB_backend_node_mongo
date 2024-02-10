@@ -1,7 +1,7 @@
 const express = require("express")
 const { signUp, signIn, forgetPassword, allCustomers, deleteSingleCustomer, updateCustomer, sendMailToCustomer, checkEmail, matchVerificationCode, getAppointmentForCustomer, customerConnectSalon, verifyPasswordResetCode, getCustomerDetails, savePassword, resetPassword, sendBulkEmailToCustomers, uploadCustomerprofilePic, updateCustomerProfilePic, deleteCustomerProfilePicture, getAllAppointmentsByCustomer, getAllSalonsByCustomer, changeDefaultSalonIdOfCustomer, customerDashboard, customerFavoriteSalon, getAllCustomerFavoriteSalons, deleteCustomerFavoriteSalon,  } = require("../../controllers/customer/customerRegisterController.js")
 const { validateSignUp, validate } = require("../../middlewares/registerValidator")
-const { handleProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
+const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController.js")
 
 
 const router = express.Router()
@@ -45,7 +45,7 @@ router.route("/updateCustomer").put(updateCustomer)
 
 //SendMailToCustomer
 
-router.route("/sendMailToCustomer").post(handleProtectedRoute, sendMailToCustomer)
+router.route("/sendMailToCustomer").post(handleAdminProtectedRoute, sendMailToCustomer)
 
 //Connect Customer to the Salon
 router.route("/customerConnectSalon").post(customerConnectSalon)
