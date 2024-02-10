@@ -500,14 +500,6 @@ const getAllAppointmentsBySalonIdAndDate = async (req, res, next) => {
         }
       },
       {
-        $lookup: {
-          from: "salon",
-          localField: "appointmentList.serviceIds",
-          foreignField: "services.serviceId",
-          as: "serviceInfo"
-        }
-      },
-      {
         $addFields: {
           "appointmentList.barberName": {
             $arrayElemAt: ["$barberInfo.name", 0]
