@@ -1289,7 +1289,7 @@ const getBarberDetailsByEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const barber = await Barber.findOne({ email });
+    const barber = await Barber.findOne({ email }).populate("barberRatings");
 
     if (!barber) {
       return res.status(404).json({
@@ -1307,7 +1307,7 @@ const getBarberDetailsByEmail = async (req, res, next) => {
       message: "Barber is Found",
       response: {
         ...barber.toObject(), // Convert Mongoose document to plain JavaScript object
-        barberRating: getBarberRating,
+        barberRating: getBarberRating, 
       },
     });
   }

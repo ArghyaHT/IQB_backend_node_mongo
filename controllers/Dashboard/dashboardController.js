@@ -96,7 +96,7 @@ const getAdvertisements = async (req, res, next) => {
       message: 'Advertisement images retrieved successfully',
       advertisements: sortedAdvertisements
     });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -137,7 +137,7 @@ const updateAdvertisements = async (req, res, next) => {
 
         if (result.result === 'ok') {
           console.log("cloud img deleted")
-    
+
         } else {
           res.status(500).json({ message: 'Failed to delete image.' });
         }
@@ -150,14 +150,14 @@ const updateAdvertisements = async (req, res, next) => {
         });
 
         const updatedSalonSettings = await SalonSettings.findOneAndUpdate(
-          { "advertisements._id": id }, 
-          { 
-            $set: { 
+          { "advertisements._id": id },
+          {
+            $set: {
               'advertisements.$.public_id': image.public_id,
               'advertisements.$.url': image.url
-            } 
-          }, 
-          { new: true } 
+            }
+          },
+          { new: true }
         );
 
         res.status(200).json({
@@ -167,7 +167,7 @@ const updateAdvertisements = async (req, res, next) => {
         });
 
       })
-      .catch ((error) =>  {
+      .catch((error) => {
         console.log(error);
         next(error);
       })
@@ -207,7 +207,7 @@ const deleteAdvertisements = async (req, res, next) => {
     } else {
       return res.status(500).json({ message: 'Failed to delete image.' });
     }
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -219,20 +219,16 @@ const deleteAdvertisements = async (req, res, next) => {
 const getDashboardAppointmentList = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
-    
-  // Split the date string into day, month, and year
-const [day, month, year] = appointmentDate.split('/');
 
-// Create a new date string in the format YYYY-MM-DD
-const isoAppointmentDate = `${year}-${month}-${day}`;
-console.log(isoAppointmentDate);
+    // Parse appointmentDate as a date object
+    const date = new Date(appointmentDate);
 
     const appointments = await Appointment.aggregate([
       {
         $match: {
           salonId: salonId,
           "appointmentList.appointmentDate": {
-            $eq: new Date(isoAppointmentDate) // <-- This line needs adjustment
+            $eq: new Date(date)
           }
         }
       },
@@ -242,7 +238,7 @@ console.log(isoAppointmentDate);
       {
         $match: {
           "appointmentList.appointmentDate": {
-            $eq: new Date(isoAppointmentDate)
+            $eq: new Date(date)
           }
         }
       },
@@ -302,7 +298,7 @@ console.log(isoAppointmentDate);
       message: 'Appointments retrieved successfully for Dashboard',
       response: appointments
     });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
