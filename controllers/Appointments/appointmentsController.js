@@ -614,80 +614,74 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
 
     const appointments = await Appointment.aggregate([
       {
-        $match: {
-          salonId: salonId,
-          "appointmentList.appointmentDate": {
-            $eq: new Date(appointmentDate)
-          },
-          "appointmentList.barberId": barberId
-        }
+          $match: {
+              salonId: salonId,
+              "appointmentList.appointmentDate": {
+                  $eq: new Date(appointmentDate)
+              },
+              "appointmentList.barberId": barberId
+          }
       },
       { $unwind: "$appointmentList" },
       {
-        $match: {
-          "appointmentList.appointmentDate": {
-            $eq: new Date(appointmentDate)
-          },
-          "appointmentList.barberId": barberId
-        }
-      },
-      {
-        $lookup: {
-          from: "barbers",
-          localField: "appointmentList.barberId",
-          foreignField: "barberId",
-          as: "barberInfo"
-        }
-      },
-      {
-        $addFields: {
-          "appointmentList.barberName": {
-            $arrayElemAt: ["$barberInfo.name", 0]
+          $match: {
+              "appointmentList.appointmentDate": {
+                  $eq: new Date(appointmentDate)
+              },
+              "appointmentList.barberId": barberId
           }
-        }
       },
       {
-        $addFields: {
-          "appointmentList.services": {
-            $map: {
-              input: "$appointmentList.services",
-              as: "service",
-              in: {
-                serviceId: "$$service.serviceId",
-                serviceName: "$$service.serviceName"
+          $lookup: {
+              from: "barbers",
+              localField: "appointmentList.barberId",
+              foreignField: "barberId",
+              as: "barberInfo"
+          }
+      },
+      {
+          $addFields: {
+              "appointmentList.barberName": {
+                  $arrayElemAt: ["$barberInfo.name", 0]
               }
-            }
           }
-        }
       },
       {
-        $project: {
-          _id: 0, // Exclude _id field
-          barbername: "$appointmentList.barberName",
-          appointments: {
-            $map: {
-              input: ["$appointmentList"],
-              as: "appt",
-              in: {
-                barberId: "$$appt.barberId",
-                barberName: "$$appt.barberName",
-                services: "$$appt.services",
-                appointmentDate: "$$appt.appointmentDate",
-                startTime: "$$appt.startTime",
-                endTime: "$$appt.endTime",
-                timeSlots: "$$appt.timeSlots",
-                customerEmail: "$$appt.customerEmail",
-                customerName: "$$appt.customerName",
-                customerType: "$$appt.customerType",
-                methodUsed: "$$appt.methodUsed",
-                _id: "$$appt._id",
-               
+          $group: {
+              _id: "$appointmentList.barberId",
+              barbername: { $first: "$appointmentList.barberName" },
+              appointments: {
+                $push: {
+                  appointmentDate: "$appointmentList.appointmentDate",
+                  barberId: "$appointmentList.barberId",
+                  appointmentNotes: "$appointmentList.appointmentNotes",
+                  services: {
+                    $map: {
+                      input: "$appointmentList.services",
+                      as: "service",
+                      in: {
+                        serviceId: "$$service.serviceId",
+                        serviceName: "$$service.serviceName"
+                      }
+                    }
+                  },
+                  appointmentStartTime: "$appointmentList.startTime",
+                  appointmentEndTime: "$appointmentList.endTime",
+                  customerName: "$appointmentList.customerName",
+                  methodUsed: "$appointmentList.methodUsed"
+                }
               }
-            }
           }
-        }
+      },
+      {
+          $project: {
+              _id: 0, // Exclude _id field
+              barbername: 1,
+              barberId: 1,
+              appointments: 1
+          }
       }
-    ]);
+  ]);
 
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({
@@ -729,23 +723,46 @@ const barberServedAppointment = async (req, res, next) => {
       });
     }
 
-     // Extract the appointment to be served
-     const servedAppointment = appointment.appointmentList.find(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate && appt.services.some(service => serviceId.includes(service.serviceId)));
+       // Extract the served appointment from the list
+       const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate && appt.services.some(service => serviceId.includes(service.serviceId)));
+   
+       
+    // Check if served appointment exists
+    if (servedAppointmentIndex === -1) {
+      // Create a new served appointment entry
+      const newServedAppointment = {
+        barberId: appointment.appointmentList[0].barberId,
+        appointmentNotes: appointment.appointmentList[0].appointmentNotes,
+        appointmentDate: appointmentDate,
+        startTime: appointment.appointmentList[0].startTime,
+        endTime: appointment.appointmentList[0].endTime,
+        timeSlots: appointment.appointmentList[0].timeSlots,
+        customerEmail: appointment.appointmentList[0].customerEmail,
+        customerName: appointment.appointmentList[0].customerName,
+        customerType: appointment.appointmentList[0].customerType,
+        methodUsed: appointment.appointmentList[0].methodUsed,
+        status: 'served'
+    };
+    
+    // Map services of the first appointment in the list to newServedAppointment
+    newServedAppointment.services = appointment.appointmentList[0].services.map(service => ({
+        serviceId: service.serviceId,
+        serviceName: service.serviceName,
+        servicePrice: service.servicePrice,
+        serviceEWT: service.serviceEWT
+    }));
 
-
-    // Find or create the AppointmentHistory document for the salonId
-    const historyEntry = await AppointmentHistory.findOneAndUpdate(
-      { salonId },
-      {
-        $push: {
-          appointmentList: {
-            ...appointment.appointmentList[0],
-            status: "served",
+      // Store the served appointment in AppointmentHistory collection
+      const historyEntry = await AppointmentHistory.findOneAndUpdate(
+        { salonId },
+        {
+          $push: {
+            appointmentList: newServedAppointment, // Store the served appointment details
           },
-        }
-      },
-      { upsert: true, new: true }
-    );
+        },
+        { upsert: true, new: true }
+      );
+    }
 
     // Remove the served appointment from the Appointment table
     await Appointment.updateOne(

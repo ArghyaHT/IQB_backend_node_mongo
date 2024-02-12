@@ -4,3 +4,14 @@
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T08:47:17.277Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T08:51:36.258Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T08:54:38.298Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:32:47.934Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:38:19.210Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:45:05.697Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:48:48.605Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:53:44.837Z"}
+{"appointmentDate":"2024-02-09","barberId":1,"level":"info","message":"Request Body:","salonId":2,"timestamp":"2024-02-12T10:53:44.838Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T10:55:05.058Z"}
+{"appointmentDate":"2024-02-09","barberId":1,"level":"info","message":"Request Body:","salonId":2,"timestamp":"2024-02-12T10:55:05.060Z"}
+{"appointmentDate":"2024-02-09","barberId":1,"level":"error","message":"Request Body:","salonId":2,"timestamp":"2024-02-12T10:56:08.493Z"}
+{"level":"error","message":"Cannot set properties of undefined (setting 'status')","timestamp":"2024-02-12T11:07:08.993Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T11:26:19.205Z"}

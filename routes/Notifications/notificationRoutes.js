@@ -1,6 +1,7 @@
 const express = require("express");
 const { registerFcmToken, sendNotification, getAllNotifications, sendNotificationToAndroid, multiplesendNotification } = require("../../controllers/notifications/notificationController");
 const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
+const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.route("/send-multiple-notification").post(handleAdminProtectedRoute, mult
 router.route("/send-notification-android").post(sendNotificationToAndroid)
 
 //Get All Notifications
-router.route("/getAllNotifications").post(handleAdminProtectedRoute, getAllNotifications)
+router.route("/getAllNotifications").post(handleBarberProtectedRoute, getAllNotifications)
 
 
 

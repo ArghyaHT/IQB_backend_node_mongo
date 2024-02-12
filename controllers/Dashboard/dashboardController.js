@@ -274,7 +274,13 @@ console.log(isoDate);
           barberId: "$appointmentList.barberId",
           serviceId: "$appointmentList.serviceId",
           appointmentNotes: "$appointmentList.appointmentNotes",
-          appointmentServices: "$appointmentList.serviceName",
+          appointmentServices: {
+            $map: {
+              input: "$appointmentList.services",
+              as: "service",
+              in: "$$service.serviceName"
+            }
+          },
           appointmentDate: {
             $dateToString: {
               format: "%Y-%m-%d", // Format the date as YYYY-MM-DD
