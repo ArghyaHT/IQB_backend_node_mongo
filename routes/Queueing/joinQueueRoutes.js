@@ -34,7 +34,4 @@ router.route("/cancelQ").post(cancelQueue)
 //Get Q History
 router.route("/getQhistory").post(getQhistoryByCustomerEmail)
 
-//SendSms
-router.route("/send-sms").post(sendQSms)
-
 module.exports = router

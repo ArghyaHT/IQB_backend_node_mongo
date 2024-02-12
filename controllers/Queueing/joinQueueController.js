@@ -684,23 +684,6 @@ const getQhistoryByCustomerEmail = async (req, res, next) => {
 };
 
 
-
-const sendQSms = async(req, res, next) => {
-  try{
-    const {body} = req.body;
-   sendSms(body)
-    res.status(200).json({
-      success:true,
-      message: "Sms sent successfully"
-    })
-  }
-  catch (error) {
-    console.log(error);
-    next(error);
-  }
-}
-
-
 module.exports = {
   singleJoinQueue,
   groupJoinQueue,
@@ -711,6 +694,5 @@ module.exports = {
   getBarberByMultipleServiceId,
   getQlistbyBarberId,
   cancelQueue,
-  sendQSms,
   getQhistoryByCustomerEmail 
 }

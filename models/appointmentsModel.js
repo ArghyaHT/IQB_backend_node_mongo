@@ -8,12 +8,20 @@ appointmentList:[{
     barberId:{
         type: Number
     },
-    serviceId:{
-        type: String
-    },
-    serviceName: {
-        type: String
-    },
+    services: [{
+        serviceId: {
+            type: Number
+        },
+        serviceName: {
+            type: String
+        },
+        servicePrice:{
+            type: Number
+        },
+        serviceEWT: {
+            type: Number
+        }
+    }],
     appointmentNotes:{
         type: String
     },

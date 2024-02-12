@@ -16,12 +16,13 @@ const createAppointment = async (req, res, next) => {
 
     // Fetch barber information
     const barber = await getBarberbyId(barberId);
-    console.log(barber);
 
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
-    let serviceIds = "";
-    let serviceNames = "";
+    let serviceIds = [];
+    let serviceNames = [];
+    let servicePrices = [];
+    let serviceEWTs = [];
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -30,18 +31,11 @@ const createAppointment = async (req, res, next) => {
         const service = barber.barberServices.find(service => service.serviceId === id);
         if (service) {
           totalServiceEWT += service.barberServiceEWT || 0;
-
-          if (serviceIds) {
-            serviceIds += "-";
-          }
-          serviceIds += service.serviceId.toString();
-
-          if (serviceNames) {
-            serviceNames += ", ";
-          }
-          serviceNames += service.serviceName;
+          serviceIds.push(service.serviceId);
+          serviceNames.push(service.serviceName);
+          servicePrices.push(service.servicePrice);
+          serviceEWTs.push(service.barberServiceEWT);
         }
-
       });
     }
 
@@ -63,8 +57,12 @@ const createAppointment = async (req, res, next) => {
    console.log(existingAppointmentList, "appointment list")
     const newAppointment = {
       barberId,
-      serviceId: serviceIds,
-      serviceName: serviceNames,
+      services: serviceIds.map((id, index) => ({
+        serviceId: id,
+        serviceName: serviceNames[index],
+        servicePrice: servicePrices[index],
+        serviceEWT: serviceEWTs[index],
+      })),
       appointmentDate,
       startTime,
       endTime,
@@ -190,8 +188,10 @@ const editAppointment = async (req, res, next) => {
     const barber = await Barber.findOne({ barberId: barberId });
     // Calculate total serviceEWT for all provided serviceIds
     let totalServiceEWT = 0;
-    let serviceIds = "";
-    let serviceNames = "";
+    let serviceIds = [];
+    let serviceNames = [];
+    let servicePrices = [];
+    let serviceEWTs = [];
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -200,16 +200,10 @@ const editAppointment = async (req, res, next) => {
         const service = barber.barberServices.find(service => service.serviceId === id);
         if (service) {
           totalServiceEWT += service.barberServiceEWT || 0;
-
-          if (serviceIds) {
-            serviceIds += "-";
-          }
-          serviceIds += service.serviceId.toString();
-
-          if (serviceNames) {
-            serviceNames += ", ";
-          }
-          serviceNames += service.serviceName;
+          serviceIds.push(service.serviceId);
+          serviceNames.push(service.serviceName);
+          servicePrices.push(service.servicePrice);
+          serviceEWTs.push(service.barberServiceEWT);
         }
       });
     }
@@ -234,8 +228,12 @@ const editAppointment = async (req, res, next) => {
       {
         $set: {
           'appointmentList.$.barberId': barberId,
-          'appointmentList.$.serviceId': serviceIds,
-          'appointmentList.$.serviceName': serviceNames,
+          'appointmentList.$.services': serviceIds.map((id, index) => ({
+            serviceId: id,
+            serviceName: serviceNames[index],
+            servicePrice: servicePrices[index],
+            serviceEWT: serviceEWTs[index],
+          })),
           'appointmentList.$.appointmentDate': appointmentDate,
           'appointmentList.$.appointmentNotes': appointmentNotes,
           'appointmentList.$.startTime': startTime,
@@ -434,7 +432,7 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
           _id: 0,
           "appointmentList._id": 1,
           "appointmentList.appointmentDate": 1,
-          "appointmentList.appointmentNotes": 1,
+          "appointmentList.appointmentNotes": 1, 
           "appointmentList.startTime": 1,
           "appointmentList.endTime": 1,
           "appointmentList.timeSlots": 1,
@@ -463,7 +461,6 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
     next(error);
   }
 };
-
 
 //Get All Appointments By SalonId and Date
 const getAllAppointmentsBySalonIdAndDate = async (req, res, next) => {
@@ -610,7 +607,6 @@ const getAllAppointmentsByBarberId = async (req, res, next) => {
   }
 };
 
-
 //Get All Appointments By SalonId and Date
 const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
   try {
@@ -651,18 +647,44 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
         }
       },
       {
-        $group: {
-          _id: "$appointmentList.barberId",
-          barbername: { $first: "$appointmentList.barberName" },
-          appointments: { $push: "$appointmentList" }
+        $addFields: {
+          "appointmentList.services": {
+            $map: {
+              input: "$appointmentList.services",
+              as: "service",
+              in: {
+                serviceId: "$$service.serviceId",
+                serviceName: "$$service.serviceName"
+              }
+            }
+          }
         }
       },
       {
         $project: {
           _id: 0, // Exclude _id field
-          barbername: 1,
-          barberId: 1,
-          appointments: 1
+          barbername: "$appointmentList.barberName",
+          appointments: {
+            $map: {
+              input: ["$appointmentList"],
+              as: "appt",
+              in: {
+                barberId: "$$appt.barberId",
+                barberName: "$$appt.barberName",
+                services: "$$appt.services",
+                appointmentDate: "$$appt.appointmentDate",
+                startTime: "$$appt.startTime",
+                endTime: "$$appt.endTime",
+                timeSlots: "$$appt.timeSlots",
+                customerEmail: "$$appt.customerEmail",
+                customerName: "$$appt.customerName",
+                customerType: "$$appt.customerType",
+                methodUsed: "$$appt.methodUsed",
+                _id: "$$appt._id",
+               
+              }
+            }
+          }
         }
       }
     ]);
@@ -695,7 +717,7 @@ const barberServedAppointment = async (req, res, next) => {
     const appointment = await Appointment.findOne({
       salonId,
       'appointmentList._id': _id,
-      'appointmentList.serviceId': serviceId,
+      'appointmentList.services': { $elemMatch: { serviceId: { $in: serviceId } } },
       'appointmentList.barberId': barberId,
       'appointmentList.appointmentDate': appointmentDate,
     });
@@ -706,6 +728,10 @@ const barberServedAppointment = async (req, res, next) => {
         message: 'Appointment not found.',
       });
     }
+
+     // Extract the appointment to be served
+     const servedAppointment = appointment.appointmentList.find(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate && appt.services.some(service => serviceId.includes(service.serviceId)));
+
 
     // Find or create the AppointmentHistory document for the salonId
     const historyEntry = await AppointmentHistory.findOneAndUpdate(
@@ -728,9 +754,9 @@ const barberServedAppointment = async (req, res, next) => {
         $pull: {
           'appointmentList': {
             _id: _id,
-            serviceId: serviceId,
             barberId: barberId,
             appointmentDate: appointmentDate,
+            'services.serviceId': { $in: serviceId },
           },
         },
       }

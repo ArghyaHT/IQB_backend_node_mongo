@@ -37,6 +37,8 @@ const rating = require("./routes/Ratings/ratingRoutes.js")
 
 const icons = require("./routes/icons/iconsRoutes.js")
 
+const sendSms = require("./routes/mobilemessageSender/mobileMessage.js")
+
 const { ErrorHandler } = require("./middlewares/errorHandler.js")
 
 const rateLimiter = rateLimit({
@@ -192,6 +194,8 @@ app.use("/api/advertisement", advertisement)
 app.use("/api/ratings", rating)
 
 app.use("/api/icons", icons)
+
+app.use("/api/message", sendSms)
 
 
 // app.post('/send-notification', async (req, res) => {

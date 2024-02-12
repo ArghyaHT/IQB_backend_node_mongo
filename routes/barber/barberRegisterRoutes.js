@@ -60,6 +60,8 @@ router.route("/connectBarberToSalon").post(handleBarberProtectedRoute,connectBar
 //==============================================//
 //GET BARBER DETAILS BY EMAIL
 router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,getBarberDetailsByEmail)
+
+router.route("/changeBarberOnlineStatus").post(handleProtectedRoute, isBarberOnline)
 //==============================================//
 
 //Update Barber Account Details
@@ -82,9 +84,6 @@ router.route("/deleteBarberByEmail").post(handleBarberProtectedRoute,deleteBarbe
 router.route("/changeBarberWorkingStatus").post(handleBarberProtectedRoute,chnageBarberWorkingStatus) //api working
 
 router.route("/getAllBarbersByServiceId").get(handleBarberProtectedRoute,getAllBarbersByServiceId)
-
-
-router.route("/changeBarberOnlineStatus").post(handleBarberProtectedRoute, isBarberOnline)
 
 //Send Mail to Admin for Verification
 router.route("/sendVerificationCodeForBarberEmail").post(handleBarberProtectedRoute, sendVerificationCodeForBarberEmail )

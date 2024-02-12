@@ -27,10 +27,24 @@ const accountSid = process.env.TWILIO_ACC_SID ; // Your Twilio account SID
 // };
 
 //Function to send sms via twilio
-const sendSms = async(body) => {
+const sendSms = async(body, numbers) => {
+  try{
+    // Iterate over each mobile number and send SMS
+    for (const number of numbers) {
+      // Replace sendSms with your actual SMS sending logic
+      await sendSmsLogic(body, number);
+    }
+    return true; // Return true if SMS sent successfully
+  } catch (error) {
+    console.log(error);
+    return false; // Return false if SMS sending failed
+  }
+}
+
+const sendSmsLogic = async (body, number) => {
   let msgOptions = {
     from: '+19083491303',
-    to: "+41796698395",
+    to: number,
     body
   }
   try{
@@ -40,8 +54,10 @@ const sendSms = async(body) => {
   catch(error){
     console.log(error)
   }
+  console.log(`Sending SMS to ${number}: ${body}`);
 }
 
 module.exports = {
   sendSms,
-};
+  sendSmsLogic
+}
