@@ -578,6 +578,7 @@ const getAllAppointmentsByBarberId = async (req, res, next) => {
           "appointmentList._id": 1,
           "appointmentList.appointmentDate": 1,
           "appointmentList.appointmentName": 1,
+          "appointmentList.appointmentNotes": 1,
           "appointmentList.startTime": 1,
           "appointmentList.endTime": 1,
           "appointmentList.timeSlots": 1,
@@ -708,21 +709,26 @@ const barberServedAppointment = async (req, res, next) => {
     const { salonId, barberId, serviceId, _id, appointmentDate } = req.body;
 
     // Find the appointment to be served
-    const appointment = await Appointment.findOne({
+   
+const appointment = await Appointment.aggregate([
+  {
+    $match: {
       salonId,
-      'appointmentList._id': _id,
+      'appointmentList._id': _id, // Convert _id to ObjectId
       'appointmentList.services': { $elemMatch: { serviceId: { $in: serviceId } } },
       'appointmentList.barberId': barberId,
-      'appointmentList.appointmentDate': appointmentDate,
-    });
+      'appointmentList.appointmentDate': new Date(appointmentDate),
+    }
+  }
+]);
 
-    if (!appointment) {
+    if (appointment.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Appointment not found.',
       });
     }
-
+    console.log(appointment); 
        // Extract the served appointment from the list
        const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate && appt.services.some(service => serviceId.includes(service.serviceId)));
    
@@ -741,43 +747,48 @@ const barberServedAppointment = async (req, res, next) => {
         customerName: appointment.appointmentList[0].customerName,
         customerType: appointment.appointmentList[0].customerType,
         methodUsed: appointment.appointmentList[0].methodUsed,
-        status: 'served'
+        status: 'served',
+        services: []
     };
     
     // Map services of the first appointment in the list to newServedAppointment
-    newServedAppointment.services = appointment.appointmentList[0].services.map(service => ({
+    appointment.appointmentList[0].services.forEach(service => {
+      newServedAppointment.services.push({
         serviceId: service.serviceId,
         serviceName: service.serviceName,
         servicePrice: service.servicePrice,
         serviceEWT: service.serviceEWT
-    }));
-
-      // Store the served appointment in AppointmentHistory collection
-      const historyEntry = await AppointmentHistory.findOneAndUpdate(
-        { salonId },
-        {
-          $push: {
-            appointmentList: newServedAppointment, // Store the served appointment details
-          },
-        },
-        { upsert: true, new: true }
-      );
+      });
+    });
+   // Check the retrieved appointment
+    // console.log(appointment.appointmentList[0]); // Check the first appointment in the list
+    // console.log(appointment.appointmentList[0].services); 
+      // // Store the served appointment in AppointmentHistory collection
+      // const historyEntry = await AppointmentHistory.findOneAndUpdate(
+      //   { salonId },
+      //   {
+      //     $push: {
+      //       appointmentList: newServedAppointment, // Store the served appointment details
+      //     },
+      //   },
+      //   { upsert: true, new: true }
+      // );
     }
 
     // Remove the served appointment from the Appointment table
-    await Appointment.updateOne(
-      { salonId },
-      {
-        $pull: {
-          'appointmentList': {
-            _id: _id,
-            barberId: barberId,
-            appointmentDate: appointmentDate,
-            'services.serviceId': { $in: serviceId },
-          },
-        },
-      }
-    );
+    // await Appointment.updateOne(
+    //   { salonId },
+    //   {
+    //     $pull: {
+    //       'appointmentList': {
+    //         _id: _id,
+    //         barberId: barberId,
+    //         appointmentDate: appointmentDate,
+    //         'services.serviceId': { $in: serviceId },
+    //       },
+    //     },
+    //   }
+    // );
 
     res.status(200).json({
       success: true,
