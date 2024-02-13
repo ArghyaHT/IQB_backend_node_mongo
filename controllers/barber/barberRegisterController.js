@@ -939,6 +939,10 @@ const createBarberByAdmin = async (req, res, next) => {
 const updateBarberByAdmin = async (req, res, next) => {
   try {
     const { email, name, nickName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
+    // Check if required fields are missing or empty
+    if (!email || !name || !nickName || !salonId || !mobileNumber || !dateOfBirth || !barberServices) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
 
     // Validate email format
     if (!email || !validateEmail(email)) {
@@ -1270,6 +1274,10 @@ const getAllBarberbySalonId = async (req, res, next) => {
 const updateBarberAccountDetails = async (req, res, next) => {
   const { name, email, nickName, mobileNumber, dateOfBirth, gender, password } = req.body;
   try {
+    // Check if required fields are missing or empty
+    if (!name || !email || !nickName || !mobileNumber || !dateOfBirth || !gender || !password) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
     // Validate email format
     if (!email || !validateEmail(email)) {
       return res.status(400).json({

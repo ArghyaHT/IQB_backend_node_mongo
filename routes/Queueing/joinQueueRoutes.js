@@ -17,8 +17,10 @@ router.route("/getQListBySalonId").get(handleAdminProtectedRoute,getQueueListByS
 //Auto Join
 router.route("/autoJoin").post(handleAdminProtectedRoute,autoJoin),
 
+//==============================================//
 //BarberServed Api
-router.route("/barberServedQueue").post(handleAdminProtectedRoute,barberServedQueue)
+router.route("/barberServedQueue").post(handleProtectedRoute,barberServedQueue)
+//==============================================//
 
 //Get Available Barbers for Queue
 router.route("/getAvailableBarbersForQ").post(handleAdminProtectedRoute, getAvailableBarbersForQ)

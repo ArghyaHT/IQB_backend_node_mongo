@@ -767,7 +767,13 @@ const deleteSingleAdmin = async (req, res, next) => {
 //TO UPDATE ADMIN ACCOUNT DETAILS
 const updateAdminAccountDetails = async (req, res, next) => {
     const { name, gender, email, mobileNumber, dateOfBirth, isActive, password } = req.body;
+
     try {
+
+        // Check if required fields are missing or empty
+        if (!name || !gender || !email || !mobileNumber || !dateOfBirth || !isActive || !password) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
         // Validate email format
         if (!validateEmail(email)) {
             return res.status(400).json({ success: false, message: "Invalid email format" });
@@ -1104,7 +1110,12 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
 //Change Salon Id of Admin
 const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
     try {
-        const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
+        const { adminEmail, salonId } = req.body;
+        if (!salonId) {
+            return res.status(400).json({ success: false, message: "Please provide salonId" });
+        }
+
+        // Assuming admin's email and new salonId are provided in the request body
         const email = adminEmail
         // Validate email format
         if (!email || !validateEmail(email)) {
