@@ -8,7 +8,38 @@ const { sendSms } = require("../../utils/mobileMessageSender");
 //Single Join queue api
 const singleJoinQueue = async (req, res, next) => {
   try {
-    const { salonId, name, customerEmail, joinedQType,mobileNumber, methodUsed, barberName, barberId, services } = req.body;
+    const { salonId, name, customerEmail, joinedQType, mobileNumber, methodUsed, barberName, barberId, services } = req.body;
+    // Check if required fields are missing
+    if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !barberName || !barberId || !services) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
+    const email = customerEmail
+
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+    // Validate mobile number format
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number must be 10 digits"
+      });
+    }
+
+    // Validate services format
+    if (services.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please choose your services"
+      });
+    }
 
     let totalServiceEWT = 0;
     let serviceIds = "";
@@ -94,6 +125,23 @@ const groupJoinQueue = async (req, res, next) => {
   try {
     const { salonId, groupInfo } = req.body;
 
+    // Validate salonId presence and format
+    if (!salonId) {
+      return res.status(400).json({
+        success: false,
+        message: "Salon ID is required"
+      });
+    }
+    // Assuming salonId is numeric, you can add additional validation here if necessary
+
+    // Validate groupInfo presence and format
+    if (!groupInfo || !Array.isArray(groupInfo) || groupInfo.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Group info must be provided as a non-empty array"
+      });
+    }
+
     // Initialize existingQueue as null
     let existingQueue = null;
 
@@ -108,9 +156,43 @@ const groupJoinQueue = async (req, res, next) => {
       });
       await existingQueue.save();
     }
-
+    let barberNotFoundError = null;
     // Iterate through each group member
     for (const member of groupInfo) {
+
+      // Validate member data
+      const { name, customerEmail, barberId, barberName, mobileNumber, services } = member;
+      if (!name || !customerEmail || !barberId || !barberName || !mobileNumber || !services) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields for group member"
+        });
+      }
+      // Validate services format for each member
+      if (services.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Services for group member must be provided as a non-empty array"
+        });
+      }
+
+      const email = customerEmail
+
+      // Validate email format
+      if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email format"
+        });
+      }
+      // Validate mobile number format
+      if (!/^\d{10}$/.test(mobileNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: "Mobile number must be 10 digits"
+        });
+      }
+
       let totalServiceEWT = 0;
       let serviceIds = "";
       let serviceNames = "";
@@ -138,14 +220,11 @@ const groupJoinQueue = async (req, res, next) => {
         },
         { new: true }
       );
-
       if (!updatedBarber) {
-        res.status(400).json({
-          success: false,
-          message: "The Barber Is not online",
-        });
+        barberNotFoundError = "The Barber Is not online";
+        break; // Exit the loop early since the error is already encountered
       }
-
+    
       // Generate a unique groupJoinCode by combining qPosition and barberId
       const groupJoinCode = `${updatedBarber.queueCount}-${member.barberId}`;
 
@@ -173,6 +252,14 @@ const groupJoinQueue = async (req, res, next) => {
       existingQueue.queueList.push(joinedQData);
     }
 
+      // After the loop completes
+      if (barberNotFoundError) {
+        return res.status(400).json({
+          success: false,
+          message: barberNotFoundError,
+        });
+      }
+
     // Save the updated salon queue document
     await existingQueue.save();
 
@@ -194,6 +281,37 @@ const autoJoin = async (req, res, next) => {
 
   try {
     const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
+    
+    // Check if required fields are missing
+if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !barberName || !barberId || !services) {
+  return res.status(400).json({ success: false, message: "Missing required fields" });
+}
+    
+const email = customerEmail;
+
+// Validate customerEmail presence and format
+if (!validateEmail(email)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid customer email format"
+  });
+}
+
+// Validate mobileNumber presence and format
+if (!/^\d{10}$/.test(mobileNumber)) {
+  return res.status(400).json({
+    success: false,
+    message: "Mobile number must be 10 digits"
+  });
+}
+
+// Validate services presence and format (assuming it should be an array)
+if (services.length === 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Services must be provided."
+  });
+}
     const serviceIds = services.map(service => service.serviceId);
 
     let totalServiceEWT = 0;
@@ -282,7 +400,11 @@ const getQueueListBySalonId = async (req, res, next) => {
 
   try {
     const salonId = parseInt(req.query.salonId, 10);
-    console.log(salonId)
+ 
+    // Check if salonId is not a number or is NaN
+if (!salonId) {
+  return res.status(400).json({ success: false, message: "Invalid salonId format" });
+}
 
     //To find the queueList according to salonId and sort it according to qposition
     const getSalon = await SalonQueueList.aggregate([
@@ -355,6 +477,11 @@ const getQueueListBySalonId = async (req, res, next) => {
 const barberServedQueue = async (req, res, next) => {
   try {
     const { salonId, barberId, serviceId, _id } = req.body;
+
+    // Check if required fields are missing or have invalid format
+if (!salonId || !barberId || !serviceId || !_id) {
+  return res.status(400).json({ success: false, message: "Invalid request data" });
+}
 
     const queue = await SalonQueueList.findOne({ salonId: salonId });
     let currentServiceEWT = 0;
@@ -432,7 +559,7 @@ const barberServedQueue = async (req, res, next) => {
       success: false,
       message: 'Queue position is not 1. No service to be served.',
     });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -443,6 +570,10 @@ const cancelQueue = async (req, res, next) => {
   try {
     const { salonId, barberId, _id } = req.body;
 
+    // Check if required fields are missing or have invalid format
+if (!salonId || !barberId || !_id) {
+  return res.status(400).json({ success: false, message: "Invalid request data" });
+}
     const updatedQueue = await SalonQueueList.findOne({ salonId });
 
     if (!updatedQueue) {
@@ -520,6 +651,10 @@ const cancelQueue = async (req, res, next) => {
 const getAvailableBarbersForQ = async (req, res, next) => {
   try {
     const { salonId } = req.query;
+        // Check if required fields are missing or have invalid format
+if (!salonId) {
+  return res.status(400).json({ success: false, message: "Invalid salonid" });
+}
 
     //To find the available barbers for the queue
     const availableBarbers = await Barber.find({ salonId, isActive: true, isOnline: true });
@@ -548,7 +683,10 @@ const getAvailableBarbersForQ = async (req, res, next) => {
 const getBarberByMultipleServiceId = async (req, res, next) => {
   try {
     const { salonId, serviceIds } = req.query; // Assuming serviceIds are passed as query parameters, e.g., /barbers?serviceIds=1,2,3
-
+    // Check if required fields are missing or have invalid format
+    if (!salonId || !serviceIds) {
+      return res.status(400).json({ success: false, message: "Invalid salonId or serviceIds" });
+    }
     if (!serviceIds) {
       return res.status(400).json({ error: 'Service IDs are required' });
     }
@@ -584,7 +722,10 @@ const getBarberByMultipleServiceId = async (req, res, next) => {
 const getQlistbyBarberId = async (req, res, next) => {
   try {
     const { salonId, barberId } = req.body;
-
+    // Check if required fields are missing or have invalid format
+    if (!salonId || !barberId) {
+      return res.status(400).json({ success: false, message: "Salon Id and barber Id required" });
+    }
     const qList = await SalonQueueList.aggregate([
       {
         $match: {
@@ -667,6 +808,16 @@ const getQhistoryByCustomerEmail = async (req, res, next) => {
       });
     }
 
+    const email = customerEmail;
+
+     // Validate email format
+     if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
     const getQHistory = await JoinedQueueHistory.find({
       salonId,
       'queueList.customerEmail': customerEmail,
@@ -677,7 +828,7 @@ const getQhistoryByCustomerEmail = async (req, res, next) => {
       message: 'Successfully retrieved queue history.',
       response: getQHistory,
     });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -694,5 +845,5 @@ module.exports = {
   getBarberByMultipleServiceId,
   getQlistbyBarberId,
   cancelQueue,
-  getQhistoryByCustomerEmail 
+  getQhistoryByCustomerEmail
 }

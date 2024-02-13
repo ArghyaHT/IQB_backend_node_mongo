@@ -1277,14 +1277,18 @@ const updateBarberAccountDetails = async (req, res, next) => {
         message: "Invalid email format"
       });
     }
+    // Validate mobile number format (assuming it should be exactly 10 digits)
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      return res.status(400).json({ success: false, message: "Invalid mobile number format" });
+    }
 
-        // Validate password length
-        if (!password || password.length < 8) {
-          return res.status(400).json({
-              success: false,
-              message: "Password must be at least 8 characters long"
-          });
-      }
+    // Validate password length
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
+    }
     const barberData = {
       name, email, nickName, mobileNumber, dateOfBirth, gender, password
     }

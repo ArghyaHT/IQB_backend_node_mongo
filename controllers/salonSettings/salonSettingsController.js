@@ -4,7 +4,19 @@ const Appointment = require("../../models/appointmentsModel")
 const createSalonSettings = async (req, res, next) => {
     try {
         const { salonId, appointmentSettings } = req.body;
+
+
+        if (!salonId || !appointmentSettings) {
+            return res.status(400).json({ success: false, message: "Invalid salonId or appointmentSettings" });
+        }
+
+
         const { startTime, endTime } = appointmentSettings;
+
+        // Check if startTime or endTime are missing
+        if (!startTime || !endTime) {
+            return res.status(400).json({ success: false, message: "Invalid appointmentSettings: startTime and endTime are required" });
+        }
 
         // Create a new SalonSettings instance with generated time slots
         const newSalonSettings = new SalonSettings({
@@ -22,46 +34,55 @@ const createSalonSettings = async (req, res, next) => {
             message: "Salon Settings Created",
             response: newSalonSettings
         });
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 const getSalonSettings = async (req, res, next) => {
-    try{
-        const {salonId} = req. body;
+    try {
+        const { salonId } = req.body;
+
+        if (!salonId) {
+            return res.status(400).json({ success: false, message: "Invalid salonId" });
+        }
         // Find the existing SalonSettings document based on salonId
         let existingSalonSettings = await SalonSettings.findOne({ salonId });
 
         if (!existingSalonSettings) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 message: "Salon Settings not found"
-             });
+            });
         }
         res.status(200).json({
             message: "Salon Settings Updated",
             response: existingSalonSettings
         });
 
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 const updateSalonSettings = async (req, res, next) => {
     try {
         const { salonId, appointmentSettings } = req.body;
+
+        if (!salonId || !appointmentSettings) {
+            return res.status(400).json({ success: false, message: "Invalid salonId or appointmentSettings" });
+        }
+
         const { startTime, endTime } = appointmentSettings;
 
         // Find the existing SalonSettings document based on salonId
         let existingSalonSettings = await SalonSettings.findOne({ salonId });
 
         if (!existingSalonSettings) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 message: "Salon Settings not found"
-             });
+            });
         }
 
 
@@ -81,7 +102,7 @@ const updateSalonSettings = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 };
 
 const deleteSalonSettings = async (req, res) => {

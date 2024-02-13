@@ -18,6 +18,13 @@ const addAdvertisements = async (req, res, next) => {
     let advertisements = req.files.advertisements;
     let salonId = req.body.salonId;
 
+// Check if advertisements and salonId are missing
+if (!advertisements || !salonId) {
+  return res.status(400).json({
+      success: false,
+      message: "Advertisements and salonId are required"
+  });
+}
     // Ensure that advertisements is an array, even for single uploads
     if (!Array.isArray(advertisements)) {
       advertisements = [advertisements];
@@ -81,6 +88,14 @@ const getAdvertisements = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
+    // Check if advertisements and salonId are missing
+if (!salonId) {
+  return res.status(400).json({
+      success: false,
+      message: "SalonId are required"
+  });
+}
+
     // Find SalonSettings by salonId and retrieve only the advertisements field
     const salonSettings = await SalonSettings.findOne({ salonId }).select('advertisements');
 
@@ -111,6 +126,14 @@ const updateAdvertisements = async (req, res, next) => {
 
     const public_imgid = req.body.public_imgid;
     const advertisements = req.files.advertisements;
+
+    // Check if advertisements and salonId are missing
+if (!advertisements) {
+  return res.status(400).json({
+      success: false,
+      message: "Advertisements are required"
+  });
+}
 
     // Validate Image
     const fileSize = advertisements.size / 1000;
@@ -219,6 +242,14 @@ const deleteAdvertisements = async (req, res, next) => {
 const getDashboardAppointmentList = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
+
+    // Check if salonId and appointmentDate are missing
+if (!salonId || !appointmentDate) {
+  return res.status(400).json({
+      success: false,
+      message: "salonId and appointmentDate are required"
+  });
+}
 
   // Parse appointmentDate as a timestamp using Date.parse()
 const timestamp = Date.parse(appointmentDate);

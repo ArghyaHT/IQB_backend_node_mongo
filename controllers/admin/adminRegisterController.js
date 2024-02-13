@@ -766,8 +766,24 @@ const deleteSingleAdmin = async (req, res, next) => {
 
 //TO UPDATE ADMIN ACCOUNT DETAILS
 const updateAdminAccountDetails = async (req, res, next) => {
-    const adminData = req.body;
+    const { name, gender, email, mobileNumber, dateOfBirth, isActive, password } = req.body;
     try {
+        // Validate email format
+        if (!validateEmail(email)) {
+            return res.status(400).json({ success: false, message: "Invalid email format" });
+        }
+
+        // Validate password length
+        if (password.length < 8) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
+        }
+        // Validate mobile number format (assuming it should be exactly 10 digits)
+        if (!/^\d{10}$/.test(mobileNumber)) {
+            return res.status(400).json({ success: false, message: "Invalid mobile number format" });
+        }
+
+
+        const adminData = { name, gender, email, mobileNumber, dateOfBirth, isActive, password };
         const result = await adminService.updateAdmin(adminData);
         res.status(result.status).json({
             success: true,
@@ -829,9 +845,9 @@ const uploadAdminprofilePic = async (req, res, next) => {
         }
 
         if (!profiles) {
-            return res.status(400).json({success: false, message: "Please provide profile image" });
-          }
-    
+            return res.status(400).json({ success: false, message: "Please provide profile image" });
+        }
+
 
 
         // Ensure that profiles is an array, even for single uploads
@@ -904,10 +920,10 @@ const updateAdminProfilePic = async (req, res, next) => {
         const public_imgid = req.body.public_imgid;
         const profile = req.files.profile;
 
-          // Check if the required fields are present
-    if (!profile) {
-        return res.status(400).json({success: false, message: "Please provide profile image" });
-      }
+        // Check if the required fields are present
+        if (!profile) {
+            return res.status(400).json({ success: false, message: "Please provide profile image" });
+        }
 
         // Validate Image
         const fileSize = profile.size / 1000;
@@ -1015,9 +1031,9 @@ const getAllSalonsByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
-        const email= adminEmail;
-          // Validate email format
-          if (!email || !validateEmail(email)) {
+        const email = adminEmail;
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
@@ -1054,8 +1070,8 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
         const { adminEmail } = req.body;
 
         const email = adminEmail;
-          // Validate email format
-          if (!email || !validateEmail(email)) {
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
