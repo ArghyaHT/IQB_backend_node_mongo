@@ -18,7 +18,7 @@ appointmentList:[{
         servicePrice:{
             type: Number
         },
-        serviceEWT: {
+        barberServiceEWT: {
             type: Number
         }
     }],

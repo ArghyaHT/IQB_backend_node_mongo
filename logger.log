@@ -17,3 +17,9 @@
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T11:26:19.205Z"}
 {"level":"error","message":"mongoose is not defined","timestamp":"2024-02-12T12:45:15.869Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T12:52:07.710Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T12:57:26.000Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T12:59:29.915Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T12:59:38.086Z"}
+{"level":"error","message":"mongoose is not defined","timestamp":"2024-02-12T13:02:21.181Z"}
+{"level":"error","message":"Class constructor ObjectId cannot be invoked without 'new'","timestamp":"2024-02-12T13:03:22.969Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T13:25:21.276Z"}

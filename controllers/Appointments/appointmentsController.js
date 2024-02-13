@@ -17,12 +17,12 @@ const createAppointment = async (req, res, next) => {
     // Fetch barber information
     const barber = await getBarberbyId(barberId);
 
-    // Calculate total serviceEWT for all provided serviceIds
+    // Calculate total barberServiceEWT for all provided serviceIds
     let totalServiceEWT = 0;
     let serviceIds = [];
     let serviceNames = [];
     let servicePrices = [];
-    let serviceEWTs = [];
+    let barberServiceEWTs = [];
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -34,7 +34,7 @@ const createAppointment = async (req, res, next) => {
           serviceIds.push(service.serviceId);
           serviceNames.push(service.serviceName);
           servicePrices.push(service.servicePrice);
-          serviceEWTs.push(service.barberServiceEWT);
+          barberServiceEWTs.push(service.barberServiceEWT);
         }
       });
     }
@@ -61,7 +61,7 @@ const createAppointment = async (req, res, next) => {
         serviceId: id,
         serviceName: serviceNames[index],
         servicePrice: servicePrices[index],
-        serviceEWT: serviceEWTs[index],
+        barberServiceEWT: barberServiceEWTs[index],
       })),
       appointmentDate,
       startTime,
@@ -186,12 +186,12 @@ const editAppointment = async (req, res, next) => {
 
     // Fetch barber information
     const barber = await Barber.findOne({ barberId: barberId });
-    // Calculate total serviceEWT for all provided serviceIds
+    // Calculate total barberServiceEWTs for all provided serviceIds
     let totalServiceEWT = 0;
     let serviceIds = [];
     let serviceNames = [];
     let servicePrices = [];
-    let serviceEWTs = [];
+    let barberServiceEWTs = [];
     if (barber && barber.barberServices) {
       // Convert single serviceId to an array if it's not already an array
       const services = Array.isArray(serviceId) ? serviceId : [serviceId];
@@ -203,7 +203,7 @@ const editAppointment = async (req, res, next) => {
           serviceIds.push(service.serviceId);
           serviceNames.push(service.serviceName);
           servicePrices.push(service.servicePrice);
-          serviceEWTs.push(service.barberServiceEWT);
+          barberServiceEWTs.push(service.barberServiceEWT);
         }
       });
     }
@@ -232,7 +232,7 @@ const editAppointment = async (req, res, next) => {
             serviceId: id,
             serviceName: serviceNames[index],
             servicePrice: servicePrices[index],
-            serviceEWT: serviceEWTs[index],
+            barberServiceEWT: barberServiceEWTs[index],
           })),
           'appointmentList.$.appointmentDate': appointmentDate,
           'appointmentList.$.appointmentNotes': appointmentNotes,
@@ -706,31 +706,41 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
 //Served Appointment
 const barberServedAppointment = async (req, res, next) => {
   try {
-    const { salonId, barberId, serviceId, _id, appointmentDate } = req.body;
+    const { salonId, barberId, _id, appointmentDate } = req.body;
 
-    // Find the appointment to be served
-   
-const appointment = await Appointment.aggregate([
-  {
-    $match: {
-      salonId,
-      'appointmentList._id': _id, // Convert _id to ObjectId
-      'appointmentList.services': { $elemMatch: { serviceId: { $in: serviceId } } },
-      'appointmentList.barberId': barberId,
-      'appointmentList.appointmentDate': new Date(appointmentDate),
+  // Find the appointment to be served
+  const appointments = await Appointment.aggregate([
+    {
+      $match: {
+        salonId,
+      }
+    },
+    {
+      $unwind: '$appointmentList'
+    },
+    {
+      $match: {
+        'appointmentList._id':_id,
+        'appointmentList.barberId': barberId,
+        'appointmentList.appointmentDate': new Date(appointmentDate),
+      }
     }
+  ]);
+
+  // Check if appointment exists
+  if (appointments.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'Appointment not found.',
+    });
   }
-]);
 
-    if (appointment.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Appointment not found.',
-      });
-    }
-    console.log(appointment); 
+  // Extract the served appointment from the list
+  const appointment = appointments[0]; // Take the first appointment in the list
+
+  console.log(appointment)
        // Extract the served appointment from the list
-       const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate && appt.services.some(service => serviceId.includes(service.serviceId)));
+       const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate);
    
        
     // Check if served appointment exists
@@ -757,7 +767,7 @@ const appointment = await Appointment.aggregate([
         serviceId: service.serviceId,
         serviceName: service.serviceName,
         servicePrice: service.servicePrice,
-        serviceEWT: service.serviceEWT
+        barberServiceEWT: service.barberServiceEWT
       });
     });
    // Check the retrieved appointment
