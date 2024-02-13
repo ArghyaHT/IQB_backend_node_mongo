@@ -116,13 +116,13 @@ const loginController = async (req, res, next) => {
             });
         }
 
-            // Validate password length
-            if (!password || password.length < 8) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Password must be at least 8 characters long"
-                });
-            }
+        // Validate password length
+        if (!password || password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters long"
+            });
+        }
 
         // Find user by email in the MongoDB database
         const user = await Admin.findOne({ email: email });
@@ -133,8 +133,8 @@ const loginController = async (req, res, next) => {
         }
 
         // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
         // Set cookies in the response
         res.cookie('refreshToken', refreshToken, {
@@ -157,103 +157,103 @@ const loginController = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 };
 
 
 //GOOGLE SIGNIN ===================================
 const googleLoginController = async (req, res, next) => {
- try{
+    try {
         const CLIENT_ID = process.env.CLIENT_ID;
-    const token = req.body.token;
+        const token = req.body.token;
 
-    if (!token) {
-        res.json({success:false, message: "UnAuthorized User or Invalid User" })
+        if (!token) {
+            res.json({ success: false, message: "UnAuthorized User or Invalid User" })
+        }
+
+        const client = new OAuth2Client(CLIENT_ID);
+
+        // Call the verifyIdToken to
+        // varify and decode it
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,
+        });
+
+        // Get the JSON with all the user info
+        const payload = ticket.getPayload();
+
+        let user = await Admin.findOne({ email: payload.email, AuthType: "google" });
+
+        // If the user doesn't exist, create a new user
+        // add barber id by count docuents and isApproved as false 
+        if (!user) {
+            user = new Admin({
+                name: payload.name,
+                email: payload.email,
+                admin: true,
+                AuthType: "google"
+            });
+            await user.save()
+
+            // Generate tokens
+            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+            // Set cookies in the response
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000,  // 2 days
+                secure: true,
+                sameSite: "None"
+            });
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                maxAge: 1 * 60 * 1000, //1 mins
+                secure: true,
+                sameSite: "None"
+            });
+
+            res.status(200).json({
+                success: true,
+                message: "Admin registered successfully"
+            })
+        }
+
+        else if (user) {
+            const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+            const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+
+            // Set cookies in the response
+            res.cookie('refreshToken',
+                refreshToken, {
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000, // 2 days
+                secure: true,
+                sameSite: "None"
+            });
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                maxAge: 1 * 60 * 1000, //1 mins
+                secure: true,
+                sameSite: "None"
+            });
+
+
+            res.status(200).json({
+                success: true,
+                message: "Admin signed in successfully"
+            })
+        } else {
+            res.status(401).json({ success: false, message: "Invalid Credentials" })
+        }
+
+    } catch (error) {
+        console.log(error);
+        next(error);
     }
 
-    const client = new OAuth2Client(CLIENT_ID);
-
-    // Call the verifyIdToken to
-    // varify and decode it
-    const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: CLIENT_ID,
-    });
-
-    // Get the JSON with all the user info
-    const payload = ticket.getPayload();
-
-    let user = await Admin.findOne({ email: payload.email, AuthType: "google" });
-
-    // If the user doesn't exist, create a new user
-    // add barber id by count docuents and isApproved as false 
-    if (!user) {
-        user = new Admin({
-            name: payload.name,
-            email: payload.email,
-            admin: true,
-            AuthType: "google"
-        });
-        await user.save()
-
-        // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-        // Set cookies in the response
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,  // 2 days
-            secure: true,
-            sameSite: "None"
-        });
-        res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 1 * 60 * 1000, //1 mins
-            secure: true,
-            sameSite: "None"
-        });
-
-        res.status(200).json({
-            success: true,
-            message: "Admin registered successfully"
-        })
-    }
-
-    else if (user) {
-        const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-
-        // Set cookies in the response
-        res.cookie('refreshToken',
-            refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 2 days
-            secure: true,
-            sameSite: "None"
-        });
-        res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 1 * 60 * 1000, //1 mins
-            secure: true,
-            sameSite: "None"
-        });
-
-
-        res.status(200).json({
-            success: true,
-            message: "Admin signed in successfully"
-        })
-    } else {
-        res.status(401).json({ success: false, message: "Invalid Credentials" })
-    }
-
-    }catch (error) {
-    console.log(error);
-    next(error);
-  }
-    
 }
 
 //DESC:REFRESH TOKEN ==============================
@@ -281,7 +281,7 @@ const refreshTokenController = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //DESC:LOGOUT A USER ========================
@@ -294,10 +294,10 @@ const handleLogout = async (req, res, next) => {
             success: true,
             message: "User logged out successfully"
         })
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //DESC:FORGOT PASSWORD SENDING EMAIL TO USER ===========
@@ -305,8 +305,8 @@ const handleForgetPassword = async (req, res, next) => {
     try {
         const { email } = req.body
 
-          // Validate email format
-          if (!email || !validateEmail(email)) {
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
@@ -345,7 +345,7 @@ const handleForgetPassword = async (req, res, next) => {
         } catch (error) {
             console.log(error);
             next(error);
-          }
+        }
 
         res.status(200).json({
             success: true,
@@ -357,14 +357,14 @@ const handleForgetPassword = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 
 //DESC:RESET PASSWORD =================================
 const handleResetPassword = async (req, res, next) => {
     try {
-        const {password} = req.body;
+        const { password } = req.body;
 
 
         // Validate password length
@@ -407,7 +407,7 @@ const handleResetPassword = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 
@@ -491,13 +491,13 @@ const isLogginMiddleware = async (req, res, next) => {
             });
         }
         if (loggedinUser === null) {
-             return res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "You are not an Admin.",
                 user: [loggedinUser]
             });
         }
-       
+
         return res.status(200).json({
             success: true,
             message: "User already logged in",
@@ -507,7 +507,7 @@ const isLogginMiddleware = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 // const isLogginMiddleware = async (req, res) => {
@@ -650,7 +650,7 @@ const isLoggedOutMiddleware = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
@@ -682,18 +682,19 @@ const handleAdminProtectedRoute = async (req, res, next) => {
 
         // console.log(req.user.barber)
 
-        if(req.user && !req.user.barber){
+        if (req.user && !req.user.barber) {
             next();
-        }else{
+        } else {
             return res.status(404).json({
                 success: false,
-                message:"You are not Authenticated Admin"})
+                message: "You are not Authenticated Admin"
+            })
         }
-        
+
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 
 };
 
@@ -744,8 +745,8 @@ const deleteSingleAdmin = async (req, res, next) => {
     const { email } = req.body;
     try {
 
-          // Validate email format
-          if (!email || !validateEmail(email)) {
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
@@ -759,7 +760,7 @@ const deleteSingleAdmin = async (req, res, next) => {
     catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 
@@ -777,7 +778,7 @@ const updateAdminAccountDetails = async (req, res, next) => {
     catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 
@@ -785,6 +786,13 @@ const updateAdminAccountDetails = async (req, res, next) => {
 const approveBarber = async (req, res, next) => {
     try {
         const { salonId, email, isApproved } = req.body;
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
 
         const approvedStatus = await Barber.findOneAndUpdate({ salonId, email }, { isApproved }, { new: true });
 
@@ -803,7 +811,7 @@ const approveBarber = async (req, res, next) => {
     catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Upload Admin profile Picture
@@ -812,14 +820,19 @@ const uploadAdminprofilePic = async (req, res, next) => {
         let profiles = req.files.profile;
         const email = req.body.email;
 
-           // Validate email format
-           if (!email || !validateEmail(email)) {
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
             });
         }
-  
+
+        if (!profiles) {
+            return res.status(400).json({success: false, message: "Please provide profile image" });
+          }
+    
+
 
         // Ensure that profiles is an array, even for single uploads
         if (!Array.isArray(profiles)) {
@@ -873,12 +886,12 @@ const uploadAdminprofilePic = async (req, res, next) => {
             })
             .catch((error) => {
                 console.log(error);
-        next(error);
+                next(error);
             });
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Update Admin Profile Picture
@@ -891,12 +904,17 @@ const updateAdminProfilePic = async (req, res, next) => {
         const public_imgid = req.body.public_imgid;
         const profile = req.files.profile;
 
+          // Check if the required fields are present
+    if (!profile) {
+        return res.status(400).json({success: false, message: "Please provide profile image" });
+      }
+
         // Validate Image
         const fileSize = profile.size / 1000;
         const fileExt = profile.name.split(".")[1];
 
         if (fileSize > 500) {
-            return res.status(400).json({success: false, message: "File size must be lower than 500kb" });
+            return res.status(400).json({ success: false, message: "File size must be lower than 500kb" });
         }
 
         if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
@@ -951,10 +969,10 @@ const updateAdminProfilePic = async (req, res, next) => {
 
 
 
-    }  catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Delete Admin Profile Picture
@@ -984,12 +1002,12 @@ const deleteAdminProfilePicture = async (req, res, next) => {
                 message: "Image successfully deleted"
             })
         } else {
-            res.status(404).json({success: false, message: 'Image not found in the student profile' });
+            res.status(404).json({ success: false, message: 'Image not found in the student profile' });
         }
-    }  catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Get Salons by Admin
@@ -997,6 +1015,14 @@ const getAllSalonsByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
+        const email= adminEmail;
+          // Validate email format
+          if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
         // Find the admin based on the email
         const admin = await Admin.findOne({ email: adminEmail });
 
@@ -1019,14 +1045,23 @@ const getAllSalonsByAdmin = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Get Default Salon Details Of Admin
 const getDefaultSalonByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body;
-        
+
+        const email = adminEmail;
+          // Validate email format
+          if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
         const admin = await Admin.findOne({ email: adminEmail })
         if (!admin) {
             res.status(404).json({
@@ -1046,7 +1081,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
     catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 
@@ -1054,14 +1089,35 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
 const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
     try {
         const { adminEmail, salonId } = req.body; // Assuming admin's email and new salonId are provided in the request body
-
+        const email = adminEmail
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
         // Find the admin based on the provided email
         const admin = await Admin.findOne({ email: adminEmail });
 
-        console.log(admin)
         if (!admin) {
             return res.status(404).json({
+                success: false,
                 message: 'Admin not found',
+            });
+        }
+        // Check if salonId is provided in the request body
+        if (!salonId) {
+            return res.status(400).json({ success: false, message: "Please provide salonId" });
+        }
+
+        // Check if the provided salonId exists in the database
+        const salonExists = await Salon.exists({ salonId: salonId });
+
+        if (!salonExists) {
+            return res.status(404).json({
+                success: false,
+                message: 'Salon not found',
             });
         }
 
@@ -1073,16 +1129,24 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
             message: 'Default salon ID of admin updated successfully',
             admin: admin,
         });
-    }  catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 };
 
 //Send Email Verification code
 const sendVerificationCodeForAdminEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
+
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
 
         const user = await Admin.findOne({ email });
         if (!user) {
@@ -1107,42 +1171,34 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
 
         try {
             await sendPasswordResetEmail(emailData);
-        }  catch (error) {
+        } catch (error) {
             console.log(error);
             next(error);
-          }
+        }
 
         return res.status(200).json({
             success: true,
             message: `Please check your email (${email}) for verification.`,
             verificationCode: verificationCode
         });
-    }  catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //Match Verification Code and change EmailVerified Status
 const changeEmailVerifiedStatus = async (req, res, next) => {
     try {
         const { email, verificationCode } = req.body;
-           // Validate email format
-           if (!email || !validateEmail(email)) {
+        // Validate email format
+        if (!email || !validateEmail(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
             });
         }
-  
-           // Validate email format
-           if (!email || !validateEmail(email)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid email format"
-            });
-        }
-  
+
 
         // FIND THE CUSTOMER 
         const admin = await Admin.findOne({ email });
@@ -1165,10 +1221,10 @@ const changeEmailVerifiedStatus = async (req, res, next) => {
             response: "Verification Code didn't match",
             message: "Enter a valid Verification code",
         });
-    }  catch (error) {
+    } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 

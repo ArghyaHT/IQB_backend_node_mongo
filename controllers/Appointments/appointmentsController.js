@@ -7,12 +7,30 @@ const { sendAppointmentsEmail } = require("../../utils/emailSender");
 const { getBarberbyId } = require("../../services/barber/barberRegisterService");
 const { getAppointmentbyId } = require("../../services/appointment/appointmentService");
 const AppointmentHistory = require("../../models/appointmentHistoryModel");
+const { validateEmail } = require("../../middlewares/validator");
 
 
 //Creating Appointment
 const createAppointment = async (req, res, next) => {
   try {
     const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
+
+    // Check if required fields are missing
+    if (!salonId || !barberId || !serviceId || !appointmentDate || !startTime || !customerEmail || !customerName || !customerType || !methodUsed) {
+      return res.status(400).json({
+        message: 'Please fill all the fields',
+      });
+    }
+
+    const email = customerEmail;
+
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
 
     // Fetch barber information
     const barber = await getBarberbyId(barberId);
@@ -54,7 +72,7 @@ const createAppointment = async (req, res, next) => {
     const endTime = endTimeMoment.format('HH:mm');
 
     const existingAppointmentList = await getAppointmentbyId(salonId);// make this call in appointmentService
-   console.log(existingAppointmentList, "appointment list")
+    console.log(existingAppointmentList, "appointment list")
     const newAppointment = {
       barberId,
       services: serviceIds.map((id, index) => ({
@@ -184,6 +202,19 @@ const editAppointment = async (req, res, next) => {
   try {
     const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
 
+    // Check if required fields are missing
+    if (!salonId || !barberId || !serviceId || !appointmentDate || !startTime) {
+      return res.status(400).json({
+        message: 'Please fill all the fields',
+      });
+    }
+
+    // Assuming salonId, barberId, serviceId are numeric, you can check their type
+    if (typeof salonId !== 'number' || typeof barberId !== 'number' || typeof serviceId !== 'number') {
+      return res.status(400).json({
+        message: 'Invalid format for salonId, barberId, or serviceId',
+      });
+    }
     // Fetch barber information
     const barber = await Barber.findOne({ barberId: barberId });
     // Calculate total barberServiceEWTs for all provided serviceIds
@@ -267,6 +298,12 @@ const editAppointment = async (req, res, next) => {
 const deleteAppointment = async (req, res, next) => {
   try {
     const { salonId, appointmentId } = req.body; // Assuming appointmentId is passed as a parameter
+    // Check if required fields are missing
+    if (!salonId || !appointmentId) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
+    }
 
     // Find and remove the appointment by its ID
     const deletedAppointment = await Appointment.findOneAndUpdate(
@@ -300,6 +337,14 @@ const deleteAppointment = async (req, res, next) => {
 const getEngageBarberTimeSlots = async (req, res, next) => {
   try {
     const { salonId, barberId, date } = req.body;
+
+    // Check if required fields are missing
+    if (!salonId || !barberId || !date) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
+    }
+
 
     if (!date || !barberId) {
       // If the date value is null, send a response to choose the date
@@ -403,6 +448,14 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
+    // Check if required fields are missing
+    if (!salonId) {
+      return res.status(400).json({
+        message: 'Missing salonId',
+      });
+    }
+
+
     const appointments = await Appointment.aggregate([
       { $match: { salonId: salonId } },
       { $unwind: "$appointmentList" },
@@ -432,7 +485,7 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
           _id: 0,
           "appointmentList._id": 1,
           "appointmentList.appointmentDate": 1,
-          "appointmentList.appointmentNotes": 1, 
+          "appointmentList.appointmentNotes": 1,
           "appointmentList.startTime": 1,
           "appointmentList.endTime": 1,
           "appointmentList.timeSlots": 1,
@@ -456,7 +509,7 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
       message: 'Appointments retrieved successfully',
       response: appointments.map(appointment => appointment.appointmentList),
     });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -466,6 +519,14 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
 const getAllAppointmentsBySalonIdAndDate = async (req, res, next) => {
   try {
     const { salonId, appointmentDate } = req.body;
+
+    // Check if required fields are missing
+    if (!salonId || !appointmentDate) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
+    }
+
 
     // Convert appointmentDate to ISO format (YYYY-MM-DD)
 
@@ -543,6 +604,14 @@ const getAllAppointmentsByBarberId = async (req, res, next) => {
   try {
     const { salonId, barberId } = req.body;
 
+    // Check if required fields are missing
+    if (!salonId || !barberId) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
+    }
+
+
     const appointments = await Appointment.aggregate([
       { $match: { salonId: salonId } },
       { $unwind: "$appointmentList" },
@@ -613,76 +682,84 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
   try {
     const { salonId, barberId, appointmentDate } = req.body;
 
+    // Check if required fields are missing
+    if (!salonId || !barberId || !appointmentDate) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
+    }
+
+
     const appointments = await Appointment.aggregate([
       {
-          $match: {
-              salonId: salonId,
-              "appointmentList.appointmentDate": {
-                  $eq: new Date(appointmentDate)
-              },
-              "appointmentList.barberId": barberId
-          }
+        $match: {
+          salonId: salonId,
+          "appointmentList.appointmentDate": {
+            $eq: new Date(appointmentDate)
+          },
+          "appointmentList.barberId": barberId
+        }
       },
       { $unwind: "$appointmentList" },
       {
-          $match: {
-              "appointmentList.appointmentDate": {
-                  $eq: new Date(appointmentDate)
-              },
-              "appointmentList.barberId": barberId
-          }
+        $match: {
+          "appointmentList.appointmentDate": {
+            $eq: new Date(appointmentDate)
+          },
+          "appointmentList.barberId": barberId
+        }
       },
       {
-          $lookup: {
-              from: "barbers",
-              localField: "appointmentList.barberId",
-              foreignField: "barberId",
-              as: "barberInfo"
-          }
+        $lookup: {
+          from: "barbers",
+          localField: "appointmentList.barberId",
+          foreignField: "barberId",
+          as: "barberInfo"
+        }
       },
       {
-          $addFields: {
-              "appointmentList.barberName": {
-                  $arrayElemAt: ["$barberInfo.name", 0]
-              }
+        $addFields: {
+          "appointmentList.barberName": {
+            $arrayElemAt: ["$barberInfo.name", 0]
           }
+        }
       },
       {
-          $group: {
-              _id: "$appointmentList.barberId",
-              barbername: { $first: "$appointmentList.barberName" },
-              appointments: {
-                $push: {
-                  appointmentDate: "$appointmentList.appointmentDate",
-                  barberId: "$appointmentList.barberId",
-                  appointmentNotes: "$appointmentList.appointmentNotes",
-                  services: {
-                    $map: {
-                      input: "$appointmentList.services",
-                      as: "service",
-                      in: {
-                        serviceId: "$$service.serviceId",
-                        serviceName: "$$service.serviceName"
-                      }
-                    }
-                  },
-                  appointmentStartTime: "$appointmentList.startTime",
-                  appointmentEndTime: "$appointmentList.endTime",
-                  customerName: "$appointmentList.customerName",
-                  methodUsed: "$appointmentList.methodUsed"
+        $group: {
+          _id: "$appointmentList.barberId",
+          barbername: { $first: "$appointmentList.barberName" },
+          appointments: {
+            $push: {
+              appointmentDate: "$appointmentList.appointmentDate",
+              barberId: "$appointmentList.barberId",
+              appointmentNotes: "$appointmentList.appointmentNotes",
+              services: {
+                $map: {
+                  input: "$appointmentList.services",
+                  as: "service",
+                  in: {
+                    serviceId: "$$service.serviceId",
+                    serviceName: "$$service.serviceName"
+                  }
                 }
-              }
+              },
+              appointmentStartTime: "$appointmentList.startTime",
+              appointmentEndTime: "$appointmentList.endTime",
+              customerName: "$appointmentList.customerName",
+              methodUsed: "$appointmentList.methodUsed"
+            }
           }
+        }
       },
       {
-          $project: {
-              _id: 0, // Exclude _id field
-              barbername: 1,
-              barberId: 1,
-              appointments: 1
-          }
+        $project: {
+          _id: 0, // Exclude _id field
+          barbername: 1,
+          barberId: 1,
+          appointments: 1
+        }
       }
-  ]);
+    ]);
 
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({
@@ -707,42 +784,48 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
 const barberServedAppointment = async (req, res, next) => {
   try {
     const { salonId, barberId, _id, appointmentDate } = req.body;
-
-  // Find the appointment to be served
-  const appointments = await Appointment.aggregate([
-    {
-      $match: {
-        salonId,
-      }
-    },
-    {
-      $unwind: '$appointmentList'
-    },
-    {
-      $match: {
-        'appointmentList._id':_id,
-        'appointmentList.barberId': barberId,
-        'appointmentList.appointmentDate': new Date(appointmentDate),
-      }
+    // Check if required fields are missing
+    if (!salonId || !barberId || !_id || !appointmentDate) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+      });
     }
-  ]);
 
-  // Check if appointment exists
-  if (appointments.length === 0) {
-    return res.status(404).json({
-      success: false,
-      message: 'Appointment not found.',
-    });
-  }
+    // Find the appointment to be served
+    const appointments = await Appointment.aggregate([
+      {
+        $match: {
+          salonId,
+        }
+      },
+      {
+        $unwind: '$appointmentList'
+      },
+      {
+        $match: {
+          'appointmentList._id': _id,
+          'appointmentList.barberId': barberId,
+          'appointmentList.appointmentDate': new Date(appointmentDate),
+        }
+      }
+    ]);
 
-  // Extract the served appointment from the list
-  const appointment = appointments[0]; // Take the first appointment in the list
+    // Check if appointment exists
+    if (appointments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
 
-  console.log(appointment)
-       // Extract the served appointment from the list
-       const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate);
-   
-       
+    // Extract the served appointment from the list
+    const appointment = appointments[0]; // Take the first appointment in the list
+
+    console.log(appointment)
+    // Extract the served appointment from the list
+    const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate);
+
+
     // Check if served appointment exists
     if (servedAppointmentIndex === -1) {
       // Create a new served appointment entry
@@ -759,20 +842,20 @@ const barberServedAppointment = async (req, res, next) => {
         methodUsed: appointment.appointmentList[0].methodUsed,
         status: 'served',
         services: []
-    };
-    
-    // Map services of the first appointment in the list to newServedAppointment
-    appointment.appointmentList[0].services.forEach(service => {
-      newServedAppointment.services.push({
-        serviceId: service.serviceId,
-        serviceName: service.serviceName,
-        servicePrice: service.servicePrice,
-        barberServiceEWT: service.barberServiceEWT
+      };
+
+      // Map services of the first appointment in the list to newServedAppointment
+      appointment.appointmentList[0].services.forEach(service => {
+        newServedAppointment.services.push({
+          serviceId: service.serviceId,
+          serviceName: service.serviceName,
+          servicePrice: service.servicePrice,
+          barberServiceEWT: service.barberServiceEWT
+        });
       });
-    });
-   // Check the retrieved appointment
-    // console.log(appointment.appointmentList[0]); // Check the first appointment in the list
-    // console.log(appointment.appointmentList[0].services); 
+      // Check the retrieved appointment
+      // console.log(appointment.appointmentList[0]); // Check the first appointment in the list
+      // console.log(appointment.appointmentList[0].services); 
       // // Store the served appointment in AppointmentHistory collection
       // const historyEntry = await AppointmentHistory.findOneAndUpdate(
       //   { salonId },

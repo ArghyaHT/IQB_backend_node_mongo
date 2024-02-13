@@ -36,21 +36,21 @@ const registerController = async (req, res, next) => {
     const password = req.body.password
     const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
-        // Validate email format
-        if (!email || !validateEmail(email)) {
-          return res.status(400).json({
-              success: false,
-              message: "Invalid email format"
-          });
-      }
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
 
-      // Validate password length
-      if (!password || password.length < 8) {
-          return res.status(400).json({
-              success: false,
-              message: "Password must be at least 8 characters long"
-          });
-      }
+    // Validate password length
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
+    }
 
 
 
@@ -135,21 +135,21 @@ const loginController = async (req, res, next) => {
     const password = req.body.password;
     const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
 
-        // Validate email format
-        if (!email || !validateEmail(email)) {
-          return res.status(400).json({
-              success: false,
-              message: "Invalid email format"
-          });
-      }
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
 
-      // Validate password length
-      if (!password || password.length < 8) {
-          return res.status(400).json({
-              success: false,
-              message: "Password must be at least 8 characters long"
-          });
-      }
+    // Validate password length
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
+    }
 
 
     // Find user by email in the MongoDB database
@@ -410,7 +410,7 @@ const googleLoginController = async (req, res, next) => {
         tokenType = 'iosFcmToken';
         tokenValue = iosFcmToken;
       }
-  
+
       if (tokenType && tokenValue) {
         await UserTokenTable.findOneAndUpdate(
           { email: payload.email },
@@ -451,7 +451,7 @@ const googleLoginController = async (req, res, next) => {
         tokenType = 'iosFcmToken';
         tokenValue = iosFcmToken;
       }
-  
+
       if (tokenType && tokenValue) {
         await UserTokenTable.findOneAndUpdate(
           { email: payload.email },
@@ -511,7 +511,7 @@ const refreshTokenController = async (req, res, next) => {
     });
 
     res.status(201).json({ success: true, message: "New accessToken generated" });
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -527,7 +527,7 @@ const handleLogout = async (req, res, next) => {
       success: true,
       message: "Barber logged out successfully"
     })
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -538,13 +538,13 @@ const handleForgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body
 
-        // Validate email format
-        if (!email || !validateEmail(email)) {
-          return res.status(400).json({
-              success: false,
-              message: "Invalid email format"
-          });
-      }
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
 
     const user = await Barber.findOne({ email: email })
 
@@ -583,7 +583,7 @@ const handleForgetPassword = async (req, res, next) => {
         resetToken
       }
     })
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -594,15 +594,15 @@ const handleForgetPassword = async (req, res, next) => {
 const handleResetPassword = async (req, res, next) => {
   try {
 
-    const {password} = req.body;
+    const { password } = req.body;
 
-      // Validate password length
-      if (!password || password.length < 8) {
-          return res.status(400).json({
-              success: false,
-              message: "Password must be at least 8 characters long"
-          });
-      }
+    // Validate password length
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
+    }
 
     //creating token hash
     const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
@@ -648,10 +648,10 @@ const isBarberLogginMiddleware = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-        return res.status(403).json({
-            success: false,
-            message: "Refresh Token not present. Please Login Again",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Refresh Token not present. Please Login Again",
+      });
     }
 
     // Verify old refresh token
@@ -661,28 +661,28 @@ const isBarberLogginMiddleware = async (req, res, next) => {
 
     const loggedinUser = await Barber.findOne({ email: decodeToken.user.email, barber: decodeToken.user.barber });
     if (!decodeToken) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid Access Token. Unauthorized User",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Access Token. Unauthorized User",
+      });
     }
     if (loggedinUser === null) {
       return res.status(400).json({
-         success: false,
-         message: "You are not a Barber",
-         user: [loggedinUser]
-     });
- }
- return res.status(200).json({
-  success: true,
-  message: "User already logged in",
-  user: [loggedinUser]
-});
+        success: false,
+        message: "You are not a Barber",
+        user: [loggedinUser]
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "User already logged in",
+      user: [loggedinUser]
+    });
 
-} catch (error) {
-  console.log(error);
-  next(error);
-}
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 }
 
 const isBarberLoggedOutMiddleware = async (req, res, next) => {
@@ -696,7 +696,7 @@ const isBarberLoggedOutMiddleware = async (req, res, next) => {
         message: "Refresh Token not present.Please Login Again",
       });
     }
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -745,44 +745,45 @@ const isBarberLoggedOutMiddleware = async (req, res, next) => {
 //MIDDLEWARE FOR ALL PROTECTED ROUTES ==================
 const handleBarberProtectedRoute = async (req, res, next) => {
   try {
-      const accessToken = req.cookies.accessToken;
-      const refreshToken = req.cookies.refreshToken;
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
-      if (!refreshToken) {
-          return res.status(403).json({
-              success: false,
-              message: "Refresh Token not present.Please Login Again",
-          });
-      }
-
-      // Verify old refresh token
-      const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
-
-      console.log(decodeToken)
-
-      if (!decodeToken) {
-          return res.status(401).json({
-              success: false,
-              message: "Invalid Access Token. UnAuthorize User",
-          });
-      }
-
-      req.user = decodeToken.user;
-
-      // console.log(req.user.barber)
-
-      if(req.user && !req.user.admin){
-          next();
-      }else{
-          return res.status(404).json({
-              success: false,
-              message:"You are not Authenticated Barber"})
-      }
-      
-  } catch (error) {
-      console.log(error);
-      next(error);
+    if (!refreshToken) {
+      return res.status(403).json({
+        success: false,
+        message: "Refresh Token not present.Please Login Again",
+      });
     }
+
+    // Verify old refresh token
+    const decodeToken = jwt.verify(accessToken, JWT_ACCESS_SECRET);
+
+    console.log(decodeToken)
+
+    if (!decodeToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Access Token. UnAuthorize User",
+      });
+    }
+
+    req.user = decodeToken.user;
+
+    // console.log(req.user.barber)
+
+    if (req.user && !req.user.admin) {
+      next();
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authenticated Barber"
+      })
+    }
+
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 
 };
 
@@ -832,13 +833,39 @@ const createBarberByAdmin = async (req, res, next) => {
       barberServices // Array of service objects containing serviceId, serviceCode, servicePrice, serviceName, serviceEWT
     } = req.body;
 
-        // Validate email format
-        if (!email || !validateEmail(email)) {
-          return res.status(400).json({
-              success: false,
-              message: "Invalid email format"
-          });
+    // Check if required fields are missing
+    if (!email || !name || !mobileNumber || !salonId || !dateOfBirth || !barberServices || !Array.isArray(barberServices)) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+    // Validate mobile number format
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number must be 10 digits"
+      });
+    }
+    // Validate barberServices format
+    for (const service of barberServices) {
+      const { serviceId, serviceCode, servicePrice, serviceName, serviceEWT } = service;
+
+      if (!serviceId || !serviceCode || !servicePrice || !serviceName || !serviceEWT) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields in barber service object"
+        });
       }
+    }
 
     // Check if the barber with the provided email already exists
     const barber = await Barber.findOne({ email });
@@ -913,13 +940,34 @@ const updateBarberByAdmin = async (req, res, next) => {
   try {
     const { email, name, nickName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
-   // Validate email format
-   if (!email || !validateEmail(email)) {
-    return res.status(400).json({
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
         success: false,
         message: "Invalid email format"
-    });
-}
+      });
+    }
+    // Validate mobile number format
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number must be 10 digits"
+      });
+    }
+
+    if (barberServices) {
+      // Validate barberServices format
+      for (const service of barberServices) {
+        const { serviceId, serviceCode, servicePrice, serviceName, serviceEWT } = service;
+
+        if (!serviceId || !serviceCode || !servicePrice || !serviceName || !serviceEWT) {
+          return res.status(400).json({
+            success: false,
+            message: "Missing required fields in barber service object"
+          });
+        }
+      }
+    }
 
     //If barberServices is present for updating
     if (barberServices && barberServices.length > 0) {
@@ -986,14 +1034,17 @@ const uploadBarberprofilePic = async (req, res, next) => {
     let profiles = req.files.profile;
     const email = req.body.email;
 
-       // Validate email format
-       if (!email || !validateEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid email format"
-        });
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
     }
 
+    if (!profiles) {
+      return res.status(400).json({ success: false, message: "Please provide profile image" });
+    }
 
     // Ensure that profiles is an array, even for single uploads
     if (!Array.isArray(profiles)) {
@@ -1065,12 +1116,16 @@ const updateBarberProfilePic = async (req, res, next) => {
     const public_imgid = req.body.public_imgid;
     const profile = req.files.profile;
 
+    if (!profile) {
+      return res.status(400).json({ success: false, message: "Please provide profile image" });
+    }
+
     // Validate Image
     const fileSize = profile.size / 1000;
     const fileExt = profile.name.split(".")[1];
 
     if (fileSize > 500) {
-      return res.status(400).json({ success: false,message: "File size must be lower than 500kb" });
+      return res.status(400).json({ success: false, message: "File size must be lower than 500kb" });
     }
 
     if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
@@ -1141,7 +1196,7 @@ const deleteBarberProfilePicture = async (req, res, next) => {
       console.log("cloud img deleted")
 
     } else {
-      res.status(500).json({success: false, message: 'Failed to delete image.' });
+      res.status(500).json({ success: false, message: 'Failed to delete image.' });
     }
 
     const updatedBarber = await Barber.findOneAndUpdate(
@@ -1156,7 +1211,7 @@ const deleteBarberProfilePicture = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({success: false, message: 'Image not found in the student profile' });
+      res.status(404).json({ success: false, message: 'Image not found in the student profile' });
     }
   } catch (error) {
     console.log(error);
@@ -1169,6 +1224,8 @@ const getAllBarberbySalonId = async (req, res, next) => {
   try {
     const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
     let query = {}; // Filter for isDeleted set to false
+
+
 
     const searchRegExpName = new RegExp('.*' + name + ".*", 'i');
     const searchRegExpEmail = new RegExp('.*' + email + ".*", 'i');
@@ -1230,6 +1287,20 @@ const deleteBarber = async (req, res, next) => {
   const { salonId } = req.query;
   const { email } = req.body
   try {
+    // Validate salonId from query parameters
+    if (!salonId) {
+      return res.status(400).json({
+        success: false,
+        message: "Salon ID is required"
+      });
+    }
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
     const result = await barberService.deleteBarberByEmail(salonId, email);
 
     res.status(result.status).json({
@@ -1253,7 +1324,7 @@ const chnageBarberWorkingStatus = async (req, res, next) => {
     const updatedBarber = await Barber.findOneAndUpdate(barberId, { isActive }, { new: true });
 
     if (!updatedBarber) {
-      return res.status(404).json({success: false, message: "Barber not found" });
+      return res.status(404).json({ success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1269,6 +1340,14 @@ const isBarberOnline = async (req, res, next) => {
   try {
     const { barberId, salonId, isOnline } = req.body;
 
+    // Validate salonId from query parameters
+    if (!salonId || !barberId) {
+      return res.status(400).json({
+        success: false,
+        message: "missing salonId and barberId"
+      });
+    }
+
     const updatedBarber = await Barber.findOneAndUpdate(
       { barberId: barberId, salonId: salonId },
       { isOnline: isOnline }, // Update the isOnline field in the database
@@ -1276,7 +1355,7 @@ const isBarberOnline = async (req, res, next) => {
     );
 
     if (!updatedBarber) {
-      return res.status(404).json({success: false, message: "Barber not found" });
+      return res.status(404).json({ success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1290,6 +1369,14 @@ const isBarberOnline = async (req, res, next) => {
 const getAllBarbersByServiceId = async (req, res, next) => {
   try {
     const { serviceId } = req.query;
+
+    // Validate salonId from query parameters
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        message: "ServiceId is required"
+      });
+    }
 
     const barbers = await Barber.find({ "barberServices.serviceId": serviceId, isDeleted: false })
 
@@ -1312,6 +1399,14 @@ const getAllBarbersByServiceId = async (req, res, next) => {
 const getBarberServicesByBarberId = async (req, res, next) => {
   try {
     const { barberId } = req.query;
+
+    // Validate salonId from query parameters
+    if (!barberId) {
+      return res.status(400).json({
+        success: false,
+        message: "BarberId is required"
+      });
+    }
 
     const barbers = await Barber.findOne({ barberId })
 
@@ -1338,6 +1433,33 @@ const getBarberServicesByBarberId = async (req, res, next) => {
 const connectBarbertoSalon = async (req, res, next) => {
   try {
     const { email, salonId, barberServices } = req.body;
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+    // Validate salonId presence and format
+    if (!salonId) {
+      return res.status(400).json({
+        success: false,
+        message: "Salon ID is required"
+      });
+    }
+    // Assuming salonId is numeric, you can add additional validation here if necessary
+
+    // Validate barberServices if present
+    if (barberServices !== undefined) {
+      if (barberServices.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Barber services must be provided as an array"
+        });
+      }
+      // You can add additional validation for each object in the barberServices array if necessary
+    }
 
     const barber = await Barber.findOneAndUpdate({ email },
       { salonId: salonId, barberServices: barberServices }, { new: true });
@@ -1367,6 +1489,13 @@ const getBarberDetailsByEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
     const barber = await Barber.findOne({ email }).populate("barberRatings");
 
     if (!barber) {
@@ -1385,7 +1514,7 @@ const getBarberDetailsByEmail = async (req, res, next) => {
       message: "Barber retrieved successfully",
       response: {
         ...barber.toObject(), // Convert Mongoose document to plain JavaScript object
-        barberRating: getBarberRating, 
+        barberRating: getBarberRating,
       },
     });
   }
@@ -1399,6 +1528,13 @@ const getBarberDetailsByEmail = async (req, res, next) => {
 const sendVerificationCodeForBarberEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
+
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
 
     const user = await Barber.findOne({ email });
     if (!user) {
@@ -1444,12 +1580,14 @@ const changeBarberEmailVerifiedStatus = async (req, res, next) => {
   try {
     const { email, verificationCode } = req.body;
 
-       // Validate email format
-       if (!email || !validateEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid email format"
-        });
+
+
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
     }
 
 

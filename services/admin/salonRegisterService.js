@@ -2,6 +2,7 @@ const Salon = require("../../models/salonsRegisterModel.js")
 const Admin = require("../../models/adminRegisterModel.js")
 const Barber = require("../../models/barberRegisterModel.js")
 const SalonSettings = require("../../models/salonSettingsModel.js")
+const { validateEmail } = require("../../middlewares/validator.js")
 
 //-------CreateSalon------//
 
@@ -28,6 +29,35 @@ const createSalon = async (salonData) => {
   } = salonData
 
   try {
+    // Check if required fields are missing
+if (!adminEmail || !salonName || !address || !city || !country || !salonType || !postCode || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
+  return res.status(400).json({
+      message: 'Please fill all the fields',
+  });
+}
+    const email = salonEmail;
+
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+    // Validate the format and length of the contactTel
+if (!/^\d{10}$/.test(contactTel)) {
+  return res.status(400).json({
+      message: 'Invalid format for contactTel. It should be a 10-digit number',
+  });
+}
+
+// Check if services array is empty
+if (!services || services.length === 0) {
+  return res.status(400).json({
+      message: 'Services is empty',
+  });
+}
 
     //Find the Salon If exits 
     const existingSalon = await Salon.findOne({ salonName });
@@ -260,13 +290,21 @@ const updateSalonBySalonId = async (salonData) => {
   } = salonData
 
   try {
+    const email = adminEmail;
+      // Validate email format
+      if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
     if (!salonId || !adminEmail) {
       return ({
-        status: 201,
+        status: 400,
         message: 'Failed to search salons by The SalonId.',
       });
     }
-
+    
     const salon = await Salon.findOne({ salonId, adminEmail })
 
     if (!salon) {
@@ -300,7 +338,7 @@ const updateSalonBySalonId = async (salonData) => {
       // If services are provided, update the services
       const updatedServices = salon.services.map((existingService) => {
         const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
-    
+
         if (matchingService) {
           return {
             ...existingService.toObject(),
@@ -316,12 +354,12 @@ const updateSalonBySalonId = async (salonData) => {
         }
         return existingService; // Keep the existing service unchanged
       });
-    
+
       const existingServiceCount = updatedServices.length;
-    
+
       // Calculate the next available serviceCounter based on existing services count
       let serviceCounter = existingServiceCount + 1;
-    
+
       // Check for any new services that don't exist in the current services array
       services.forEach((newService) => {
         const existingService = updatedServices.find((s) => s.serviceId === newService.serviceId);
@@ -343,7 +381,7 @@ const updateSalonBySalonId = async (salonData) => {
           serviceCounter++; // Increment serviceCounter for the next service
         }
       });
-    
+
       updateFields.services = updatedServices;
     }
 

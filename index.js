@@ -140,6 +140,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
+const { storeCountries } = require("./utils/countries.js")
 
 const dotenv = require("dotenv").config();
 
@@ -198,37 +199,16 @@ app.use("/api/icons", icons)
 app.use("/api/message", sendSms)
 
 
-// app.post('/send-notification', async (req, res) => {
-//   const { title, body } = req.body;
-
-//   if (!title || !body) {
-//     return res.status(400).json({ error: 'Title and body are required' });
-//   }
-
-//   try {
-//     const users = await Customer.find();
-//     const registrationTokens = users.map((user) => user.fcmToken);
-
-//     const message = {
-//       notification: {
-//         title,
-//         body,
-//       },
-//       tokens: registrationTokens, // Pass tokens as an array
-//     };
-
-//     const response = await admin.messaging().sendMulticast(message);
-//     console.log('Notification sent:', response);
-//     res.status(200).json({ message: 'Notification sent successfully' });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-
 app.use("/api/notifications", notifications)
 app.use(ErrorHandler)
+// async function main() {
+//   try {
+//       await storeCountries();
+//   } catch (error) {
+//       console.error('Error:', error);
+//   }
+// }
+// main();
 const PORT = 8080;
 
 app.listen(PORT, () => {
