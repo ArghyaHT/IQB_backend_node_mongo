@@ -959,7 +959,14 @@ const updateBarberByAdmin = async (req, res, next) => {
       });
     }
 
-    if (barberServices) {
+    if (!barberServices || barberServices.length === 0) {
+      return res.status(400).json({
+          success: false,
+          message: "Barber services array cannot be empty"
+      });
+  }
+
+    if (barberServices.length > 0) {
       // Validate barberServices format
       for (const service of barberServices) {
         const { serviceId, serviceCode, servicePrice, serviceName, serviceEWT } = service;
