@@ -24,6 +24,7 @@ const Salon = require("../../models/salonsRegisterModel");
 const Barber = require("../../models/barberRegisterModel");
 const SalonQueueList = require("../../models/salonQueueListModel");
 const UserTokenTable = require("../../models/userTokenModel");
+const { validateEmail } = require("../../middlewares/validator");
 const cloudinary = require('cloudinary').v2
 
 
@@ -37,6 +38,14 @@ cloudinary.config({
 const checkEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
+       // Validate email format
+       if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
+
 
     //Find existing email for a particular salonId
     const existingCustomer = await Customer.findOne({ email });
@@ -72,6 +81,15 @@ const signUp = async (req, res, next) => {
       mobileNumber,
       password,
     } = req.body;
+
+       // Validate email format
+       if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
+
 
     const verificationCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
 

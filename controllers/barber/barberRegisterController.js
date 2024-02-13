@@ -18,6 +18,7 @@ const fs = require('fs');
 const { sendPasswordResetEmail } = require("../../utils/emailSender.js");
 const UserTokenTable = require("../../models/userTokenModel.js");
 const { getAverageBarberRating } = require("../Ratings/barberRatingController.js");
+const { validateEmail } = require("../../middlewares/validator.js");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -34,6 +35,23 @@ const registerController = async (req, res, next) => {
     const email = req.body.email
     const password = req.body.password
     const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+          return res.status(400).json({
+              success: false,
+              message: "Invalid email format"
+          });
+      }
+
+      // Validate password length
+      if (!password || password.length < 8) {
+          return res.status(400).json({
+              success: false,
+              message: "Password must be at least 8 characters long"
+          });
+      }
+
 
 
     let user = await Barber.findOne({ email: email });
@@ -116,6 +134,23 @@ const loginController = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+          return res.status(400).json({
+              success: false,
+              message: "Invalid email format"
+          });
+      }
+
+      // Validate password length
+      if (!password || password.length < 8) {
+          return res.status(400).json({
+              success: false,
+              message: "Password must be at least 8 characters long"
+          });
+      }
+
 
     // Find user by email in the MongoDB database
     const user = await Barber.findOne({ email: email });
@@ -503,6 +538,14 @@ const handleForgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body
 
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+          return res.status(400).json({
+              success: false,
+              message: "Invalid email format"
+          });
+      }
+
     const user = await Barber.findOne({ email: email })
 
     if (!user) {
@@ -550,6 +593,17 @@ const handleForgetPassword = async (req, res, next) => {
 //DESC:RESET PASSWORD =================================
 const handleResetPassword = async (req, res, next) => {
   try {
+
+    const {password} = req.body;
+
+      // Validate password length
+      if (!password || password.length < 8) {
+          return res.status(400).json({
+              success: false,
+              message: "Password must be at least 8 characters long"
+          });
+      }
+
     //creating token hash
     const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
 
@@ -566,7 +620,7 @@ const handleResetPassword = async (req, res, next) => {
       })
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
@@ -778,6 +832,14 @@ const createBarberByAdmin = async (req, res, next) => {
       barberServices // Array of service objects containing serviceId, serviceCode, servicePrice, serviceName, serviceEWT
     } = req.body;
 
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+          return res.status(400).json({
+              success: false,
+              message: "Invalid email format"
+          });
+      }
+
     // Check if the barber with the provided email already exists
     const barber = await Barber.findOne({ email });
 
@@ -851,6 +913,13 @@ const updateBarberByAdmin = async (req, res, next) => {
   try {
     const { email, name, nickName, salonId, mobileNumber, dateOfBirth, barberServices } = req.body;
 
+   // Validate email format
+   if (!email || !validateEmail(email)) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+    });
+}
 
     //If barberServices is present for updating
     if (barberServices && barberServices.length > 0) {
@@ -916,6 +985,15 @@ const uploadBarberprofilePic = async (req, res, next) => {
   try {
     let profiles = req.files.profile;
     const email = req.body.email;
+
+       // Validate email format
+       if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
+
 
     // Ensure that profiles is an array, even for single uploads
     if (!Array.isArray(profiles)) {
@@ -992,11 +1070,11 @@ const updateBarberProfilePic = async (req, res, next) => {
     const fileExt = profile.name.split(".")[1];
 
     if (fileSize > 500) {
-      return res.status(400).json({ message: "File size must be lower than 500kb" });
+      return res.status(400).json({ success: false,message: "File size must be lower than 500kb" });
     }
 
     if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
-      return res.status(400).json({ message: "File extension must be jpg or png" });
+      return res.status(400).json({ success: false, message: "File extension must be jpg or png" });
     }
 
     // Generate a unique public_id based on the original file name
@@ -1063,7 +1141,7 @@ const deleteBarberProfilePicture = async (req, res, next) => {
       console.log("cloud img deleted")
 
     } else {
-      res.status(500).json({ message: 'Failed to delete image.' });
+      res.status(500).json({success: false, message: 'Failed to delete image.' });
     }
 
     const updatedBarber = await Barber.findOneAndUpdate(
@@ -1078,7 +1156,7 @@ const deleteBarberProfilePicture = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ message: 'Image not found in the student profile' });
+      res.status(404).json({success: false, message: 'Image not found in the student profile' });
     }
   } catch (error) {
     console.log(error);
@@ -1175,7 +1253,7 @@ const chnageBarberWorkingStatus = async (req, res, next) => {
     const updatedBarber = await Barber.findOneAndUpdate(barberId, { isActive }, { new: true });
 
     if (!updatedBarber) {
-      return res.status(404).json({ message: "Barber not found" });
+      return res.status(404).json({success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1198,7 +1276,7 @@ const isBarberOnline = async (req, res, next) => {
     );
 
     if (!updatedBarber) {
-      return res.status(404).json({ message: "Barber not found" });
+      return res.status(404).json({success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1216,7 +1294,7 @@ const getAllBarbersByServiceId = async (req, res, next) => {
     const barbers = await Barber.find({ "barberServices.serviceId": serviceId, isDeleted: false })
 
     if (!barbers || barbers.length === 0) {
-      return res.status(404).json({ message: "No barbers found for the given serviceId" });
+      return res.status(404).json({ success: false, message: "No barbers found for the given serviceId" });
     }
 
     return res.status(200).json({
@@ -1240,7 +1318,7 @@ const getBarberServicesByBarberId = async (req, res, next) => {
     const barberServices = barbers.barberServices;
 
     if (!barbers) {
-      return res.status(404).json({ message: "No barbers found for the geiven BarberId" });
+      return res.status(404).json({ success: false, message: "No barbers found for the geiven BarberId" });
     }
 
     return res.status(200).json({
@@ -1304,7 +1382,7 @@ const getBarberDetailsByEmail = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Barber is Found",
+      message: "Barber retrieved successfully",
       response: {
         ...barber.toObject(), // Convert Mongoose document to plain JavaScript object
         barberRating: getBarberRating, 
@@ -1365,6 +1443,15 @@ const sendVerificationCodeForBarberEmail = async (req, res, next) => {
 const changeBarberEmailVerifiedStatus = async (req, res, next) => {
   try {
     const { email, verificationCode } = req.body;
+
+       // Validate email format
+       if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
+
 
     // FIND THE CUSTOMER 
     const barber = await Barber.findOne({ email });

@@ -18,6 +18,7 @@ const JWT_REFRESH_SECRET = "refreshToken"
 const path = require("path");
 const fs = require('fs');
 const { sendPasswordResetEmail } = require("../../utils/emailSender");
+const { validateEmail } = require("../../middlewares/validator");
 const cloudinary = require('cloudinary').v2
 
 
@@ -32,8 +33,24 @@ cloudinary.config({
 //====================
 const registerController = async (req, res, next) => {
     try {
-        const email = req.body.email
-        const password = req.body.password
+        const email = req.body.email;
+        const password = req.body.password;
+
+        // Validate email format
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
+        // Validate password length
+        if (!password || password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters long"
+            });
+        }
 
         let user = await Admin.findOne({ email: email });
 
@@ -41,7 +58,7 @@ const registerController = async (req, res, next) => {
             return res.status(400).json({
                 success: false,
                 message: "Admin already exists"
-            })
+            });
         }
 
         // If the user doesn't exist, create a new user
@@ -57,8 +74,8 @@ const registerController = async (req, res, next) => {
             await user.save();
 
             // Generate tokens
-            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin:user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
 
             // Set cookies in the response
             res.cookie('refreshToken', refreshToken, {
@@ -78,14 +95,12 @@ const registerController = async (req, res, next) => {
                 success: true,
                 message: "Admin registered successfully",
                 user
-            })
+            });
         }
-
-
     } catch (error) {
         console.log(error);
         next(error);
-      }
+    }
 }
 
 //DESC:LOGIN A USER =========================
@@ -93,6 +108,21 @@ const loginController = async (req, res, next) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
+
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
+            // Validate password length
+            if (!password || password.length < 8) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Password must be at least 8 characters long"
+                });
+            }
 
         // Find user by email in the MongoDB database
         const user = await Admin.findOne({ email: email });
@@ -138,7 +168,7 @@ const googleLoginController = async (req, res, next) => {
     const token = req.body.token;
 
     if (!token) {
-        res.json({ message: "UnAuthorized User or Invalid User" })
+        res.json({success:false, message: "UnAuthorized User or Invalid User" })
     }
 
     const client = new OAuth2Client(CLIENT_ID);
@@ -275,10 +305,22 @@ const handleForgetPassword = async (req, res, next) => {
     try {
         const { email } = req.body
 
+          // Validate email format
+          if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
+
         const user = await Admin.findOne({ email: email })
 
         if (!user) {
-            throw createError(404, "Admin with this email does not exist.Please register first")
+            return res.status(404).json({
+                success: false,
+                message: "Admin with this email does not exist. Please register first."
+            });
         }
 
         //get ResetPassword Token
@@ -322,6 +364,17 @@ const handleForgetPassword = async (req, res, next) => {
 //DESC:RESET PASSWORD =================================
 const handleResetPassword = async (req, res, next) => {
     try {
+        const {password} = req.body;
+
+
+        // Validate password length
+        if (!password || password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters long"
+            });
+        }
+
         //creating token hash
         const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
 
@@ -338,7 +391,7 @@ const handleResetPassword = async (req, res, next) => {
             })
         }
 
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
@@ -690,6 +743,14 @@ const handleProtectedRoute = async (req, res, next) => {
 const deleteSingleAdmin = async (req, res, next) => {
     const { email } = req.body;
     try {
+
+          // Validate email format
+          if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
         const result = await adminService.deleteAdmin(email)
         res.status(result.status).json({
             response: result.response,
@@ -750,6 +811,15 @@ const uploadAdminprofilePic = async (req, res, next) => {
     try {
         let profiles = req.files.profile;
         const email = req.body.email;
+
+           // Validate email format
+           if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+  
 
         // Ensure that profiles is an array, even for single uploads
         if (!Array.isArray(profiles)) {
@@ -826,11 +896,11 @@ const updateAdminProfilePic = async (req, res, next) => {
         const fileExt = profile.name.split(".")[1];
 
         if (fileSize > 500) {
-            return res.status(400).json({ message: "File size must be lower than 500kb" });
+            return res.status(400).json({success: false, message: "File size must be lower than 500kb" });
         }
 
         if (!["jpg", "png", "jfif", "svg"].includes(fileExt)) {
-            return res.status(400).json({ message: "File extension must be jpg or png" });
+            return res.status(400).json({ success: false, message: "File extension must be jpg or png" });
         }
 
         // Generate a unique public_id based on the original file name
@@ -899,7 +969,7 @@ const deleteAdminProfilePicture = async (req, res, next) => {
             console.log("cloud img deleted")
 
         } else {
-            res.status(500).json({ message: 'Failed to delete image.' });
+            res.status(500).json({ success: false, message: 'Failed to delete image.' });
         }
 
         const updatedAdmin = await Admin.findOneAndUpdate(
@@ -914,7 +984,7 @@ const deleteAdminProfilePicture = async (req, res, next) => {
                 message: "Image successfully deleted"
             })
         } else {
-            res.status(404).json({ message: 'Image not found in the student profile' });
+            res.status(404).json({success: false, message: 'Image not found in the student profile' });
         }
     }  catch (error) {
         console.log(error);
@@ -956,6 +1026,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
 const getDefaultSalonByAdmin = async (req, res, next) => {
     try {
         const { adminEmail } = req.body;
+        
         const admin = await Admin.findOne({ email: adminEmail })
         if (!admin) {
             res.status(404).json({
@@ -1056,6 +1127,22 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
 const changeEmailVerifiedStatus = async (req, res, next) => {
     try {
         const { email, verificationCode } = req.body;
+           // Validate email format
+           if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+  
+           // Validate email format
+           if (!email || !validateEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+  
 
         // FIND THE CUSTOMER 
         const admin = await Admin.findOne({ email });

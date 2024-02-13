@@ -23,3 +23,4 @@
 {"level":"error","message":"mongoose is not defined","timestamp":"2024-02-12T13:02:21.181Z"}
 {"level":"error","message":"Class constructor ObjectId cannot be invoked without 'new'","timestamp":"2024-02-12T13:03:22.969Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-12T13:25:21.276Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-13T05:34:36.835Z"}
