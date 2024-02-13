@@ -727,7 +727,6 @@ const getSalonInfo = async (req, res, next) => {
 //Update Salon By Admin
 const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   const {
-    userName,
     salonName,
     salonIcon,
     salonLogo,
@@ -748,7 +747,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   } = req. body;
 
   // Check if required fields are missing or empty
-if (!userName || !salonName || !salonIcon || !salonLogo || !salonId || !adminEmail || !address || !salonType || !city || !country || !postCode || !contactTel || !webLink || !fblink || !salonEmail || !services) {
+if (!salonName || !salonIcon || !salonLogo || !salonId || !adminEmail || !address || !salonType || !city || !country || !postCode || !contactTel || !webLink || !fblink || !salonEmail || !services) {
   return res.status(400).json({ success: false, message: "Missing required fields" });
 }
 
@@ -768,7 +767,6 @@ if (!/^\d{10}$/.test(contactTel)) {
 }
 
   const salonData ={
-    userName,
     salonName,
     salonIcon,
     salonLogo,

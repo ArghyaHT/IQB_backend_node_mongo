@@ -10,6 +10,7 @@ async function storeCountries() {
 
         // Store each country in the database
         for (const country of countries) {
+            console.log(countries)
             const newCountry = new Country({
                 name: country.name,
                 isoCode: country.isoCode, // Assuming iso2 is used for isoCode
