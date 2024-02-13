@@ -259,21 +259,6 @@ const updateSalonBySalonId = async (salonData) => {
   } = salonData
 
   try {
-    const email = adminEmail;
-      // Validate email format
-      if (!email || !validateEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid email format"
-        });
-    }
-    if (!salonId || !adminEmail) {
-      return ({
-        status: 400,
-        message: 'Failed to search salons by The SalonId.',
-      });
-    }
-    
     const salon = await Salon.findOne({ salonId, adminEmail })
 
     if (!salon) {

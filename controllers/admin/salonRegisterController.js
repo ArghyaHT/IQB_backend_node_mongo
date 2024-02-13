@@ -726,9 +726,70 @@ const getSalonInfo = async (req, res, next) => {
 
 //Update Salon By Admin
 const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
+  const {
+    userName,
+    salonName,
+    salonIcon,
+    salonLogo,
+    salonId,
+    adminEmail,
+    address,
+    salonType,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    salonEmail,
+    twitterLink,
+    instraLink,
+    services,
+  } = req. body;
+
+  // Check if required fields are missing or empty
+if (!userName || !salonName || !salonIcon || !salonLogo || !salonId || !adminEmail || !address || !salonType || !city || !country || !postCode || !contactTel || !webLink || !fblink || !salonEmail || !services) {
+  return res.status(400).json({ success: false, message: "Missing required fields" });
+}
+
+// Validate email format for adminEmail
+if (!validateEmail(adminEmail)) {
+  return res.status(400).json({ success: false, message: "Invalid admin email format" });
+}
+
+// Validate email format for salonEmail
+if (!validateEmail(salonEmail)) {
+  return res.status(400).json({ success: false, message: "Invalid salon email format" });
+}
+
+// Validate contactTel format (assuming it should be exactly 10 digits)
+if (!/^\d{10}$/.test(contactTel)) {
+  return res.status(400).json({ success: false, message: "Invalid contact number format" });
+}
+
+  const salonData ={
+    userName,
+    salonName,
+    salonIcon,
+    salonLogo,
+    salonId,
+    adminEmail,
+    address,
+    salonType,
+    city,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    fblink,
+    salonEmail,
+    twitterLink,
+    instraLink,
+    services,
+  } 
 
   try {
-    const result = req.body != null ? await salonService.updateSalonBySalonId(req.body) : null;
+    const result = req.body != null ? await salonService.updateSalonBySalonId(salonData) : null;
 
     res.status(result.status).json({
       message: result.message,
