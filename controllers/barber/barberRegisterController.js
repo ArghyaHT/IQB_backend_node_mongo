@@ -1268,8 +1268,26 @@ const getAllBarberbySalonId = async (req, res, next) => {
 
 //Update Barber Account Details
 const updateBarberAccountDetails = async (req, res, next) => {
-  const barberData = req.body;
+  const { name, email, nickName, mobileNumber, dateOfBirth, gender, password } = req.body;
   try {
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+        // Validate password length
+        if (!password || password.length < 8) {
+          return res.status(400).json({
+              success: false,
+              message: "Password must be at least 8 characters long"
+          });
+      }
+    const barberData = {
+      name, email, nickName, mobileNumber, dateOfBirth, gender, password
+    }
     const result = await barberService.updateBarberByEmail(barberData)
 
     res.status(result.status).json({

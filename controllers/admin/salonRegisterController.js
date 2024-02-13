@@ -6,6 +6,7 @@ const Barber = require("../../models/barberRegisterModel")
 const path = require("path");
 const fs = require('fs');
 const { getAverageRating } = require("../Ratings/salonRatingController");
+const { validateEmail } = require("../../middlewares/validator");
 const cloudinary = require('cloudinary').v2
 
 cloudinary.config({
@@ -17,10 +18,73 @@ cloudinary.config({
 // Create a new Salon By Admin
 const createSalonByAdmin = async (req, res, next) => {
   try {
-    const salonData = req.body;
+    const {     salonName,
+      salonIcon,
+      salonLogo,
+      salonType,
+      address,
+      city,
+      location,
+      country,
+      postCode,
+      contactTel,
+      webLink,
+      salonEmail,
+      fbLink,
+      twitterLink,
+      instraLink,
+      services,
+      appointmentSettings} = req.body;
     const { adminEmail } = req.body
 
+    // Check if required fields are missing
+    if (!adminEmail || !salonName || !address || !city || !country || !salonType || !postCode || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
+      return res.status(400).json({
+          message: 'Please fill all the fields',
+      });
+    }
+    const email = salonEmail;
 
+    // Validate email format
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+    // Validate the format and length of the contactTel
+if (!/^\d{10}$/.test(contactTel)) {
+  return res.status(400).json({
+      message: 'Invalid format for contactTel. It should be a 10-digit number',
+  });
+}
+
+// Check if services array is empty
+if (!services || services.length === 0) {
+  return res.status(400).json({
+      message: 'Services is empty',
+  });
+}
+    const salonData = {   salonIcon,
+      salonName,
+    adminEmail,
+    salonIcon,
+    salonLogo,
+    salonType,
+    address,
+    city,
+    location,
+    country,
+    postCode,
+    contactTel,
+    webLink,
+    salonEmail,
+    fbLink,
+    twitterLink,
+    instraLink,
+    services,
+    appointmentSettings}
     const result = await salonService.createSalon(salonData, adminEmail);
 
     res.status(result.status).json({

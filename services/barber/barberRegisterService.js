@@ -56,15 +56,6 @@ const updateBarberByEmail = async (barberData) => {
 
     const { name, email, nickName, mobileNumber, dateOfBirth, gender, password } = barberData
     try {
-
-            // Validate email format
-            if (!email || !validateEmail(email)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid email format"
-                });
-            }
-
         //Creating an object other than the password field 
         let updateFields = {
             name,

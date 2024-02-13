@@ -29,40 +29,8 @@ const createSalon = async (salonData) => {
   } = salonData
 
   try {
-    // Check if required fields are missing
-if (!adminEmail || !salonName || !address || !city || !country || !salonType || !postCode || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
-  return res.status(400).json({
-      message: 'Please fill all the fields',
-  });
-}
-    const email = salonEmail;
-
-    // Validate email format
-    if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email format"
-      });
-    }
-
-    // Validate the format and length of the contactTel
-if (!/^\d{10}$/.test(contactTel)) {
-  return res.status(400).json({
-      message: 'Invalid format for contactTel. It should be a 10-digit number',
-  });
-}
-
-// Check if services array is empty
-if (!services || services.length === 0) {
-  return res.status(400).json({
-      message: 'Services is empty',
-  });
-}
-
     //Find the Salon If exits 
     const existingSalon = await Salon.findOne({ salonName });
-
-
     if (existingSalon) {
       return {
         status: 400,
@@ -73,6 +41,7 @@ if (!services || services.length === 0) {
     const salonId = await Salon.countDocuments() + 1;
 
     const firstTwoLetters = salonName.slice(0, 2).toUpperCase();
+    console.log(firstTwoLetters)
     // const secondTwoLetters = admin.FirstName.slice(0, 2).toUpperCase();
 
     const salonCode = firstTwoLetters + salonId;

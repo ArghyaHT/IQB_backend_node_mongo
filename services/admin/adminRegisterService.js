@@ -18,10 +18,10 @@ const enterAdminEmail = async (email) => {
 
     const verificationCode = crypto.randomBytes(2).toString('hex');
 
-    admin.VerificationCode = verificationCode;
+    admin.verificationCode = verificationCode;
     await admin.save();
 
-    if (admin.VerificationCode) {
+    if (admin.verificationCode) {
       const email = "bikkihimanstech@gmail.com"
 
       const resetLink = "`https://gmail.com/reset-password`"
@@ -69,7 +69,7 @@ const deleteAdmin = async (email) => {
 
 //Update Admin Account Details
 const updateAdmin = async (adminData) => {
-  const { salonId, name, gender, email, mobileNumber, dateOfBirth, isActive, password } = adminData;
+  const { name, gender, email, mobileNumber, dateOfBirth, isActive, password } = adminData;
 
   try {
     let updateFields = {
@@ -80,8 +80,6 @@ const updateAdmin = async (adminData) => {
       mobileNumber,
       isActive,
     };
-
-    console.log(email)
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
