@@ -163,10 +163,10 @@ const groupJoinQueue = async (req, res, next) => {
 
       // Validate member data
       const { name, customerEmail, barberId, barberName, mobileNumber, services } = member;
-      if (!name || !customerEmail || !barberId || !barberName || !mobileNumber || !services) {
+      if (!salonId || !name || !customerEmail  || !mobileNumber || !barberName || !barberId || !services) {
         return res.status(400).json({
           success: false,
-          message: "Missing required fields for group member"
+          message: "Missing required fields"
         });
       }
       // Validate services format for each member
@@ -283,10 +283,12 @@ const autoJoin = async (req, res, next) => {
   try {
     const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
     
-    // Check if required fields are missing
-if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !barberName || !barberId || !services) {
-  return res.status(400).json({ success: false, message: "Missing required fields" });
-}
+    if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !services) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
     
 const email = customerEmail;
 
