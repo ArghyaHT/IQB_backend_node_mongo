@@ -3,6 +3,7 @@ const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel");
 const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
 const { sendSms } = require("../../utils/mobileMessageSender");
+const { validateEmail } = require("../../middlewares/validator");
 
 
 //Single Join queue api
