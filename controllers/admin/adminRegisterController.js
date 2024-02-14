@@ -770,10 +770,10 @@ const updateAdminAccountDetails = async (req, res, next) => {
 
     try {
 
-        // Check if required fields are missing or empty
-        if (!name || !gender || !email || !mobileNumber || !dateOfBirth || !isActive || !password) {
-            return res.status(400).json({ success: false, message: "Missing required fields" });
-        }
+        // // Check if required fields are missing or empty
+        // if (!name || !gender || !email || !mobileNumber || !dateOfBirth ) {
+        //     return res.status(400).json({ success: false, message: "Missing required fields" });
+        // }
         // Validate email format
         if (!validateEmail(email)) {
             return res.status(400).json({ success: false, message: "Invalid email format" });

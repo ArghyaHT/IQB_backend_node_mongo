@@ -18,8 +18,8 @@ cloudinary.config({
 // Create a new Salon By Admin
 const createSalonByAdmin = async (req, res, next) => {
   try {
-    const {     salonName,
-      salonIcon,
+    const {     
+      salonName,
       salonLogo,
       salonType,
       address,
@@ -34,11 +34,94 @@ const createSalonByAdmin = async (req, res, next) => {
       twitterLink,
       instraLink,
       services,
-      appointmentSettings} = req.body;
+      appointmentSettings
+    } = req.body;
     const { adminEmail } = req.body
 
+    //sagnik createsalondata
+
+//     const salonData = {
+//       //Ai admin emailer value loggin theke asbe
+//       adminEmail: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].email
+//       , salonEmail, salonName, address, city, location: {
+//           type: "Point",
+//           coordinates: {
+//               longitude: Number(longitude),
+//               latitude: Number(latitude)
+//           }
+//       }, country, postCode, contactTel, salonType, webLink, services, image, 
+//       appointmentSettings: { startTime, endTime, intervalInMinutes: Number(chooseIntervalTime) }
+//   }
+
+//   //createbarber route="/barber/createbarber"
+//   const barberdata = {
+//     name, email, nickName, mobileNumber, dateOfBirth, 
+//     salonId:Number(LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId), 
+//     barberServices: selectedService
+// }
+
+// //appointment/createappointment
+
+// const createAppointmentData = {
+//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware?.user[0].salonId,
+//   barberId: selectedbarberId,
+//   serviceId: selectedService.map((s) => s.serviceId),
+//   appointmentDate: date,
+//   appointmentNotes: appointmentNotes,
+//   startTime: timeSlotStartTime,
+//   // customerEmail: "arg@gmail.com",
+//   customerName: name,
+//   customerType: "Walk-In",
+//   methodUsed: "App"
+// }
+
+// //single join queue
+// const queuedata = {
+//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+//   name,
+//   customerEmail,
+//   mobileNumber,
+//   joinedQType: "Single-Join",
+//   methodUsed: "Walk-In",
+//   barberName: selectedbarberName || currentbarberName,
+//   barberId: selectedbarberId,
+//   services: selectedService 
+// }
+
+// //auto join queueu
+// const joindata = {
+//   name,
+//   customerEmail,
+//   customerMobile,
+//   joinedQType: "Auto-Join",
+//   methodUsed: "Walk-In",
+//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+//   services: selectedService,
+//   isOnline: true
+// }
+
+// //group join 
+
+// const customerdata = {
+//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+//   name,
+//   customerEmail,
+//   customerMobile,
+//   joinedQType: "Group-Join",
+//   methodUsed: "Walk-In",
+//   barberName: selectedbarberName,
+//   barberId: selectedbarberId,
+//   services: selectedService
+// }
+
+// const queuedata = {
+//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+//   groupInfo: selectedCustomer
+// }
+
+
     // Check if required fields are missing
-    if (!adminEmail || !salonName || !address || !city || !country || !salonType || !postCode || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
+    if (!salonName || !city || !country || !salonType || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
       return res.status(400).json({
           message: 'Please fill all the fields',
       });
