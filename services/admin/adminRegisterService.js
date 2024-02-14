@@ -78,7 +78,6 @@ const updateAdmin = async (adminData) => {
       gender,
       dateOfBirth,
       mobileNumber,
-      isActive,
     };
 
     if (password) {

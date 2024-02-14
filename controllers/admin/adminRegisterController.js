@@ -766,7 +766,7 @@ const deleteSingleAdmin = async (req, res, next) => {
 
 //TO UPDATE ADMIN ACCOUNT DETAILS
 const updateAdminAccountDetails = async (req, res, next) => {
-    const { name, gender, email, mobileNumber, dateOfBirth, isActive, password } = req.body;
+    const { name, gender, email, mobileNumber, dateOfBirth, password } = req.body;
 
     try {
 
@@ -789,7 +789,7 @@ const updateAdminAccountDetails = async (req, res, next) => {
         }
 
 
-        const adminData = { name, gender, email, mobileNumber, dateOfBirth, isActive, password };
+        const adminData = { name, gender, email, mobileNumber, dateOfBirth, password };
         const result = await adminService.updateAdmin(adminData);
         res.status(result.status).json({
             success: true,
