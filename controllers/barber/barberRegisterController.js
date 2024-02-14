@@ -1282,7 +1282,7 @@ const updateBarberAccountDetails = async (req, res, next) => {
   const { name, email, nickName, mobileNumber, dateOfBirth, gender, password } = req.body;
   try {
     // Check if required fields are missing or empty
-    if (!name || !email || !mobileNumber || !dateOfBirth) {
+    if (!name || !email || !mobileNumber) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
     // Validate email format
