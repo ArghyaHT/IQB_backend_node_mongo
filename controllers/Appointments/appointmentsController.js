@@ -16,7 +16,7 @@ const createAppointment = async (req, res, next) => {
     const { salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime, customerEmail, customerName, customerType, methodUsed } = req.body;
 
     // Check if required fields are missing
-    if (!salonId || !barberId || !serviceId || !appointmentDate || !startTime || !customerEmail || !customerName || !customerType || !methodUsed) {
+    if (!salonId || !barberId || !serviceId || !appointmentDate || !startTime || !customerName) {
       return res.status(400).json({
         message: 'Please fill all the fields',
       });
