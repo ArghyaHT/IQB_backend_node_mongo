@@ -149,10 +149,9 @@ if (!services || services.length === 0) {
       message: 'Services is empty',
   });
 }
-    const salonData = {   salonIcon,
+    const salonData = { 
       salonName,
     adminEmail,
-    salonIcon,
     salonLogo,
     salonType,
     address,
