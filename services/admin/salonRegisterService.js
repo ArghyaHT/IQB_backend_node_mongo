@@ -238,21 +238,15 @@ const getAllSalonServices = async (salonId) => {
 //Update Salon By SalonId
 const updateSalonBySalonId = async (salonData) => {
   const {
-    userName,
     salonName,
-    salonIcon,
     salonLogo,
     salonId,
     adminEmail,
     address,
     salonType,
-    city,
-    country,
-    postCode,
     contactTel,
     webLink,
     fblink,
-    salonEmail,
     twitterLink,
     instraLink,
     services,
@@ -269,23 +263,18 @@ const updateSalonBySalonId = async (salonData) => {
     }
 
     let updateFields = {
-      userName,
       salonName,
-      salonIcon,
       salonLogo,
       salonId,
-      salonType,
       adminEmail,
       address,
-      city,
-      country,
-      postCode,
+      salonType,
       contactTel,
       webLink,
       fblink,
-      salonEmail,
       twitterLink,
       instraLink,
+      services,
     }
 
     if (services && Array.isArray(services)) {

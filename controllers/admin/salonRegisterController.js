@@ -810,26 +810,21 @@ const getSalonInfo = async (req, res, next) => {
 const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   const {
     salonName,
-    salonIcon,
     salonLogo,
     salonId,
     adminEmail,
     address,
     salonType,
-    city,
-    country,
-    postCode,
     contactTel,
     webLink,
     fblink,
-    salonEmail,
     twitterLink,
     instraLink,
     services,
   } = req. body;
 
   // Check if required fields are missing or empty
-if (!salonName || !salonIcon || !salonLogo || !salonId || !adminEmail || !address || !salonType || !city || !country || !postCode || !contactTel || !webLink || !fblink || !salonEmail || !services) {
+if (!salonName || !salonLogo || !salonId || !address || !salonType || !contactTel || !services) {
   return res.status(400).json({ success: false, message: "Missing required fields" });
 }
 
@@ -850,19 +845,14 @@ if (!/^\d{10}$/.test(contactTel)) {
 
   const salonData ={
     salonName,
-    salonIcon,
     salonLogo,
     salonId,
     adminEmail,
     address,
     salonType,
-    city,
-    country,
-    postCode,
     contactTel,
     webLink,
     fblink,
-    salonEmail,
     twitterLink,
     instraLink,
     services,
