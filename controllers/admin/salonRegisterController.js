@@ -824,7 +824,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   } = req. body;
 
   // Check if required fields are missing or empty
-if (!salonName || !salonLogo || !salonId || !address || !contactTel || !services) {
+if (!salonName || !salonId || !address || !contactTel || !services) {
   return res.status(400).json({ success: false, message: "Missing required fields" });
 }
 
