@@ -1286,7 +1286,7 @@ const updateBarberAccountDetails = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
     // Validate email format
-    if (!email || !validateEmail(email)) {
+    if (!validateEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Invalid email format"
@@ -1298,7 +1298,7 @@ const updateBarberAccountDetails = async (req, res, next) => {
     }
 
     // Validate password length
-    if (!password || password.length < 8) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters long"
