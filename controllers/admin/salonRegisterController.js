@@ -824,18 +824,13 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   } = req. body;
 
   // Check if required fields are missing or empty
-if (!salonName || !salonLogo || !salonId || !address || !salonType || !contactTel || !services) {
+if (!salonName || !salonLogo || !salonId || !address || !contactTel || !services) {
   return res.status(400).json({ success: false, message: "Missing required fields" });
 }
 
 // Validate email format for adminEmail
 if (!validateEmail(adminEmail)) {
   return res.status(400).json({ success: false, message: "Invalid admin email format" });
-}
-
-// Validate email format for salonEmail
-if (!validateEmail(salonEmail)) {
-  return res.status(400).json({ success: false, message: "Invalid salon email format" });
 }
 
 // Validate contactTel format (assuming it should be exactly 10 digits)
