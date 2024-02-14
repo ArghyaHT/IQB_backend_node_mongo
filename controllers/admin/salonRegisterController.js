@@ -121,7 +121,7 @@ const createSalonByAdmin = async (req, res, next) => {
 
 
     // Check if required fields are missing
-    if (!salonName || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
+    if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
           message: 'Please fill all the fields',
       });
@@ -129,7 +129,7 @@ const createSalonByAdmin = async (req, res, next) => {
     const email = salonEmail;
 
     // Validate email format
-    if (!email || !validateEmail(email)) {
+    if (!validateEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Invalid email format"
