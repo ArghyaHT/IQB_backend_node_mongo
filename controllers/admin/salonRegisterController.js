@@ -121,7 +121,7 @@ const createSalonByAdmin = async (req, res, next) => {
 
 
     // Check if required fields are missing
-    if (!salonName || !city || !country || !salonType || !fbLink || !twitterLink || !instraLink || !contactTel || !webLink || !services || !location || !appointmentSettings) {
+    if (!salonName || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
           message: 'Please fill all the fields',
       });
