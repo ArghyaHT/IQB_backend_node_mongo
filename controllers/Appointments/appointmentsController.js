@@ -203,18 +203,12 @@ const editAppointment = async (req, res, next) => {
     const { appointmentId, salonId, barberId, serviceId, appointmentDate, appointmentNotes, startTime } = req.body; // Assuming appointmentId is passed as a parameter
 
     // Check if required fields are missing
-    if (!salonId || !barberId || !serviceId || !appointmentDate || !startTime) {
+    if (!barberId || !serviceId || !appointmentDate || !startTime) {
       return res.status(400).json({
         message: 'Please fill all the fields',
       });
     }
 
-    // Assuming salonId, barberId, serviceId are numeric, you can check their type
-    if (typeof salonId !== 'number' || typeof barberId !== 'number' || typeof serviceId !== 'number') {
-      return res.status(400).json({
-        message: 'Invalid format for salonId, barberId, or serviceId',
-      });
-    }
     // Fetch barber information
     const barber = await Barber.findOne({ barberId: barberId });
     // Calculate total barberServiceEWTs for all provided serviceIds
