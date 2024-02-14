@@ -22,15 +22,15 @@ const createAppointment = async (req, res, next) => {
       });
     }
 
-    const email = customerEmail;
+    // const email = customerEmail;
 
-    // Validate email format
-    if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email format"
-      });
-    }
+    // // Validate email format
+    // if (!email || !validateEmail(email)) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Invalid email format"
+    //   });
+    // }
 
     // Fetch barber information
     const barber = await getBarberbyId(barberId);
