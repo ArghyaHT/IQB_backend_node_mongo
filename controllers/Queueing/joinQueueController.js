@@ -283,7 +283,7 @@ const autoJoin = async (req, res, next) => {
   try {
     const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
     
-    if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !services) {
+    if (!salonId || !name || !customerEmail || !services) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields"
