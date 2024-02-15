@@ -1,6 +1,9 @@
+const City = require("../models/cityModel");
 const Country = require("../models/countryModel");
 
 const csc = require("country-state-city").Country;
+
+const city = require("country-state-city").City; 
 // const Country = require('./models/Country');
 
 async function storeCountries() {
@@ -13,7 +16,7 @@ async function storeCountries() {
             console.log(countries)
             const newCountry = new Country({
                 name: country.name,
-                isoCode: country.isoCode, // Assuming iso2 is used for isoCode
+                countryCode: country.isoCode, // Assuming iso2 is used for isoCode
                 currency: country.currency, // You may need to retrieve currency information from another source
                 timeZones: country.timezones.map(timezone => ({
                     zoneName: timezone.zoneName,
@@ -34,6 +37,31 @@ async function storeCountries() {
     } 
 } 
 
+
+async function storeCities() {
+    try {
+        // Get all countries
+        const cities = city.getAllCities();
+
+        console.log(cities)
+
+        // Store each country in the database
+        for (const city of cities) {
+            console.log(cities)
+            const newCity = new City({
+                name: city.name,
+                countryCode: city.countryCode
+            });
+
+            // Save the country document to the database
+            await newCity.save();
+        }
+    } catch (error) {
+        console.error('Error storing countries:', error);
+    } 
+} 
+
 module.exports ={
-    storeCountries
+    storeCountries,
+    storeCities
 }

@@ -29,14 +29,7 @@ const createSalon = async (salonData) => {
   } = salonData
 
   try {
-    //Find the Salon If exits 
-    const existingSalon = await Salon.findOne({ salonName });
-    if (existingSalon) {
-      return {
-        status: 400,
-        response: 'A Salon with the provided Name already exists',
-      };
-    }
+
 
     const salonId = await Salon.countDocuments() + 1;
 
@@ -253,15 +246,6 @@ const updateSalonBySalonId = async (salonData) => {
   } = salonData
 
   try {
-    const salon = await Salon.findOne({ salonId, adminEmail })
-
-    if (!salon) {
-      return {
-        status: 404,
-        message: 'Salon not found.',
-      };
-    }
-
     let updateFields = {
       salonName,
       salonLogo,

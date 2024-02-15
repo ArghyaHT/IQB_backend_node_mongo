@@ -123,9 +123,21 @@ const createSalonByAdmin = async (req, res, next) => {
     // Check if required fields are missing
     if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
+        success: false,
           message: 'Please fill all the fields',
       });
     }
+ 
+     //Find the Salon If exits 
+     const existingSalon = await Salon.findOne({ $or: [{ salonEmail }, { salonName }] });
+     if (existingSalon) {
+       return res.status(400).json({
+         success: false,
+         message: "Salon with the Salon Email or Salon Name already exists"
+       });
+     }
+     
+
     const email = salonEmail;
 
     // Validate email format
@@ -828,14 +840,19 @@ if (!salonName || !salonId || !address || !contactTel || !services) {
   return res.status(400).json({ success: false, message: "Missing required fields" });
 }
 
+
+
 // Validate email format for adminEmail
 if (!validateEmail(adminEmail)) {
   return res.status(400).json({ success: false, message: "Invalid admin email format" });
 }
-
+const salon = await Salon.findOne({ salonId, adminEmail })
+if (!salon) {
+  return res.status(400).json({ success: false, message: "Salon Not found" });
+}
 // Validate contactTel format (assuming it should be exactly 10 digits)
 if (!/^\d{10}$/.test(contactTel)) {
-  return res.status(400).json({ success: false, message: "Invalid contact number format" });
+  return res.status(400).json({ success: false, message: "Invalid format for contact. It should be a 10-digit number" });
 }
 
   const salonData ={

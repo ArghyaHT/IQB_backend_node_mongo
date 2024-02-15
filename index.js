@@ -140,7 +140,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
-const { storeCountries } = require("./utils/countries.js")
+const { storeCountries, storeCities } = require("./utils/countries.js")
 
 const dotenv = require("dotenv").config();
 
@@ -203,7 +203,7 @@ app.use("/api/notifications", notifications)
 app.use(ErrorHandler)
 // async function main() {
 //   try {
-//       await storeCountries();
+//       await storeCities();
 //   } catch (error) {
 //       console.error('Error:', error);
 //   }

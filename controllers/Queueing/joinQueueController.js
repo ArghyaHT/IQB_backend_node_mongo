@@ -11,7 +11,7 @@ const singleJoinQueue = async (req, res, next) => {
   try {
     const { salonId, name, customerEmail, joinedQType, mobileNumber, methodUsed, barberName, barberId, services } = req.body;
     // Check if required fields are missing
-    if (!salonId || !name || !customerEmail || !joinedQType || !mobileNumber || !methodUsed || !barberName || !barberId || !services) {
+    if (!salonId || !name || !mobileNumber || !barberName || !barberId || !services) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields"
@@ -30,7 +30,7 @@ const singleJoinQueue = async (req, res, next) => {
     if (!/^\d{10}$/.test(mobileNumber)) {
       return res.status(400).json({
         success: false,
-        message: "Mobile number must be 10 digits"
+        message: "Invalid format for Mobile Number. It should be a 10-digit number"
       });
     }
 
@@ -665,7 +665,7 @@ if (!salonId) {
     if (!availableBarbers) {
       res.status(201).json({
         success: false,
-        message: 'No available Barbers founf at this moment.'
+        message: 'No available Barbers found at this moment.'
       });
     }
     else {
@@ -691,7 +691,7 @@ const getBarberByMultipleServiceId = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid salonId or serviceIds" });
     }
     if (!serviceIds) {
-      return res.status(400).json({ error: 'Service IDs are required' });
+      return res.status(400).json({ success:false, message: 'Service IDs are required' });
     }
 
     const serviceIdsArray = serviceIds.split(',').map((id) => Number(id)); // Split string into an array of service IDs
@@ -704,9 +704,9 @@ const getBarberByMultipleServiceId = async (req, res, next) => {
     });
 
     if (!barbers || barbers.length === 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        response: 'No barbers found for the provided Services'
+        message: 'No barbers found for the provided Services or barber is not online'
       });
     }
 
