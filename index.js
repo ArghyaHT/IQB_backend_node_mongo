@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
 const admin = require('firebase-admin');
 
+const { startCronJob } = require("./triggers/cronJobs.js")
+
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
 const registerAdmin = require("./routes/admin/adminRegisterRoutes.js")
@@ -41,6 +43,8 @@ const sendSms = require("./routes/mobilemessageSender/mobileMessage.js")
 
 const { ErrorHandler } = require("./middlewares/errorHandler.js")
 
+
+
 const rateLimiter = rateLimit({
   windowMs: 20 * 1000, // 15 minutes
   limit: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -63,7 +67,9 @@ process.on('unhandledRejection', (reason, promise) => {
   // Perform necessary actions to handle the rejection gracefully
   // For example, log the rejection, perform cleanup, and handle the promise rejection if needed
 });
-connectDB()
+connectDB();
+
+startCronJob();
 
 const app = express()
 
@@ -141,6 +147,7 @@ const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
 const { storeCountries, storeCities } = require("./utils/countries.js")
+
 
 const dotenv = require("dotenv").config();
 
