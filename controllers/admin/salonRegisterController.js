@@ -744,33 +744,31 @@ const addServices = async (req, res, next) => {
 //SEARCH SALONS BY LOCATION
 const getSalonsByLocation = async (req, res, next) => {
 
-  // try {
-  //   const { longitude, latitude } = req.query;
-  //   const result = await salonService.searchSalonsByLocation(longitude, latitude)
-
-  //   res.status(result.status).json({
-  //     success: true,
-  //     message: result.message,
-  //     response: result.response
-
-  //   })
-  // }
-  // catch (error) {
-  //   console.error(error);
-  //   res.status(500).json({
-  //     error: 'Failed to search Salons'
-  //   });
-  // }
   try {
-    const salons = await Salon.find({}); // Retrieve all salons from the database
-    res.status(200).json({
+    const { longitude, latitude } = req.query;
+    const result = await salonService.searchSalonsByLocation(longitude, latitude)
+
+    res.status(result.status).json({
       success: true,
-      response: salons
-    });
-  } catch (error) {
+      message: result.message,
+      response: result.response
+
+    })
+  }
+  catch (error) {
     console.log(error);
     next(error);
   }
+  // try {
+  //   const salons = await Salon.find({}); // Retrieve all salons from the database
+  //   res.status(200).json({
+  //     success: true,
+  //     response: salons
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  //   next(error);
+  // }
 }
 
 //GET SALON INFO

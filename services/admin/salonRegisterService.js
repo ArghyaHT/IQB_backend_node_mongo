@@ -158,36 +158,37 @@ const searchSalonsByCity = async (city) => {
 const searchSalonsByLocation = async (longitude, latitude) => {
   let salons = [];
 
-  try {
-    salons = await Salon.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+    try {
+      salons = await Salon.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            },
+            key: "location",
+            // maxDistance: parseFloat(1000) * 1609,
+            maxDistance: Number.MAX_VALUE,
+            spherical: true,
+            distanceField: "dist.calculated",
           },
-          key: "location",
-          maxDistance: parseFloat(1000) * 1609,
-          spherical: true,
-          distanceField: "dist.calculated",
         },
-      },
-    ]);
-    return {
-      status: 200,
-      success: true,
-      response: salons
-    };
-  }
-  catch (error) {
-    // Handle the error within the function or log it
-    console.error('Error finding salons:', error);
-    return {
-      status: 404,
-      success: false,
-      message: 'Error finding salons.'
-    };
-  }
+      ]);
+      return {
+        status: 200,
+        success: true,
+        response: salons
+      };
+    }
+    catch (error) {
+      // Handle the error within the function or log it
+      console.error('Error finding salons:', error);
+      return {
+        status: 404,
+        success: false,
+        message: 'Error finding salons.'
+      };
+    }
 
 
   // return {
