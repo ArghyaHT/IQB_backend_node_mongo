@@ -29,3 +29,4 @@
 {"level":"error","message":"validateEmail is not defined","timestamp":"2024-02-13T11:07:17.348Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-13T11:09:09.851Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-13T11:12:10.710Z"}
+{"level":"error","message":"Salon.aggregate(...).populate is not a function","timestamp":"2024-02-18T15:05:08.540Z"}

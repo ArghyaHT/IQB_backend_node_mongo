@@ -18,7 +18,7 @@ cloudinary.config({
 // Create a new Salon By Admin
 const createSalonByAdmin = async (req, res, next) => {
   try {
-    const {     
+    const {
       salonName,
       salonLogo,
       salonType,
@@ -40,103 +40,103 @@ const createSalonByAdmin = async (req, res, next) => {
 
     //sagnik createsalondata
 
-//     const salonData = {
-//       //Ai admin emailer value loggin theke asbe
-//       adminEmail: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].email
-//       , salonEmail, salonName, address, city, location: {
-//           type: "Point",
-//           coordinates: {
-//               longitude: Number(longitude),
-//               latitude: Number(latitude)
-//           }
-//       }, country, postCode, contactTel, salonType, webLink, services, image, 
-//       appointmentSettings: { startTime, endTime, intervalInMinutes: Number(chooseIntervalTime) }
-//   }
+    //     const salonData = {
+    //       //Ai admin emailer value loggin theke asbe
+    //       adminEmail: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].email
+    //       , salonEmail, salonName, address, city, location: {
+    //           type: "Point",
+    //           coordinates: {
+    //               longitude: Number(longitude),
+    //               latitude: Number(latitude)
+    //           }
+    //       }, country, postCode, contactTel, salonType, webLink, services, image, 
+    //       appointmentSettings: { startTime, endTime, intervalInMinutes: Number(chooseIntervalTime) }
+    //   }
 
-//   //createbarber route="/barber/createbarber"
-//   const barberdata = {
-//     name, email, nickName, mobileNumber, dateOfBirth, 
-//     salonId:Number(LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId), 
-//     barberServices: selectedService
-// }
+    //   //createbarber route="/barber/createbarber"
+    //   const barberdata = {
+    //     name, email, nickName, mobileNumber, dateOfBirth, 
+    //     salonId:Number(LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId), 
+    //     barberServices: selectedService
+    // }
 
-// //appointment/createappointment
+    // //appointment/createappointment
 
-// const createAppointmentData = {
-//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware?.user[0].salonId,
-//   barberId: selectedbarberId,
-//   serviceId: selectedService.map((s) => s.serviceId),
-//   appointmentDate: date,
-//   appointmentNotes: appointmentNotes,
-//   startTime: timeSlotStartTime,
-//   // customerEmail: "arg@gmail.com",
-//   customerName: name,
-//   customerType: "Walk-In",
-//   methodUsed: "App"
-// }
+    // const createAppointmentData = {
+    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware?.user[0].salonId,
+    //   barberId: selectedbarberId,
+    //   serviceId: selectedService.map((s) => s.serviceId),
+    //   appointmentDate: date,
+    //   appointmentNotes: appointmentNotes,
+    //   startTime: timeSlotStartTime,
+    //   // customerEmail: "arg@gmail.com",
+    //   customerName: name,
+    //   customerType: "Walk-In",
+    //   methodUsed: "App"
+    // }
 
-// //single join queue
-// const queuedata = {
-//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-//   name,
-//   customerEmail,
-//   mobileNumber,
-//   joinedQType: "Single-Join",
-//   methodUsed: "Walk-In",
-//   barberName: selectedbarberName || currentbarberName,
-//   barberId: selectedbarberId,
-//   services: selectedService 
-// }
+    // //single join queue
+    // const queuedata = {
+    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+    //   name,
+    //   customerEmail,
+    //   mobileNumber,
+    //   joinedQType: "Single-Join",
+    //   methodUsed: "Walk-In",
+    //   barberName: selectedbarberName || currentbarberName,
+    //   barberId: selectedbarberId,
+    //   services: selectedService 
+    // }
 
-// //auto join queueu
-// const joindata = {
-//   name,
-//   customerEmail,
-//   customerMobile,
-//   joinedQType: "Auto-Join",
-//   methodUsed: "Walk-In",
-//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-//   services: selectedService,
-//   isOnline: true
-// }
+    // //auto join queueu
+    // const joindata = {
+    //   name,
+    //   customerEmail,
+    //   customerMobile,
+    //   joinedQType: "Auto-Join",
+    //   methodUsed: "Walk-In",
+    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+    //   services: selectedService,
+    //   isOnline: true
+    // }
 
-// //group join 
+    // //group join 
 
-// const customerdata = {
-//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-//   name,
-//   customerEmail,
-//   customerMobile,
-//   joinedQType: "Group-Join",
-//   methodUsed: "Walk-In",
-//   barberName: selectedbarberName,
-//   barberId: selectedbarberId,
-//   services: selectedService
-// }
+    // const customerdata = {
+    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+    //   name,
+    //   customerEmail,
+    //   customerMobile,
+    //   joinedQType: "Group-Join",
+    //   methodUsed: "Walk-In",
+    //   barberName: selectedbarberName,
+    //   barberId: selectedbarberId,
+    //   services: selectedService
+    // }
 
-// const queuedata = {
-//   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-//   groupInfo: selectedCustomer
-// }
+    // const queuedata = {
+    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
+    //   groupInfo: selectedCustomer
+    // }
 
 
     // Check if required fields are missing
     if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
         success: false,
-          message: 'Please fill all the fields',
+        message: 'Please fill all the fields',
       });
     }
- 
-     //Find the Salon If exits 
-     const existingSalon = await Salon.findOne({ $or: [{ salonEmail }, { salonName }] });
-     if (existingSalon) {
-       return res.status(400).json({
-         success: false,
-         message: "Salon with the Salon Email or Salon Name already exists"
-       });
-     }
-     
+
+    //Find the Salon If exits 
+    const existingSalon = await Salon.findOne({ $or: [{ salonEmail }, { salonName }] });
+    if (existingSalon) {
+      return res.status(400).json({
+        success: false,
+        message: "Salon with the Salon Email or Salon Name already exists"
+      });
+    }
+
 
     const email = salonEmail;
 
@@ -149,36 +149,37 @@ const createSalonByAdmin = async (req, res, next) => {
     }
 
     // Validate the format and length of the contactTel
-if (!/^\d{10}$/.test(contactTel)) {
-  return res.status(400).json({
-      message: 'Invalid format for contactTel. It should be a 10-digit number',
-  });
-}
+    if (!/^\d{10}$/.test(contactTel)) {
+      return res.status(400).json({
+        message: 'Invalid format for contactTel. It should be a 10-digit number',
+      });
+    }
 
-// Check if services array is empty
-if (!services || services.length === 0) {
-  return res.status(400).json({
-      message: 'Services is empty',
-  });
-}
-    const salonData = { 
+    // Check if services array is empty
+    if (!services || services.length === 0) {
+      return res.status(400).json({
+        message: 'Services is empty',
+      });
+    }
+    const salonData = {
       salonName,
-    adminEmail,
-    salonLogo,
-    salonType,
-    address,
-    city,
-    location,
-    country,
-    postCode,
-    contactTel,
-    webLink,
-    salonEmail,
-    fbLink,
-    twitterLink,
-    instraLink,
-    services,
-    appointmentSettings}
+      adminEmail,
+      salonLogo,
+      salonType,
+      address,
+      city,
+      location,
+      country,
+      postCode,
+      contactTel,
+      webLink,
+      salonEmail,
+      fbLink,
+      twitterLink,
+      instraLink,
+      services,
+      appointmentSettings
+    }
     const result = await salonService.createSalon(salonData, adminEmail);
 
     res.status(result.status).json({
@@ -283,13 +284,13 @@ const uploadMoreSalonGalleryImages = async (req, res, next) => {
     }
     // Check if salonId is provided in the request body
     if (!salonId) {
-      return res.status(400).json({ success: false,message: "Please provide salonId" });
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
     }
     // Check if salonId exists in the database
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({success: false, message: "Salon not found" });
+      return res.status(404).json({ success: false, message: "Salon not found" });
     }
     // Ensure that profiles is an array, even for single uploads
     if (!Array.isArray(galleries)) {
@@ -353,7 +354,7 @@ const updateSalonImages = async (req, res, next) => {
 
     // Check if the required fields are present
     if (!req.files.gallery) {
-      return res.status(400).json({success: false, message: "Please provide gallery files" });
+      return res.status(400).json({ success: false, message: "Please provide gallery files" });
     }
     const id = req.body.id;
 
@@ -437,7 +438,7 @@ const deleteSalonImages = async (req, res, next) => {
       console.log("cloud img deleted")
 
     } else {
-      res.status(500).json({ success: false,message: 'Failed to delete image.' });
+      res.status(500).json({ success: false, message: 'Failed to delete image.' });
     }
 
     const updatedSalon = await Salon.findOneAndUpdate(
@@ -467,19 +468,19 @@ const getSalonImages = async (req, res, next) => {
 
     // Check if salonId is provided in the request body
     if (!salonId) {
-      return res.status(400).json({success: false, message: "Please provide salonId" });
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
     }
     // Check if salonId exists in the database
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({success: false, message: "Salon not found" });
+      return res.status(404).json({ success: false, message: "Salon not found" });
     }
     // Find SalonSettings by salonId and retrieve only the advertisements field
     const salongallery = await Salon.findOne({ salonId }).select('gallery');
 
     if (!salongallery) {
-      return res.status(404).json({ success: false,message: "Salon not found" });
+      return res.status(404).json({ success: false, message: "Salon not found" });
     }
     // Sort advertisements array in descending order
     const sortedSalonGallery = salongallery.gallery.reverse();
@@ -502,17 +503,17 @@ const uploadSalonLogo = async (req, res, next) => {
 
     // Check if salonId is provided in the request body
     if (!salonId) {
-      return res.status(400).json({success: false, message: "Please provide salonId" });
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
     }
     // Check if salonId exists in the database
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({success: false, message: "Salon not found" });
+      return res.status(404).json({ success: false, message: "Salon not found" });
     }
 
-     // Check if the required fields are present
-     if ( !salonLogo) {
+    // Check if the required fields are present
+    if (!salonLogo) {
       return res.status(400).json({
         success: false,
         message: "Please provide both gallery files and salonId",
@@ -572,29 +573,29 @@ const updateSalonLogo = async (req, res, next) => {
   try {
     const id = req.body.id;
     const salonId = req.body.salonId;
-  // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({success: false, message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({success: false, message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
 
     const salonLogoInfo = await Salon.findOne({ "salonLogo._id": id }, { "salonLogo.$": 1 });
 
     const public_imgid = req.body.public_imgid;
     const salonLogo = req.files.salonLogo;
 
-      // Check if the required fields are present
-      if ( !salonLogo) {
-        return res.status(400).json({
-          success: false,
-          message: "Please provide both gallery files and salonId",
-        });
-      }
+    // Check if the required fields are present
+    if (!salonLogo) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide both gallery files and salonId",
+      });
+    }
 
     // Validate Image
     const fileSize = salonLogo.size / 1000;
@@ -658,16 +659,16 @@ const getSalonLogo = async (req, res, next) => {
   try {
     const salonId = req.body.salonId; // Assuming you pass salonId as a route parameter
 
-  // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({success: false, message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({success: false, message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
 
     // Find the salon in the database
     const salon = await Salon.findOne({ salonId }).select("salonLogo");
@@ -700,7 +701,7 @@ const deleteSalonLogo = async (req, res, next) => {
       console.log("cloud img deleted")
 
     } else {
-      res.status(500).json({ success: false,message: 'Failed to delete image.' });
+      res.status(500).json({ success: false, message: 'Failed to delete image.' });
     }
 
     const updatedSalon = await Salon.findOneAndUpdate(
@@ -715,7 +716,7 @@ const deleteSalonLogo = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({success: false, message: 'Image not found in the student profile' });
+      res.status(404).json({ success: false, message: 'Image not found in the student profile' });
     }
 
   } catch (error) {
@@ -746,14 +747,31 @@ const getSalonsByLocation = async (req, res, next) => {
 
   try {
     const { longitude, latitude } = req.query;
-    const result = await salonService.searchSalonsByLocation(longitude, latitude)
+    let salons = [];
+    salons = await Salon.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+          },
+          key: "location",
+          // maxDistance: parseFloat(1000) * 1609,
+          maxDistance: Number.MAX_VALUE,
+          spherical: true,
+          distanceField: "dist.calculated",
+        },
+      },
+    ]);
 
-    res.status(result.status).json({
+     // Populate salonRatings field
+     await Salon.populate(salons, { path: "salonRatings" });
+
+    return res.status(200).json({
+      status: 200,
       success: true,
-      message: result.message,
-      response: result.response
-
-    })
+      response: salons
+    });
   }
   catch (error) {
     console.log(error);
@@ -775,16 +793,16 @@ const getSalonsByLocation = async (req, res, next) => {
 const getSalonInfo = async (req, res, next) => {
   const { salonId } = req.query;
   try {
-  // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({ success: false,message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({ success: false,message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
 
     // Find salon information by salonId
     const salonInfo = await Salon.findOne({ salonId }).populate("salonRatings");
@@ -831,29 +849,29 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     twitterLink,
     instraLink,
     services,
-  } = req. body;
+  } = req.body;
 
   // Check if required fields are missing or empty
-if (!salonName || !salonId || !address || !contactTel || !services) {
-  return res.status(400).json({ success: false, message: "Missing required fields" });
-}
+  if (!salonName || !salonId || !address || !contactTel || !services) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
 
 
 
-// Validate email format for adminEmail
-if (!validateEmail(adminEmail)) {
-  return res.status(400).json({ success: false, message: "Invalid admin email format" });
-}
-const salon = await Salon.findOne({ salonId, adminEmail })
-if (!salon) {
-  return res.status(400).json({ success: false, message: "Salon Not found" });
-}
-// Validate contactTel format (assuming it should be exactly 10 digits)
-if (!/^\d{10}$/.test(contactTel)) {
-  return res.status(400).json({ success: false, message: "Invalid format for contact. It should be a 10-digit number" });
-}
+  // Validate email format for adminEmail
+  if (!validateEmail(adminEmail)) {
+    return res.status(400).json({ success: false, message: "Invalid admin email format" });
+  }
+  const salon = await Salon.findOne({ salonId, adminEmail })
+  if (!salon) {
+    return res.status(400).json({ success: false, message: "Salon Not found" });
+  }
+  // Validate contactTel format (assuming it should be exactly 10 digits)
+  if (!/^\d{10}$/.test(contactTel)) {
+    return res.status(400).json({ success: false, message: "Invalid format for contact. It should be a 10-digit number" });
+  }
 
-  const salonData ={
+  const salonData = {
     salonName,
     salonLogo,
     salonId,
@@ -866,7 +884,7 @@ if (!/^\d{10}$/.test(contactTel)) {
     twitterLink,
     instraLink,
     services,
-  } 
+  }
 
   try {
     const result = req.body != null ? await salonService.updateSalonBySalonId(salonData) : null;
@@ -887,16 +905,16 @@ if (!/^\d{10}$/.test(contactTel)) {
 const allSalonServices = async (req, res, next) => {
   const { salonId } = req.query;
   try {
-      // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({success: false, message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({ success: false,message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
     const result = await salonService.getAllSalonServices(salonId);
 
     res.status(result.status).json({
@@ -914,16 +932,16 @@ const allSalonServices = async (req, res, next) => {
 
 const updateSalonServiceByServiceId = async (req, res, next) => {
   const { salonId, serviceId } = req.body
-    // Check if salonId is provided in the request body
-    if (!salonId) {
-      return res.status(400).json({success: false, message: "Please provide salonId" });
-    }
-    // Check if salonId exists in the database
-    const salonExists = await Salon.exists({ salonId: salonId });
-  
-    if (!salonExists) {
-      return res.status(404).json({success: false, message: "Salon not found" });
-    }
+  // Check if salonId is provided in the request body
+  if (!salonId) {
+    return res.status(400).json({ success: false, message: "Please provide salonId" });
+  }
+  // Check if salonId exists in the database
+  const salonExists = await Salon.exists({ salonId: salonId });
+
+  if (!salonExists) {
+    return res.status(404).json({ success: false, message: "Salon not found" });
+  }
   const newServiceData = req.body;
   try {
     const result = await salonService.updateSalonService(salonId, serviceId, newServiceData);
@@ -944,16 +962,16 @@ const updateSalonServiceByServiceId = async (req, res, next) => {
 const deleteServiceByServiceIdSalonId = async (req, res, next) => {
   const { salonId, serviceId } = req.body;
   try {
-      // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({ success: false,message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({ success: false,message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
     const result = await salonService.deleteSalonService(salonId, serviceId);
 
     res.status(result.status).json({
@@ -1055,16 +1073,16 @@ const deleteSalon = async (req, res, next) => {
   try {
     const { salonId } = req.body;
 
-      // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({ success: false,message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({ success: false,message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
 
     const deletedSalon = await Salon.findOneAndUpdate({ salonId }, { isDeleted: true }, { new: true });
 
@@ -1109,16 +1127,16 @@ const changeSalonOnlineStatus = async (req, res, next) => {
   try {
     const { salonId, isOnline } = req.body;
 
-      // Check if salonId is provided in the request body
-  if (!salonId) {
-    return res.status(400).json({ success: false, message: "Please provide salonId" });
-  }
-  // Check if salonId exists in the database
-  const salonExists = await Salon.exists({ salonId: salonId });
+    // Check if salonId is provided in the request body
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Please provide salonId" });
+    }
+    // Check if salonId exists in the database
+    const salonExists = await Salon.exists({ salonId: salonId });
 
-  if (!salonExists) {
-    return res.status(404).json({ success: false,message: "Salon not found" });
-  }
+    if (!salonExists) {
+      return res.status(404).json({ success: false, message: "Salon not found" });
+    }
 
     const updatedSalon = await Salon.findOneAndUpdate(
       { salonId: salonId },
@@ -1127,7 +1145,7 @@ const changeSalonOnlineStatus = async (req, res, next) => {
     );
 
     if (!updatedSalon) {
-      return res.status(404).json({ success: false,message: "Salon not found" });
+      return res.status(404).json({ success: false, message: "Salon not found" });
     }
     // res.setHeader('Cache-Control', 'private, max-age=3600');
     return res.status(200).json(updatedSalon);

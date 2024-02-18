@@ -153,51 +153,6 @@ const searchSalonsByCity = async (city) => {
   }
 }
 
-
-//Search Salons By Location
-const searchSalonsByLocation = async (longitude, latitude) => {
-  let salons = [];
-
-    try {
-      salons = await Salon.aggregate([
-        {
-          $geoNear: {
-            near: {
-              type: 'Point',
-              coordinates: [parseFloat(longitude), parseFloat(latitude)],
-            },
-            key: "location",
-            // maxDistance: parseFloat(1000) * 1609,
-            maxDistance: Number.MAX_VALUE,
-            spherical: true,
-            distanceField: "dist.calculated",
-          },
-        },
-      ]);
-      return {
-        status: 200,
-        success: true,
-        response: salons
-      };
-    }
-    catch (error) {
-      // Handle the error within the function or log it
-      console.error('Error finding salons:', error);
-      return {
-        status: 404,
-        success: false,
-        message: 'Error finding salons.'
-      };
-    }
-
-
-  // return {
-  //   status:500,
-  //   success: false,
-  //   message: 'No salons found within the specified distance.'
-  // };
-};
-
 //Get All Salon Services
 const getAllSalonServices = async (salonId) => {
   try {
@@ -438,7 +393,6 @@ const getSalonsByAdminEmail = async (adminEmail) => {
 module.exports = {
   createSalon,
   searchSalonsByCity,
-  searchSalonsByLocation,
   updateSalonBySalonId,
   getAllSalonServices,
   updateSalonService,
