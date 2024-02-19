@@ -2,13 +2,14 @@ const SalonQueueList = require("../../models/salonQueueListModel");
 const JoinedQueueHistory = require("../../models/joinedQueueHistoryModel");
 const Barber = require("../../models/barberRegisterModel");
 const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
+const { sendSms } = require("../../utils/mobileMessageSender");
 const { validateEmail } = require("../../middlewares/validator");
 
 
 //Single Join queue api
 const singleJoinQueue = async (req, res, next) => {
   try {
-    const { salonId, name, customerEmail, joinedQType, methodUsed, barberName, barberId, services } = req.body;
+    const { salonId, name, customerEmail, joinedQType, mobileNumber, methodUsed, barberName, barberId, services } = req.body;
     // Check if required fields are missing
     if (!salonId || !name || !barberName || !barberId || !services) {
       return res.status(400).json({
@@ -26,7 +27,7 @@ const singleJoinQueue = async (req, res, next) => {
       });
     }
     // Validate mobile number format
-    if (!/^\d{10}$/.test(mobileNumber)) {
+    if (mobileNumber && !/^\d{10}$/.test(mobileNumber)) {
       return res.status(400).json({
         success: false,
         message: "Invalid format for Mobile Number. It should be a 10-digit number"
@@ -161,7 +162,7 @@ const groupJoinQueue = async (req, res, next) => {
     for (const member of groupInfo) {
 
       // Validate member data
-      const { name, customerEmail, barberId, barberName, services } = member;
+      const { name, customerEmail, barberId, barberName, mobileNumber, services } = member;
       if (!salonId || !name || !customerEmail || !barberName || !barberId || !services) {
         return res.status(400).json({
           success: false,
@@ -185,13 +186,13 @@ const groupJoinQueue = async (req, res, next) => {
           message: "Invalid email format"
         });
       }
-      // // Validate mobile number format
-      // if (!/^\d{10}$/.test(mobileNumber)) {
-      //   return res.status(400).json({
-      //     success: false,
-      //     message: "Mobile number must be 10 digits"
-      //   });
-      // }
+      // Validate mobile number format
+      if (mobileNumber && !/^\d{10}$/.test(mobileNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: "Mobile number must be 10 digits"
+        });
+      }
 
       let totalServiceEWT = 0;
       let serviceIds = "";
@@ -280,7 +281,7 @@ const groupJoinQueue = async (req, res, next) => {
 const autoJoin = async (req, res, next) => {
 
   try {
-    const { salonId, name, customerEmail, joinedQType, methodUsed, services } = req.body;
+    const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
     
     if (!salonId || !name || !customerEmail || !services) {
       return res.status(400).json({
