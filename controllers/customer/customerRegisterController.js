@@ -219,7 +219,7 @@ const savePassword = async (req, res, next) => {
     );
 
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Customer not found"
       });
@@ -292,7 +292,7 @@ const forgetPassword = async (req, res, next) => {
 
     const user = await Customer.findOne({ email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         response: "User with this email does not exist. Please register first",
       });
@@ -337,7 +337,7 @@ const verifyPasswordResetCode = async (req, res, next) => {
     const user = await Customer.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "User not found",
       });
@@ -375,7 +375,7 @@ const resetPassword = async (req, res, next) => {
     const user = await Customer.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "User with this email does not exist",
       });
@@ -572,7 +572,7 @@ const getAppointmentForCustomer = async (req, res, next) => {
     if (customerAppointments.length > 0 && customerAppointments[0].appointments.length > 0) {
       res.status(200).json({ appointments: customerAppointments[0].appointments });
     } else {
-      res.status(404).json({ message: "No appointments found for the customer" });
+      res.status(201).json({ success: false, message: "No appointments found for the customer" });
     }
   } catch (error) {
     console.log(error);
@@ -590,7 +590,7 @@ const customerConnectSalon = async (req, res, next) => {
 
     // If customer is not found
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Customer not found",
       });
@@ -627,7 +627,7 @@ const getCustomerDetails = async (req, res, next) => {
     const { email } = req.body;
     const customer = await Customer.findOne({ email }).select('-password');
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Customer not found",
       });
@@ -840,7 +840,7 @@ const deleteCustomerProfilePicture = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ message: 'Image not found in the student profile' });
+      res.status(201).json({ success: false, message: 'Image not found in the student profile' });
     }
   } catch (error) {
     console.log(error);
@@ -868,7 +868,7 @@ const getAllAppointmentsByCustomer = async (req, res, next) => {
     });
 
     if (!appointments || appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'No appointments found for this customer.'
       });
@@ -895,7 +895,8 @@ const getAllSalonsByCustomer = async (req, res, next) => {
     const customer = await Customer.findOne({ email: customerEmail });
 
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
+        success: false,
         message: 'Customer not found',
       });
     }
@@ -926,7 +927,8 @@ const changeDefaultSalonIdOfCustomer = async (req, res, next) => {
 
     console.log(customer)
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
+        success: false,
         message: 'Customer not found',
       });
     }
@@ -953,7 +955,7 @@ const customerDashboard = async (req, res, next) => {
     const salonInfo = await Salon.findOne({ salonId, isOnline: true }).select("isOnline salonName salonLogo");
 
     if (!salonInfo) {
-      res.status(404).json({
+      res.status(201).json({
         success: false,
         message: 'No salons found for the particular SalonId.',
       });
@@ -1018,7 +1020,7 @@ const customerFavoriteSalon = async (req, res, next) => {
 
     // If customer is not found
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Customer not found",
       });
@@ -1060,7 +1062,8 @@ const getAllCustomerFavoriteSalons = async(req, res, next) => {
     const customer = await Customer.findOne({ email: customerEmail });
 
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
+        success: false,
         message: 'Customer not found',
       });
     }
@@ -1090,7 +1093,7 @@ const deleteCustomerFavoriteSalon = async (req, res, next) => {
 
     // If customer is not found
     if (!customer) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Customer not found",
       });

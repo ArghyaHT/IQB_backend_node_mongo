@@ -199,7 +199,7 @@ const loginController = async (req, res, next) => {
       sameSite: "None"
     });
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Barber signed in successfully"
     });
@@ -435,7 +435,7 @@ const googleLoginController = async (req, res, next) => {
         sameSite: "None"
       });
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         message: "Barber registered successfully"
       });
@@ -476,7 +476,7 @@ const googleLoginController = async (req, res, next) => {
         sameSite: "None"
       });
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         message: "Barber signed in successfully"
       });
@@ -510,7 +510,7 @@ const refreshTokenController = async (req, res, next) => {
       sameSite: "None"
     });
 
-    res.status(201).json({ success: true, message: "New accessToken generated" });
+    res.status(200).json({ success: true, message: "New accessToken generated" });
   } catch (error) {
     console.log(error);
     next(error);
@@ -549,7 +549,7 @@ const handleForgetPassword = async (req, res, next) => {
     const user = await Barber.findOne({ email: email })
 
     if (!user) {
-      throw createError(404, "User with this email does not exist.Please register first")
+      throw createError(201, "User with this email does not exist.Please register first")
     }
 
     //get ResetPassword Token
@@ -614,7 +614,7 @@ const handleResetPassword = async (req, res, next) => {
     })
 
     if (!user) {
-      res.status(404).json({
+      res.status(201).json({
         success: false,
         message: "Reset Password Token is invalid or has been expired"
       })
@@ -774,7 +774,7 @@ const handleBarberProtectedRoute = async (req, res, next) => {
     if (req.user && !req.user.admin) {
       next();
     } else {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "You are not Authenticated Barber"
       })
@@ -924,7 +924,7 @@ const createBarberByAdmin = async (req, res, next) => {
       next(error);
     }
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Barber Successfully Created",
       response: savedBarber
@@ -1020,7 +1020,7 @@ const updateBarberByAdmin = async (req, res, next) => {
     const updatedBarber = await Barber.findOneAndUpdate({ email }, { name, nickName, mobileNumber, dateOfBirth }, { new: true });
 
     if (!updatedBarber) {
-      res.status(404).json({
+      res.status(201).json({
         success: false,
         message: 'Barber With the email not found',
       });
@@ -1222,7 +1222,7 @@ const deleteBarberProfilePicture = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ success: false, message: 'Image not found in the student profile' });
+      res.status(201).json({ success: false, message: 'Image not found in the student profile' });
     }
   } catch (error) {
     console.log(error);
@@ -1361,7 +1361,7 @@ const chnageBarberWorkingStatus = async (req, res, next) => {
     const updatedBarber = await Barber.findOneAndUpdate(barberId, { isActive }, { new: true });
 
     if (!updatedBarber) {
-      return res.status(404).json({ success: false, message: "Barber not found" });
+      return res.status().json({ success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1392,7 +1392,7 @@ const isBarberOnline = async (req, res, next) => {
     );
 
     if (!updatedBarber) {
-      return res.status(404).json({ success: false, message: "Barber not found" });
+      return res.status(201).json({ success: false, message: "Barber not found" });
     }
 
     return res.status(200).json(updatedBarber);
@@ -1418,7 +1418,7 @@ const getAllBarbersByServiceId = async (req, res, next) => {
     const barbers = await Barber.find({ "barberServices.serviceId": serviceId, isDeleted: false })
 
     if (!barbers || barbers.length === 0) {
-      return res.status(404).json({ success: false, message: "No barbers found for the given serviceId" });
+      return res.status(201).json({ success: false, message: "No barbers found for the given serviceId" });
     }
 
     return res.status(200).json({
@@ -1450,7 +1450,7 @@ const getBarberServicesByBarberId = async (req, res, next) => {
     const barberServices = barbers.barberServices;
 
     if (!barbers) {
-      return res.status(404).json({ success: false, message: "No barbers found for the geiven BarberId" });
+      return res.status(201).json({ success: false, message: "No barbers found for the geiven BarberId" });
     }
 
     return res.status(200).json({
@@ -1502,7 +1502,7 @@ const connectBarbertoSalon = async (req, res, next) => {
       { salonId: salonId, barberServices: barberServices }, { new: true });
 
     if (!barber) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Barber not found",
       });
@@ -1536,7 +1536,7 @@ const getBarberDetailsByEmail = async (req, res, next) => {
     const barber = await Barber.findOne({ email }).populate("barberRatings");
 
     if (!barber) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: "Barber not found",
       });
@@ -1575,7 +1575,7 @@ const sendVerificationCodeForBarberEmail = async (req, res, next) => {
 
     const user = await Barber.findOne({ email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         response: "User with this email does not exist. Please register first",
       });

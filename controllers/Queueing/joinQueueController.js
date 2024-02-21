@@ -462,7 +462,7 @@ if (!salonId) {
         response: sortedQueueList,
       });
     } else {
-      res.status(404).json({
+      res.status(201).json({
         success: false,
         message: "Salon not found",
       });
@@ -558,7 +558,7 @@ if (!salonId || !barberId || !serviceId || !_id) {
       }
     }
 
-    return res.status(404).json({
+    return res.status(201).json({
       success: false,
       message: 'Queue position is not 1. No service to be served.',
     });
@@ -580,7 +580,7 @@ if (!salonId || !barberId || !_id) {
     const updatedQueue = await SalonQueueList.findOne({ salonId });
 
     if (!updatedQueue) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Queue not found for the given salon ID',
       });
@@ -589,7 +589,7 @@ if (!salonId || !barberId || !_id) {
     const canceledQueueIndex = updatedQueue.queueList.findIndex(queue => queue._id.toString() === _id);
 
     if (canceledQueueIndex === -1) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Queue not found with the given _id',
       });
@@ -780,7 +780,7 @@ const getQlistbyBarberId = async (req, res, next) => {
     ]);
 
     if (!qList || qList.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Queue list not found for the specified barber and salon ID',
         queueList: []

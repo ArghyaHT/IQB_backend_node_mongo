@@ -150,7 +150,7 @@ const loginController = async (req, res, next) => {
             sameSite: "None"
         });
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Admin signed in successfully",
         });
@@ -277,7 +277,7 @@ const refreshTokenController = async (req, res, next) => {
             sameSite: "None"
         });
 
-        res.status(201).json({ success: true, message: "New accessToken generated" });
+        res.status(200).json({ success: true, message: "New accessToken generated" });
     } catch (error) {
         console.log(error);
         next(error);
@@ -317,7 +317,7 @@ const handleForgetPassword = async (req, res, next) => {
         const user = await Admin.findOne({ email: email })
 
         if (!user) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
                 message: "Admin with this email does not exist. Please register first."
             });
@@ -385,7 +385,7 @@ const handleResetPassword = async (req, res, next) => {
         })
 
         if (!user) {
-            res.status(404).json({
+            res.status(201).json({
                 success: false,
                 message: "Reset Password Token is invalid or has been expired"
             })
@@ -685,7 +685,7 @@ const handleAdminProtectedRoute = async (req, res, next) => {
         if (req.user && !req.user.barber) {
             next();
         } else {
-            return res.status(404).json({
+            return res.status(201).json({
                 success: false,
                 message: "You are not Authenticated Admin"
             })
@@ -1024,7 +1024,7 @@ const deleteAdminProfilePicture = async (req, res, next) => {
                 message: "Image successfully deleted"
             })
         } else {
-            res.status(404).json({ success: false, message: 'Image not found in the student profile' });
+            res.status(200).json({ success: false, message: 'Image not found in the student profile' });
         }
     } catch (error) {
         console.log(error);
@@ -1049,7 +1049,8 @@ const getAllSalonsByAdmin = async (req, res, next) => {
         const admin = await Admin.findOne({ email: adminEmail });
 
         if (!admin) {
-            return res.status(404).json({
+            return res.status(201).json({
+                success: false,
                 message: 'Admin not found',
             });
         }
@@ -1086,7 +1087,8 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
 
         const admin = await Admin.findOne({ email: adminEmail })
         if (!admin) {
-            res.status(404).json({
+            res.status(201).json({
+                success:false,
                 message: 'No admin found.',
             });
         }
@@ -1128,7 +1130,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
         const admin = await Admin.findOne({ email: adminEmail });
 
         if (!admin) {
-            return res.status(404).json({
+            return res.status(201).json({
                 success: false,
                 message: 'Admin not found',
             });
@@ -1142,7 +1144,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
         const salonExists = await Salon.exists({ salonId: salonId });
 
         if (!salonExists) {
-            return res.status(404).json({
+            return res.status(201).json({
                 success: false,
                 message: 'Salon not found',
             });
@@ -1177,7 +1179,7 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
 
         const user = await Admin.findOne({ email });
         if (!user) {
-            return res.status(404).json({
+            return res.status(201).json({
                 success: false,
                 response: "User with this email does not exist. Please register first",
             });

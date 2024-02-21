@@ -31,7 +31,7 @@ const insertBarberDetails = async (barberData) => {
             };
         } else {
             return {
-                status: 404,
+                status: 201,
                 message: 'Barber not found',
             };
         }

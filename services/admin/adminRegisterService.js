@@ -89,7 +89,7 @@ const updateAdmin = async (adminData) => {
     if (!admin) {
       console.log("Admin not found or no changes made.");
       return {
-        status: 404,
+        status: 201,
         message: 'Admin not found or no changes made.',
       };
     }

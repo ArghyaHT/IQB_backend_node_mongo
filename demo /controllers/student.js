@@ -34,7 +34,7 @@ exports.getStudent = async (req, res, next) => {
     const student = await Student.findById(req.params.id);
 
     if (!student) {
-      return res.status(404).json({ message: "Resource not found" });
+      return res.status(201).json({ message: "Resource not found" });
     }
     res.status(200).json(student);
   } catch (error) {
@@ -60,7 +60,7 @@ exports.updateStudent = async (req, res, next) => {
       new: true,
     });
     if (!student) {
-      return res.status(404).json({ message: "Resource not found" });
+      return res.status(201).json({ message: "Resource not found" });
     }
     res.status(200).json({ data: student });
   } catch (error) {
@@ -74,7 +74,7 @@ exports.deleteStudent = async (req, res, next) => {
     const student = await Student.findByIdAndDelete(req.params.id);
     console.log(student);
     if (!student) {
-      return res.status(404).json({ message: "Resource not found" });
+      return res.status(201).json({ message: "Resource not found" });
     }
     res.status(200).json({ data: {} });
   } catch (error) {
@@ -239,7 +239,7 @@ exports.deleteProfile = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ message: 'Image not found in the student profile' });
+      res.status(201).json({ message: 'Image not found in the student profile' });
     }
   } catch (error) {
     console.error('Error deleting image:', error);

@@ -271,7 +271,7 @@ const editAppointment = async (req, res, next) => {
     );
 
     if (!existingAppointment) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Appointment not found',
       });
@@ -311,7 +311,7 @@ const deleteAppointment = async (req, res, next) => {
     );
 
     if (!deletedAppointment) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Appointment not found',
       });
@@ -491,7 +491,7 @@ const getAllAppointmentsBySalonId = async (req, res, next) => {
     ]);
 
     if (!appointments || appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'No appointments found for the provided salon ID',
         appointments: [],
@@ -653,7 +653,7 @@ const getAllAppointmentsByBarberId = async (req, res, next) => {
     ]);
 
     if (!appointments || appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'No appointments found for the provided salon and barber ID',
         appointments: [],
@@ -756,7 +756,7 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
     ]);
 
     if (!appointments || appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'No appointments found for the provided salon ID, barber ID, and date',
         response: [],
@@ -806,7 +806,7 @@ const barberServedAppointment = async (req, res, next) => {
 
     // Check if appointment exists
     if (appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(201).json({
         success: false,
         message: 'Appointment not found.',
       });

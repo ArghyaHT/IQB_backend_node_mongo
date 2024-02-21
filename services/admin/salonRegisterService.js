@@ -88,7 +88,7 @@ const createSalon = async (salonData) => {
     } else {
       // Handle the case where admin is not found
       return {
-        status: 404,
+        status: 201,
         response: 'Admin not found',
       };
     }
@@ -132,7 +132,7 @@ const searchSalonsByCity = async (city) => {
     if (!salons.length) {
 
       return ({
-        status: 404,
+        status: 201,
         message: 'No salons found for the specified city.',
       });
     }

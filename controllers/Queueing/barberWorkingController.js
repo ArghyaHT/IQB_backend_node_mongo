@@ -12,7 +12,7 @@ const isBarberOnline = async (req, res) => {
       { new: true });
 
     if (!updatedBarber) {
-      return res.status(404).json({ message: "Barber not found" });
+      return res.status(201).json({ message: "Barber not found" });
     }
   return res.status(200).json(updatedBarber);
   } catch (error) {

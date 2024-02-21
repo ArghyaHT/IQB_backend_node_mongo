@@ -68,7 +68,7 @@ if (!advertisements || !salonId) {
     );
 
     if (!updatedSalon) {
-      return res.status(404).json({ message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     res.status(200).json({
@@ -103,7 +103,7 @@ if (!salonId) {
     const sortedAdvertisements = salonSettings.advertisements.reverse();
 
     if (!salonSettings) {
-      return res.status(404).json({ message: "Salon settings not found" });
+      return res.status(201).json({success: false, message: "Salon settings not found" });
     }
 
     res.status(200).json({
@@ -225,7 +225,7 @@ const deleteAdvertisements = async (req, res, next) => {
           message: "Image successfully deleted"
         });
       } else {
-        return res.status(404).json({ message: 'Image not found in the advertisements' });
+        return res.status(201).json({success: false, message: 'Image not found in the advertisements' });
       }
     } else {
       return res.status(500).json({ message: 'Failed to delete image.' });

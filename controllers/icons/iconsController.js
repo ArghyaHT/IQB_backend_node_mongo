@@ -74,7 +74,7 @@ const addIcons = async (req, res, next) => {
       const allIcons = await Icons.findOne({}, { icons: 1 });
   
       if (!allIcons || !allIcons.icons || allIcons.icons.length === 0) {
-        return res.status(404).json({
+        return res.status(201).json({
           success: false,
           message: "No icons found",
         });

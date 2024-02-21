@@ -290,7 +290,7 @@ const uploadMoreSalonGalleryImages = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     // Ensure that profiles is an array, even for single uploads
     if (!Array.isArray(galleries)) {
@@ -334,7 +334,7 @@ const uploadMoreSalonGalleryImages = async (req, res, next) => {
     );
 
     if (!updatedSalon) {
-      return res.status(404).json({ message: "Salon not found" });
+      return res.status(201).json({success: false,  message: "Salon not found" });
     }
 
     res.status(200).json({
@@ -453,7 +453,7 @@ const deleteSalonImages = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ message: 'Image not found in the student profile' });
+      res.status(201).json({ success: false, message: 'Image not found in the student profile' });
     }
 
   } catch (error) {
@@ -474,13 +474,13 @@ const getSalonImages = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     // Find SalonSettings by salonId and retrieve only the advertisements field
     const salongallery = await Salon.findOne({ salonId }).select('gallery');
 
     if (!salongallery) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     // Sort advertisements array in descending order
     const sortedSalonGallery = salongallery.gallery.reverse();
@@ -509,7 +509,7 @@ const uploadSalonLogo = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     // Check if the required fields are present
@@ -581,7 +581,7 @@ const updateSalonLogo = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     const salonLogoInfo = await Salon.findOne({ "salonLogo._id": id }, { "salonLogo.$": 1 });
@@ -667,14 +667,14 @@ const getSalonLogo = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     // Find the salon in the database
     const salon = await Salon.findOne({ salonId }).select("salonLogo");
 
     if (!salon || !salon.salonLogo) {
-      return res.status(404).json({ success: false, message: 'Salon or logo not found.' });
+      return res.status(201).json({ success: false, message: 'Salon or logo not found.' });
     }
 
     // Send the salon logo information in the response
@@ -716,7 +716,7 @@ const deleteSalonLogo = async (req, res, next) => {
         message: "Image successfully deleted"
       })
     } else {
-      res.status(404).json({ success: false, message: 'Image not found in the student profile' });
+      res.status(201).json({ success: false, message: 'Image not found in the student profile' });
     }
 
   } catch (error) {
@@ -801,14 +801,14 @@ const getSalonInfo = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     // Find salon information by salonId
     const salonInfo = await Salon.findOne({ salonId }).populate("salonRatings");
 
     if (!salonInfo) {
-      res.status(404).json({
+      res.status(201).json({
         success: false,
         message: 'No salons found for the particular SalonId.',
       });
@@ -913,7 +913,7 @@ const allSalonServices = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     const result = await salonService.getAllSalonServices(salonId);
 
@@ -940,7 +940,7 @@ const updateSalonServiceByServiceId = async (req, res, next) => {
   const salonExists = await Salon.exists({ salonId: salonId });
 
   if (!salonExists) {
-    return res.status(404).json({ success: false, message: "Salon not found" });
+    return res.status(201).json({ success: false, message: "Salon not found" });
   }
   const newServiceData = req.body;
   try {
@@ -970,7 +970,7 @@ const deleteServiceByServiceIdSalonId = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     const result = await salonService.deleteSalonService(salonId, serviceId);
 
@@ -1081,15 +1081,15 @@ const deleteSalon = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     const deletedSalon = await Salon.findOneAndUpdate({ salonId }, { isDeleted: true }, { new: true });
 
     if (!deletedSalon) {
-      res.status(404).json({
-        success: true,
-        message: "The Salonw ith the SalonId not found",
+      res.status(201).json({
+        success: false,
+        message: "The Salon with the SalonId not found",
       })
     }
 
@@ -1135,7 +1135,7 @@ const changeSalonOnlineStatus = async (req, res, next) => {
     const salonExists = await Salon.exists({ salonId: salonId });
 
     if (!salonExists) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
 
     const updatedSalon = await Salon.findOneAndUpdate(
@@ -1145,7 +1145,7 @@ const changeSalonOnlineStatus = async (req, res, next) => {
     );
 
     if (!updatedSalon) {
-      return res.status(404).json({ success: false, message: "Salon not found" });
+      return res.status(201).json({ success: false, message: "Salon not found" });
     }
     // res.setHeader('Cache-Control', 'private, max-age=3600');
     return res.status(200).json(updatedSalon);

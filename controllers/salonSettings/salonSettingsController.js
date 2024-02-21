@@ -51,7 +51,8 @@ const getSalonSettings = async (req, res, next) => {
         let existingSalonSettings = await SalonSettings.findOne({ salonId });
 
         if (!existingSalonSettings) {
-            return res.status(404).json({
+            return res.status(201).json({
+                success: false,
                 message: "Salon Settings not found"
             });
         }
@@ -80,7 +81,8 @@ const updateSalonSettings = async (req, res, next) => {
         let existingSalonSettings = await SalonSettings.findOne({ salonId });
 
         if (!existingSalonSettings) {
-            return res.status(404).json({
+            return res.status(201).json({
+                success: false,
                 message: "Salon Settings not found"
             });
         }

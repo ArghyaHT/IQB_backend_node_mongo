@@ -8,7 +8,7 @@ try{
     const salon = await JoinedQueueHistory.findOne({salonId})
 
     if (!salon) {
-        return res.status(404).json({
+        return res.status(201).json({
           success: false,
           message: 'Salon not found.',
         });

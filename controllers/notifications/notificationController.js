@@ -123,7 +123,7 @@ const getAllNotifications = async (req, res, next) => {
     const notifications = await Notification.findOne({ email });
 
     if (!notifications) {
-      return res.status(404).json({ 
+      return res.status(201).json({ 
         success: false,
         message: 'No notifications found for this email' });
     }
