@@ -3,6 +3,7 @@ const Admin = require("../../models/adminRegisterModel.js")
 const Barber = require("../../models/barberRegisterModel.js")
 const SalonSettings = require("../../models/salonSettingsModel.js")
 const { validateEmail } = require("../../middlewares/validator.js")
+const Country = require("../../models/countryModel.js")
 
 //-------CreateSalon------//
 
@@ -53,6 +54,24 @@ const createSalon = async (salonData) => {
 
     }))
 
+      // Update: Convert 'country' to uppercase
+      const titleCaseCountry = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+
+      // Find the country data from the Country model
+      const countryData = await Country.findOne({ name: titleCaseCountry });
+  
+      if (!countryData) {
+        // Handle case where country is not found
+        return {
+          success: false,
+          status: 201,
+          response: 'Country not found',
+        };
+      }
+  
+      // Retrieve currency from countryData
+      const currency = countryData.currency;
+
     //Save the Salon
     const salon = new Salon({
       salonId,
@@ -66,6 +85,7 @@ const createSalon = async (salonData) => {
       city,
       location,
       country,
+      currency,
       postCode,
       contactTel,
       webLink,
@@ -88,6 +108,7 @@ const createSalon = async (salonData) => {
     } else {
       // Handle the case where admin is not found
       return {
+        success: false,
         status: 201,
         response: 'Admin not found',
       };
@@ -109,6 +130,7 @@ const createSalon = async (salonData) => {
     await newSalonSettings.save();
 
     return {
+      success: true,
       status: 200,
       response: savedSalon,
     }
@@ -117,6 +139,7 @@ const createSalon = async (salonData) => {
   catch (error) {
     console.log(error.message)
     return {
+      success: false,
       status: 500,
       message: error.message,
     };

@@ -52,6 +52,9 @@ const salonsSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    currency: {
+        type: String
+    },
     postCode: {
         type: String,
         // required: true

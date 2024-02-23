@@ -1,4 +1,3 @@
-const City = require("../models/cityModel");
 const Country = require("../models/countryModel");
 
 const csc = require("country-state-city").Country;
@@ -40,24 +39,17 @@ async function storeCountries() {
 
 async function storeCities() {
     try {
-        // Get all countries
+        // Get all cities
         const cities = city.getAllCities();
 
-        console.log(cities)
-
-        // Store each country in the database
-        for (const city of cities) {
-            console.log(cities)
-            const newCity = new City({
-                name: city.name,
-                countryCode: city.countryCode
-            });
-
-            // Save the country document to the database
-            await newCity.save();
-        }
+        // Log each city to the console
+        cities.forEach(cityData => {
+            console.log(`City: ${cityData.name}, Country Code: ${cityData.countryCode}`);
+        });
+        
+        console.log('All cities logged successfully.');
     } catch (error) {
-        console.error('Error storing countries:', error);
+        console.error('Error logging cities:', error);
     } 
 } 
 

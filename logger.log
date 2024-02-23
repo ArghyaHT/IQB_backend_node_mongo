@@ -30,3 +30,10 @@
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-13T11:09:09.851Z"}
 {"level":"error","message":"jwt must be provided","timestamp":"2024-02-13T11:12:10.710Z"}
 {"level":"error","message":"Salon.aggregate(...).populate is not a function","timestamp":"2024-02-18T15:05:08.540Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-22T05:52:02.792Z"}
+{"level":"error","message":"jwt must be provided","timestamp":"2024-02-22T05:55:42.509Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'appointmentList')","timestamp":"2024-02-23T06:03:53.808Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'getCitiesOfCountry')","timestamp":"2024-02-23T08:30:22.994Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'getCitiesOfCountry')","timestamp":"2024-02-23T08:31:49.869Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'getCitiesOfCountry')","timestamp":"2024-02-23T08:31:59.165Z"}
+{"level":"error","message":"keys.map is not a function","timestamp":"2024-02-23T08:42:44.829Z"}

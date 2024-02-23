@@ -183,7 +183,7 @@ const createSalonByAdmin = async (req, res, next) => {
     const result = await salonService.createSalon(salonData, adminEmail);
 
     res.status(result.status).json({
-      success: true,
+      success: result.success,
       response: result.response,
       message: result.message,
       error: result.error

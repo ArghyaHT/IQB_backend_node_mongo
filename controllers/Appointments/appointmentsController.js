@@ -777,69 +777,44 @@ const getAllAppointmentsByBarberIdAndDate = async (req, res, next) => {
 //Served Appointment
 const barberServedAppointment = async (req, res, next) => {
   try {
-    const { salonId, barberId, _id, appointmentDate } = req.body;
-    // Check if required fields are missing
-    if (!salonId || !barberId || !_id || !appointmentDate) {
+    const { salonId, _id, appointmentDate } = req.body;
+
+    if (!salonId || !_id || !appointmentDate) {
       return res.status(400).json({
         message: 'Missing required fields',
       });
     }
 
-    // Find the appointment to be served
-    const appointments = await Appointment.aggregate([
-      {
-        $match: {
-          salonId,
-        }
-      },
-      {
-        $unwind: '$appointmentList'
-      },
-      {
-        $match: {
-          'appointmentList._id': _id,
-          'appointmentList.barberId': barberId,
-          'appointmentList.appointmentDate': new Date(appointmentDate),
-        }
+    const appointmentDoc = await Appointment.findOne({
+      salonId,
+    });
+    if (appointmentDoc) {
+      const appointment = appointmentDoc.appointmentList.find(appt =>
+        appt._id.toString() === _id &&
+        appt.appointmentDate.toISOString() === new Date(appointmentDate).toISOString()
+      );
+
+      if (appointment.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Appointment not found.',
+        });
       }
-    ]);
-
-    // Check if appointment exists
-    if (appointments.length === 0) {
-      return res.status(201).json({
-        success: false,
-        message: 'Appointment not found.',
-      });
-    }
-
-    // Extract the served appointment from the list
-    const appointment = appointments[0]; // Take the first appointment in the list
-
-    console.log(appointment)
-    // Extract the served appointment from the list
-    const servedAppointmentIndex = appointment.appointmentList.findIndex(appt => appt._id.toString() === _id && appt.barberId === barberId && appt.appointmentDate.toISOString() === appointmentDate);
-
-
-    // Check if served appointment exists
-    if (servedAppointmentIndex === -1) {
-      // Create a new served appointment entry
       const newServedAppointment = {
-        barberId: appointment.appointmentList[0].barberId,
-        appointmentNotes: appointment.appointmentList[0].appointmentNotes,
+        barberId: appointment.barberId,
+        appointmentNotes: appointment.appointmentNotes,
         appointmentDate: appointmentDate,
-        startTime: appointment.appointmentList[0].startTime,
-        endTime: appointment.appointmentList[0].endTime,
-        timeSlots: appointment.appointmentList[0].timeSlots,
-        customerEmail: appointment.appointmentList[0].customerEmail,
-        customerName: appointment.appointmentList[0].customerName,
-        customerType: appointment.appointmentList[0].customerType,
-        methodUsed: appointment.appointmentList[0].methodUsed,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        timeSlots: appointment.timeSlots,
+        customerEmail: appointment.customerEmail,
+        customerName: appointment.customerName,
+        customerType: appointment.customerType,
+        methodUsed: appointment.methodUsed,
         status: 'served',
         services: []
-      };
-
-      // Map services of the first appointment in the list to newServedAppointment
-      appointment.appointmentList[0].services.forEach(service => {
+      }
+      appointment.services.forEach(service => {
         newServedAppointment.services.push({
           serviceId: service.serviceId,
           serviceName: service.serviceName,
@@ -847,46 +822,45 @@ const barberServedAppointment = async (req, res, next) => {
           barberServiceEWT: service.barberServiceEWT
         });
       });
-      // Check the retrieved appointment
-      // console.log(appointment.appointmentList[0]); // Check the first appointment in the list
-      // console.log(appointment.appointmentList[0].services); 
-      // // Store the served appointment in AppointmentHistory collection
-      // const historyEntry = await AppointmentHistory.findOneAndUpdate(
-      //   { salonId },
-      //   {
-      //     $push: {
-      //       appointmentList: newServedAppointment, // Store the served appointment details
-      //     },
-      //   },
-      //   { upsert: true, new: true }
-      // );
+
+      const historyEntry = await AppointmentHistory.findOneAndUpdate(
+        { salonId },
+        {
+          $push: {
+            appointmentList: newServedAppointment, // Store the served appointment details
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      // Remove the served appointment from the Appointment table
+      await Appointment.updateOne(
+        { salonId },
+        {
+          $pull: {
+            'appointmentList': {
+              _id: _id.toString(),
+              appointmentDate: new Date(appointmentDate).toISOString(),
+            },
+          },
+        }
+      );
+      return res.status(200).json({
+        success: true,
+        message: 'Appointment served successfully.',
+      });
     }
-
-    // Remove the served appointment from the Appointment table
-    // await Appointment.updateOne(
-    //   { salonId },
-    //   {
-    //     $pull: {
-    //       'appointmentList': {
-    //         _id: _id,
-    //         barberId: barberId,
-    //         appointmentDate: appointmentDate,
-    //         'services.serviceId': { $in: serviceId },
-    //       },
-    //     },
-    //   }
-    // );
-
-    res.status(200).json({
-      success: true,
-      message: 'Appointment served successfully.',
-    });
+    else {
+      return res.status(201).json({
+        success: false,
+        message: 'Appointment did not got served.',
+      });
+    }
   } catch (error) {
     console.log(error);
     next(error);
   }
 };
-
 
 module.exports = {
   createAppointment,

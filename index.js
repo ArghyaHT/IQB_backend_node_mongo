@@ -41,6 +41,8 @@ const icons = require("./routes/icons/iconsRoutes.js")
 
 const sendSms = require("./routes/mobilemessageSender/mobileMessage.js")
 
+const countries = require("./routes/countries/countryRoutes.js")
+
 const { ErrorHandler } = require("./middlewares/errorHandler.js")
 
 
@@ -204,6 +206,8 @@ app.use("/api/ratings", rating)
 app.use("/api/icons", icons)
 
 app.use("/api/message", sendSms)
+
+app.use("/api/country", countries)
 
 
 app.use("/api/notifications", notifications)
