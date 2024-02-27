@@ -31,8 +31,7 @@ const getAllCountries = async (req, res) => {
         // else{
         //     countries = await Country.find();
         // }
-
-        res.status(200).json({
+         res.status(200).json({
             success: true,
             message: "Countries retrieved successfully",
             response: countries
