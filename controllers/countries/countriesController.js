@@ -10,13 +10,16 @@ const getAllCountries = async (req, res) => {
         let countries;
 
         // Check if query parameters exist in the request
-        // Check if 'name' exists and is not an empty string
-        if (name && name.trim() !== "") {
+
+        if (name) {
             query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
-        }
 
         countries = await Country.find(query);
 
+        }
+        else if(name === undefined || name === null || name === ""){
+        countries = await Country.find();
+        }
 
         res.status(200).json({
             success: true,
@@ -31,12 +34,12 @@ const getAllCountries = async (req, res) => {
 }
 
 //GET ALL TIMEZONES
-const getAllTimeZonesByCountry = async (req, res, next) => {
-    try {
-        const { countryCode } = req.body;
-        const country = await Country.findOne({ countryCode });
-        console.log(country);
-    } catch (error) {
+const getAllTimeZonesByCountry = async(req, res, next) => {
+try{
+const {countryCode} = req.body;
+const country = await Country.findOne({countryCode});
+console.log(country);
+}catch (error) {
         console.error('Error fetching cities:', error);
         next(error);
     }
@@ -47,13 +50,13 @@ const getAllCitiesByCountryCode = async (req, res, next) => {
     try {
         const { countryCode, cityName } = req.query;
 
-        if (!countryCode) {
+        if(!countryCode){
             res.status(400).json({
                 success: false,
                 message: "Please choose a Country first"
             });
         }
-        if (!cityName) {
+        if(!cityName){
             res.status(400).json({
                 success: false,
                 message: "Please enter the City name"
