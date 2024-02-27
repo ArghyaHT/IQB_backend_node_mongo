@@ -10,32 +10,27 @@ const getAllCountries = async (req, res) => {
         let countries;
 
         // Check if query parameters exist in the request
-        if(name === undefined || name === null || name === "" || name === "undefined" || name === "null"){
+        if (name === undefined || name === null || name === "" || name === "undefined" || name === "null") {
             countries = await Country.find();
         }
-        else{
+        else {
             query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
 
             countries = await Country.find(query);
         }
-
-        // if (name) {
-        //     query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
-
-        // countries = await Country.find(query);
-
-        // }
-        // else if(name === undefined || name === null || name === ""){
-        // countries = await Country.find();
-        // }
-        // else{
-        //     countries = await Country.find();
-        // }
-         res.status(200).json({
-            success: true,
-            message: "Countries retrieved successfully",
-            response: countries
-        });
+        if (countries.length === 0) {
+            res.status(201).json({
+                success: false,
+                message: "No countries found",
+            });
+        }
+        else {
+            res.status(200).json({
+                success: true,
+                message: "Countries retrieved successfully",
+                response: countries
+            });
+        }
     }
     catch (error) {
         console.log(error);
@@ -44,30 +39,30 @@ const getAllCountries = async (req, res) => {
 }
 
 //GET ALL TIMEZONES
-const getAllTimeZonesByCountry = async(req, res, next) => {
-try{
-const {countryCode} = req.query;
-if(!countryCode){
-    res.status(400).json({
-        success: false,
-        message: "Please choose a Country first"
-    });
-}
-const country = await Country.findOne({countryCode});
+const getAllTimeZonesByCountry = async (req, res, next) => {
+    try {
+        const { countryCode } = req.query;
+        if (!countryCode) {
+            res.status(400).json({
+                success: false,
+                message: "Please choose a Country first"
+            });
+        }
+        const country = await Country.findOne({ countryCode });
 
-  // Extract timeZones array from the country
-  const timeZones = country.timeZones;
-   // Extract unique gmtOffsetName values using Set
-   const uniqueGmtOffsetNames = new Set(timeZones.map(zone => zone.gmtOffsetName));
-        
-        
-  res.status(200).json({
-      success: true,
-      message: "Time zones retrieved successfully",
-      response: Array.from(uniqueGmtOffsetNames) 
-  });
+        // Extract timeZones array from the country
+        const timeZones = country.timeZones;
+        // Extract unique gmtOffsetName values using Set
+        const uniqueGmtOffsetNames = new Set(timeZones.map(zone => zone.gmtOffsetName));
 
-}catch (error) {
+
+        res.status(200).json({
+            success: true,
+            message: "Time zones retrieved successfully",
+            response: Array.from(uniqueGmtOffsetNames)
+        });
+
+    } catch (error) {
         console.error('Error fetching cities:', error);
         next(error);
     }
@@ -78,13 +73,13 @@ const getAllCitiesByCountryCode = async (req, res, next) => {
     try {
         const { countryCode, cityName } = req.query;
 
-        if(!countryCode){
+        if (!countryCode) {
             res.status(400).json({
                 success: false,
                 message: "Please choose a Country first"
             });
         }
-        if(!cityName){
+        if (!cityName) {
             res.status(400).json({
                 success: false,
                 message: "Please enter the City name"
@@ -103,12 +98,19 @@ const getAllCitiesByCountryCode = async (req, res, next) => {
             // Filter city names according to the regex query
             retrievedCities = cities.filter(city => searchRegExpCityName.test(city.name));
         }
-
-        res.status(200).json({
-            success: true,
-            message: "All cities retrieved successfully",
-            response: retrievedCities
-        });
+        if (retrievedCities.length === 0) {
+            res.status(201).json({
+                success: false,
+                message: "No cities found",
+            });
+        }
+        else {
+            res.status(200).json({
+                success: true,
+                message: "All cities retrieved successfully",
+                response: retrievedCities
+            });
+        }
     } catch (error) {
         console.error('Error fetching cities:', error);
         next(error);
