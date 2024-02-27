@@ -10,19 +10,27 @@ const getAllCountries = async (req, res) => {
         let countries;
 
         // Check if query parameters exist in the request
-
-        if (name) {
-            query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
-
-        countries = await Country.find(query);
-
-        }
-        else if(name === undefined || name === null || name === ""){
-        countries = await Country.find();
-        }
-        else{
+        if(name === undefined || name === null || name === ""){
             countries = await Country.find();
         }
+        else{
+            query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
+
+            countries = await Country.find(query);
+        }
+
+        // if (name) {
+        //     query.name = { $regex: new RegExp('^' + name, 'i') }; // Case-insensitive search
+
+        // countries = await Country.find(query);
+
+        // }
+        // else if(name === undefined || name === null || name === ""){
+        // countries = await Country.find();
+        // }
+        // else{
+        //     countries = await Country.find();
+        // }
 
         res.status(200).json({
             success: true,
