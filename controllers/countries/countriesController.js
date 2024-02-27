@@ -20,6 +20,9 @@ const getAllCountries = async (req, res) => {
         else if(name === undefined || name === null || name === ""){
         countries = await Country.find();
         }
+        else{
+            countries = await Country.find();
+        }
 
         res.status(200).json({
             success: true,
@@ -36,9 +39,27 @@ const getAllCountries = async (req, res) => {
 //GET ALL TIMEZONES
 const getAllTimeZonesByCountry = async(req, res, next) => {
 try{
-const {countryCode} = req.body;
+const {countryCode} = req.query;
+if(!countryCode){
+    res.status(400).json({
+        success: false,
+        message: "Please choose a Country first"
+    });
+}
 const country = await Country.findOne({countryCode});
-console.log(country);
+
+  // Extract timeZones array from the country
+  const timeZones = country.timeZones;
+   // Extract unique gmtOffsetName values using Set
+   const uniqueGmtOffsetNames = new Set(timeZones.map(zone => zone.gmtOffsetName));
+        
+        
+  res.status(200).json({
+      success: true,
+      message: "Time zones retrieved successfully",
+      response: Array.from(uniqueGmtOffsetNames) 
+  });
+
 }catch (error) {
         console.error('Error fetching cities:', error);
         next(error);

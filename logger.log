@@ -99,3 +99,5 @@
 {"level":"error","message":"retrievedCities.countDocuments is not a function","timestamp":"2024-02-27T06:43:45.437Z"}
 {"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-27T07:14:34.711Z"}
 {"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-27T07:14:38.658Z"}
+{"level":"error","message":"Cannot read properties of null (reading 'timeZones')","timestamp":"2024-02-27T08:13:31.677Z"}
+{"level":"error","message":"Cannot read properties of null (reading 'timeZones')","timestamp":"2024-02-27T08:24:02.179Z"}
