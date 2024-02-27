@@ -96,3 +96,4 @@
 {"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T13:03:21.910Z"}
 {"level":"error","message":"Cannot read properties of undefined (reading '0')","timestamp":"2024-02-26T13:14:58.872Z"}
 {"level":"error","message":"Cannot read properties of undefined (reading '0')","timestamp":"2024-02-26T13:16:24.924Z"}
+{"level":"error","message":"retrievedCities.countDocuments is not a function","timestamp":"2024-02-27T06:43:45.437Z"}
