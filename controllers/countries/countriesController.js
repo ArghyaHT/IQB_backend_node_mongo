@@ -10,7 +10,7 @@ const getAllCountries = async (req, res) => {
         let countries;
 
         // Check if query parameters exist in the request
-        if(name === undefined || name === null || name === ""){
+        if(name === undefined || name === null || name === "" || name === "undefined" || name === "null"){
             countries = await Country.find();
         }
         else{
