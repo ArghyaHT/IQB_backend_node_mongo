@@ -33,6 +33,7 @@ const createSalonByAdmin = async (req, res, next) => {
       fbLink,
       twitterLink,
       instraLink,
+      tiktokLink,
       services,
       appointmentSettings
     } = req.body;
@@ -177,6 +178,7 @@ const createSalonByAdmin = async (req, res, next) => {
       fbLink,
       twitterLink,
       instraLink,
+      tiktokLink,
       services,
       appointmentSettings
     }
@@ -848,6 +850,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     fblink,
     twitterLink,
     instraLink,
+    tiktokLink,
     services,
   } = req.body;
 
@@ -883,6 +886,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     fblink,
     twitterLink,
     instraLink,
+    tiktokLink,
     services,
   }
 

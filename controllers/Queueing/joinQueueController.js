@@ -4,6 +4,8 @@ const Barber = require("../../models/barberRegisterModel");
 const { sendQueuePositionChangedEmail } = require("../../utils/emailSender");
 const { sendSms } = require("../../utils/mobileMessageSender");
 const { validateEmail } = require("../../middlewares/validator");
+// const moment = require('moment');
+// const Appointment = require("../../models/appointmentsModel.js")
 
 
 //Single Join queue api
@@ -58,63 +60,159 @@ const singleJoinQueue = async (req, res, next) => {
       }
       serviceNames += service.serviceName;
     }
-    // Update the barberEWT and queueCount For the Barber
-    const updatedBarber = await Barber.findOneAndUpdate(
-      { salonId: salonId, barberId: barberId, isOnline: true },
-      { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
-      { new: true }
-    );
+    // const dateJoinedQ = new Date().toISOString();
+    // // Extract the date part from dateJoinedQ
+    // const datePart = dateJoinedQ.split('T')[0];
+    // const timeJoinedQ = new Date().toLocaleTimeString('en-US', { hour12: false });
+    // console.log(timeJoinedQ);
 
-    if (!updatedBarber) {
-      res.status(400).json({
-        success: false,
-        message: "The Barber Is not online",
-      });
-    }
+    // const getBarber = await Barber.findOne({
+    //   salonId, barberId, isOnline: true
+    // })
 
+    // // Calculate total time in minutes
+    // const totalTimeInMinutes = getBarber.barberEWT + totalServiceEWT;
 
-    //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
-    const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
+    // // Convert total time from minutes to hours and minutes using Moment.js
+    // const totalTimeDuration = moment.duration(totalTimeInMinutes, 'minutes');
+    // const totalTimeHours = totalTimeDuration.hours();
+    // const totalTimeMinutes = totalTimeDuration.minutes();
 
-    const newQueue = {
-      customerName: name,
-      customerEmail,
-      joinedQ: true,
-      joinedQType: joinedQType,
-      qPosition: updatedBarber.queueCount,
-      dateJoinedQ: new Date(),
-      timeJoinedQ: new Date().toLocaleTimeString(),
-      methodUsed,
-      barberName,
-      mobileNumber,
-      barberId,
-      serviceId: serviceIds,
-      serviceName: serviceNames,
-      serviceEWT: totalServiceEWT,
-      customerEWT: updatedBarber.barberEWT - totalServiceEWT,
-    }
+    // console.log(`${totalTimeHours} hours ${totalTimeMinutes} minutes`)
 
-    if (existingQueue) {
-      existingQueue.queueList.push(newQueue);
-      await existingQueue.save();
-      res.status(200).json({
-        success: true,
-        message: "Joined Queue",
-        response: existingQueue,
-      });
-    } else {
-      const newQueueData = new SalonQueueList({
-        salonId: salonId,
-        queueList: [newQueue],
-      });
-      const savedInQueue = await newQueueData.save();
-      res.status(200).json({
-        success: true,
-        message: "Joined Queue",
-        response: savedInQueue,
-      });
-    }
-  }
+    // const salonQueue = await SalonQueueList.findOne({ salonId: salonId });
+
+    // if (salonQueue) {
+    //   // Parse timeJoinedQ using 'HH:mm' format for 24-hour time
+    //   const newTimeJoinedQ = moment(timeJoinedQ, 'HH:mm').add(totalTimeHours, 'hours').add(totalTimeMinutes, 'minutes');
+
+    //   // Query appointments with the specified date part
+    //   const appointmentListByDate = await Appointment.aggregate([
+    //     {
+    //       $match: {
+    //         salonId: salonId,
+    //         "appointmentList.appointmentDate": {
+    //           $gte: new Date(datePart), // Start of the day
+    //           $lt: new Date(new Date(datePart).setDate(new Date(datePart).getDate() + 1)) // Start of the next day
+    //         }
+    //       }
+    //     },
+    //     {
+    //       $unwind: "$appointmentList"
+    //     },
+    //     {
+    //       $match: {
+    //         "appointmentList.appointmentDate": {
+    //           $gte: new Date(datePart), // Start of the day
+    //           $lt: new Date(new Date(datePart).setDate(new Date(datePart).getDate() + 1)) // Start of the next day
+    //         }
+    //       }
+    //     },
+    //     {
+    //       $group: {
+    //         _id: null, // Group by a constant value (null)
+    //         appointmentList: { $push: "$appointmentList" } // Push all appointmentList documents into an array
+    //       }
+    //     },
+    //     {
+    //       $project: {
+    //         _id: 0, // Exclude the _id field
+    //         appointmentList: 1 // Include the appointmentList array
+    //       }
+    //     },
+    //     {
+    //       $unwind: "$appointmentList" // Unwind the appointmentList array
+    //     },
+    //     {
+    //       $replaceRoot: { newRoot: "$appointmentList" } // Replace the root with the unwound appointmentList
+    //     },
+    //     {
+    //       $sort: {
+    //         "startTime": 1 // Sort by startTime in ascending order
+    //       }
+    //     }
+    //   ]);
+
+    //   console.log(appointmentListByDate)
+
+    //   // Check if appointments are found
+    //   if (appointmentListByDate.length > 0) {
+    //     // Get the first appointment from the appointment list
+    //     const firstAppointment = appointmentListByDate.appointmentList[0];
+
+    //     // Calculate the sum of dateJoinedQ and newTimeJoinedQ
+    //     const sumDateTimeJoinedQ = moment(timeJoinedQ).add(newTimeJoinedQ, 'minutes');
+
+    //     // Parse the start time of the first appointment
+    //     const startTimeFirstAppointment = moment(firstAppointment.startTime, 'HH:mm');
+
+    //     // Compare the start time of the first appointment with the sum of dateJoinedQ and newTimeJoinedQ
+    //     if (startTimeFirstAppointment.isAfter(sumDateTimeJoinedQ)) {
+    //       res.status(400).json({
+    //         success: false,
+    //         message: "Queue not allowed because the first appointment starts after the joined time."
+    //       });
+    //     } else {
+          // Update the barberEWT and queueCount For the Barber
+          const updatedBarber = await Barber.findOneAndUpdate(
+            { salonId: salonId, barberId: barberId, isOnline: true },
+            { $inc: { barberEWT: totalServiceEWT, queueCount: 1 } }, //  barberWorking.barberEWT + serviceEWT;
+            { new: true }
+          );
+
+          if (!updatedBarber) {
+            res.status(400).json({
+              success: false,
+              message: "The Barber Is not online",
+            });
+          }
+
+          //Match the Barber from the BarberWorking and update the queuePosition and customerEWT in the joinqueue table
+          const existingQueue = await SalonQueueList.findOne({ salonId: salonId });
+          const newQueue = {
+            customerName: name,
+            customerEmail,
+            joinedQ: true,
+            joinedQType: joinedQType,
+            qPosition: updatedBarber.queueCount,
+            // dateJoinedQ: dateJoinedQ,
+            // timeJoinedQ: timeJoinedQ,
+            dateJoinedQ: new Date(),
+            timeJoinedQ: new Date().toLocaleTimeString(),
+            methodUsed,
+            barberName,
+            mobileNumber,
+            barberId,
+            serviceId: serviceIds,
+            serviceName: serviceNames,
+            serviceEWT: totalServiceEWT,
+            customerEWT: updatedBarber.barberEWT - totalServiceEWT,
+          }
+
+          if (existingQueue) {
+            existingQueue.queueList.push(newQueue);
+            await existingQueue.save();
+            res.status(200).json({
+              success: true,
+              message: "Joined Queue",
+              response: existingQueue,
+            });
+          } else {
+            const newQueueData = new SalonQueueList({
+              salonId: salonId,
+              queueList: [newQueue],
+            });
+            const savedInQueue = await newQueueData.save();
+            res.status(200).json({
+              success: true,
+              message: "Joined Queue",
+              response: savedInQueue,
+            });
+          }
+        }
+  //     }
+  //   }
+  // }
   catch (error) {
     console.log(error);
     next(error);
@@ -225,7 +323,7 @@ const groupJoinQueue = async (req, res, next) => {
         barberNotFoundError = "The Barber Is not online";
         break; // Exit the loop early since the error is already encountered
       }
-    
+
       // Generate a unique groupJoinCode by combining qPosition and barberId
       const groupJoinCode = `${updatedBarber.queueCount}-${member.barberId}`;
 
@@ -253,13 +351,13 @@ const groupJoinQueue = async (req, res, next) => {
       existingQueue.queueList.push(joinedQData);
     }
 
-      // After the loop completes
-      if (barberNotFoundError) {
-        return res.status(400).json({
-          success: false,
-          message: barberNotFoundError,
-        });
-      }
+    // After the loop completes
+    if (barberNotFoundError) {
+      return res.status(400).json({
+        success: false,
+        message: barberNotFoundError,
+      });
+    }
 
     // Save the updated salon queue document
     await existingQueue.save();
@@ -282,39 +380,39 @@ const autoJoin = async (req, res, next) => {
 
   try {
     const { salonId, name, customerEmail, mobileNumber, joinedQType, methodUsed, services } = req.body;
-    
+
     if (!salonId || !name || !customerEmail || !services) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields"
       });
     }
-    
-const email = customerEmail;
 
-// Validate customerEmail presence and format
-if (!validateEmail(email)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid customer email format"
-  });
-}
+    const email = customerEmail;
 
-// // Validate mobileNumber presence and format
-// if (!/^\d{10}$/.test(mobileNumber)) {
-//   return res.status(400).json({
-//     success: false,
-//     message: "Mobile number must be 10 digits"
-//   });
-// }
+    // Validate customerEmail presence and format
+    if (!validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid customer email format"
+      });
+    }
 
-// Validate services presence and format (assuming it should be an array)
-if (services.length === 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Services must be provided."
-  });
-}
+    // // Validate mobileNumber presence and format
+    // if (!/^\d{10}$/.test(mobileNumber)) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Mobile number must be 10 digits"
+    //   });
+    // }
+
+    // Validate services presence and format (assuming it should be an array)
+    if (services.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Services must be provided."
+      });
+    }
     const serviceIds = services.map(service => service.serviceId);
 
     let totalServiceEWT = 0;
@@ -403,11 +501,11 @@ const getQueueListBySalonId = async (req, res, next) => {
 
   try {
     const salonId = parseInt(req.query.salonId, 10);
- 
+
     // Check if salonId is not a number or is NaN
-if (!salonId) {
-  return res.status(400).json({ success: false, message: "Invalid salonId format" });
-}
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Invalid salonId format" });
+    }
 
     //To find the queueList according to salonId and sort it according to qposition
     const getSalon = await SalonQueueList.aggregate([
@@ -482,9 +580,9 @@ const barberServedQueue = async (req, res, next) => {
     const { salonId, barberId, serviceId, _id } = req.body;
 
     // Check if required fields are missing or have invalid format
-if (!salonId || !barberId || !serviceId || !_id) {
-  return res.status(400).json({ success: false, message: "Invalid request data" });
-}
+    if (!salonId || !barberId || !serviceId || !_id) {
+      return res.status(400).json({ success: false, message: "Invalid request data" });
+    }
 
     const queue = await SalonQueueList.findOne({ salonId: salonId });
     let currentServiceEWT = 0;
@@ -574,9 +672,9 @@ const cancelQueue = async (req, res, next) => {
     const { salonId, barberId, _id } = req.body;
 
     // Check if required fields are missing or have invalid format
-if (!salonId || !barberId || !_id) {
-  return res.status(400).json({ success: false, message: "Invalid request data" });
-}
+    if (!salonId || !barberId || !_id) {
+      return res.status(400).json({ success: false, message: "Invalid request data" });
+    }
     const updatedQueue = await SalonQueueList.findOne({ salonId });
 
     if (!updatedQueue) {
@@ -654,10 +752,10 @@ if (!salonId || !barberId || !_id) {
 const getAvailableBarbersForQ = async (req, res, next) => {
   try {
     const { salonId } = req.query;
-        // Check if required fields are missing or have invalid format
-if (!salonId) {
-  return res.status(400).json({ success: false, message: "Invalid salonid" });
-}
+    // Check if required fields are missing or have invalid format
+    if (!salonId) {
+      return res.status(400).json({ success: false, message: "Invalid salonid" });
+    }
 
     //To find the available barbers for the queue
     const availableBarbers = await Barber.find({ salonId, isActive: true, isOnline: true });
@@ -691,7 +789,7 @@ const getBarberByMultipleServiceId = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid salonId or serviceIds" });
     }
     if (!serviceIds) {
-      return res.status(400).json({ success:false, message: 'Service IDs are required' });
+      return res.status(400).json({ success: false, message: 'Service IDs are required' });
     }
 
     const serviceIdsArray = serviceIds.split(',').map((id) => Number(id)); // Split string into an array of service IDs
@@ -813,8 +911,8 @@ const getQhistoryByCustomerEmail = async (req, res, next) => {
 
     const email = customerEmail;
 
-     // Validate email format
-     if (!email || !validateEmail(email)) {
+    // Validate email format
+    if (!email || !validateEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Invalid email format"

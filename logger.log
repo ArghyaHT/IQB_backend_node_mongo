@@ -37,3 +37,62 @@
 {"level":"error","message":"Cannot read properties of undefined (reading 'getCitiesOfCountry')","timestamp":"2024-02-23T08:31:49.869Z"}
 {"level":"error","message":"Cannot read properties of undefined (reading 'getCitiesOfCountry')","timestamp":"2024-02-23T08:31:59.165Z"}
 {"level":"error","message":"keys.map is not a function","timestamp":"2024-02-23T08:42:44.829Z"}
+{"level":"error","message":"getForm is not defined","timestamp":"2024-02-24T14:00:39.187Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'send')","timestamp":"2024-02-24T14:01:06.765Z"}
+{"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-24T14:02:36.126Z"}
+{"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-24T14:08:09.911Z"}
+{"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-24T14:14:36.946Z"}
+{"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-24T14:19:02.447Z"}
+{"level":"error","message":"resetToken is not defined","timestamp":"2024-02-24T14:21:12.952Z"}
+{"level":"error","message":"resetToken is not defined","timestamp":"2024-02-24T14:21:16.282Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'send')","timestamp":"2024-02-24T14:21:49.445Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'send')","timestamp":"2024-02-24T14:22:17.614Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'send')","timestamp":"2024-02-24T14:22:55.695Z"}
+{"level":"error","message":"Cannot set headers after they are sent to the client","timestamp":"2024-02-24T14:26:10.571Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:39:59.305Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:44:27.389Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:46:01.646Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:48:43.817Z"}
+{"level":"error","message":"Unexpected token } in JSON at position 49","timestamp":"2024-02-24T14:49:35.387Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:52:21.499Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T14:58:32.664Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T15:08:44.135Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T15:11:19.986Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T15:11:56.145Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T15:13:45.512Z"}
+{"level":"error","message":"Not allowed by CORS","timestamp":"2024-02-24T15:25:01.800Z"}
+{"level":"error","message":"moment(...).tz is not a function","timestamp":"2024-02-26T05:41:24.197Z"}
+{"level":"error","message":"moment is not defined","timestamp":"2024-02-26T10:34:39.110Z"}
+{"level":"error","message":"Cannot read properties of null (reading 'updatedAt')","timestamp":"2024-02-26T10:57:08.406Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading 'getTime')","timestamp":"2024-02-26T11:30:51.167Z"}
+{"level":"error","message":"dateJoinedQDate is not defined","timestamp":"2024-02-26T11:33:34.029Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:40:24.069Z"}
+{"level":"error","message":"appointment.find is not a function","timestamp":"2024-02-26T11:44:40.895Z"}
+{"level":"error","message":"appointment.find is not a function","timestamp":"2024-02-26T11:46:31.932Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:47:26.333Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:49:12.547Z"}
+{"level":"error","message":"Cast to date failed for value \"17:19:40\" (type string) at path \"appointmentDate\" for model \"Appointment\"","timestamp":"2024-02-26T11:49:42.803Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:50:29.811Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:54:57.376Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:56:58.062Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T11:59:49.226Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:26:25.147Z"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"appointmentDate\" for model \"Appointment\"","timestamp":"2024-02-26T12:32:41.541Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:37:28.990Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:37:46.203Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:38:09.030Z"}
+{"level":"error","message":"Cast to date failed for value \"Invalid Date\" (type Date) at path \"appointmentDate\" for model \"Appointment\"","timestamp":"2024-02-26T12:41:05.828Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:41:37.822Z"}
+{"level":"error","message":"dateJoinedQ.split is not a function","timestamp":"2024-02-26T12:44:24.437Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:47:04.899Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:50:00.787Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:52:01.707Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T12:55:11.472Z"}
+{"level":"error","message":"a group specification must include an _id","timestamp":"2024-02-26T12:58:35.042Z"}
+{"level":"error","message":"a group specification must include an _id","timestamp":"2024-02-26T12:59:07.351Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T13:00:26.088Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T13:01:39.149Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T13:02:01.265Z"}
+{"level":"error","message":"appointmentDate is not defined","timestamp":"2024-02-26T13:03:21.910Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading '0')","timestamp":"2024-02-26T13:14:58.872Z"}
+{"level":"error","message":"Cannot read properties of undefined (reading '0')","timestamp":"2024-02-26T13:16:24.924Z"}

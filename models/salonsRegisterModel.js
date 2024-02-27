@@ -36,8 +36,8 @@ const salonsSchema = new mongoose.Schema({
                     type: String,
                 }
             }
-        ], 
-    salonType:{
+        ],
+    salonType: {
         type: String
     },
     address: {
@@ -51,6 +51,9 @@ const salonsSchema = new mongoose.Schema({
     country: {
         type: String,
         // required: true
+    },
+    timeZone: {
+        type: String
     },
     currency: {
         type: String
@@ -78,6 +81,9 @@ const salonsSchema = new mongoose.Schema({
     instraLink: {
         type: String,
     },
+    tiktokLink: {
+        type: String
+    },
     salonEmail: {
         type: String
     },
@@ -95,7 +101,7 @@ const salonsSchema = new mongoose.Schema({
         }
 
     },
-    salonRatings:  [{
+    salonRatings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SalonRating'
     }],
@@ -119,7 +125,7 @@ const salonsSchema = new mongoose.Schema({
             url: {
                 type: String,
             }
-        }, 
+        },
         serviceDesc: {
             type: String,
             // required: true,
@@ -145,7 +151,7 @@ const salonsSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    isOnline:{
+    isOnline: {
         type: Boolean,
         default: false
     },

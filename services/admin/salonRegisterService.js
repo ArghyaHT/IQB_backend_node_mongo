@@ -25,6 +25,7 @@ const createSalon = async (salonData) => {
     fbLink,
     twitterLink,
     instraLink,
+    tiktokLink,
     services,
     appointmentSettings
   } = salonData
@@ -93,6 +94,7 @@ const createSalon = async (salonData) => {
       salonEmail,
       twitterLink,
       instraLink,
+      tiktokLink,
       services: servicesData
 
     });
@@ -221,6 +223,7 @@ const updateSalonBySalonId = async (salonData) => {
     fblink,
     twitterLink,
     instraLink,
+    tiktokLink,
     services,
   } = salonData
 
@@ -237,6 +240,7 @@ const updateSalonBySalonId = async (salonData) => {
       fblink,
       twitterLink,
       instraLink,
+      tiktokLink,
       services,
     }
 

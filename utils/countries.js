@@ -2,8 +2,6 @@ const Country = require("../models/countryModel");
 
 const csc = require("country-state-city").Country;
 
-const city = require("country-state-city").City; 
-// const Country = require('./models/Country');
 
 async function storeCountries() {
     try {
@@ -37,23 +35,6 @@ async function storeCountries() {
 } 
 
 
-async function storeCities() {
-    try {
-        // Get all cities
-        const cities = city.getAllCities();
-
-        // Log each city to the console
-        cities.forEach(cityData => {
-            console.log(`City: ${cityData.name}, Country Code: ${cityData.countryCode}`);
-        });
-        
-        console.log('All cities logged successfully.');
-    } catch (error) {
-        console.error('Error logging cities:', error);
-    } 
-} 
-
 module.exports ={
     storeCountries,
-    storeCities
 }

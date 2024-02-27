@@ -3,7 +3,7 @@ const { getAllCountries, getAllCitiesByCountryCode } = require("../../controller
 
 const router = express.Router();
 
-router.route("/getAllCountries").get(getAllCountries)
+router.route("/getAllCountries").post(getAllCountries)
 
 router.route("/getAllCities").post(getAllCitiesByCountryCode)
 
