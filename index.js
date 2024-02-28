@@ -43,6 +43,8 @@ const sendSms = require("./routes/mobilemessageSender/mobileMessage.js")
 
 const countries = require("./routes/countries/countryRoutes.js")
 
+const loggerRoutes = require("./routes/logger/loggerRoute.js")
+
 const { ErrorHandler } = require("./middlewares/errorHandler.js")
 
 
@@ -149,6 +151,7 @@ const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const Customer = require("./models/customerRegisterModel.js")
 const { storeCountries, storeCities } = require("./utils/countries.js")
+const logger = require("./utils/logger.js")
 
 
 const dotenv = require("dotenv").config();
@@ -176,6 +179,29 @@ app.use("/api", students);
 // admin.initializeApp({
 //   credential: admin.credential.cert(serviceAccount),
 // });
+
+app.use("/api/logger", loggerRoutes)
+
+app.use((req, res, next) => {
+  if (req.query) {
+    logger.info("Request Query Parameters:", req.query);
+  }
+  if (req.body) {
+    logger.info("Request Body:", req.body);
+  }
+
+  let oldSend = res.send;
+  res.send = function (data) {
+    try {
+      logger.info("Response Data:", JSON.parse(data));
+    } catch (error) {
+      logger.error('Error parsing response data:', error);
+    }
+    oldSend.apply(res, arguments);
+  }
+  next();
+});
+
 
 app.use("/api/customer", registerCustomer)
 
@@ -209,8 +235,8 @@ app.use("/api/message", sendSms)
 
 app.use("/api/country", countries)
 
-
 app.use("/api/notifications", notifications)
+
 app.use(ErrorHandler)
 // async function main() {
 //   try {

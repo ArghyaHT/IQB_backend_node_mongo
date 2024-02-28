@@ -2,7 +2,7 @@ const Country = require("../../models/countryModel.js");
 const city = require("country-state-city").City;
 
 //GET ALL COUNTRIES
-const getAllCountries = async (req, res) => {
+const getAllCountries = async (req, res, next) => {
     try {
         const { name } = req.query;
 
@@ -63,7 +63,7 @@ const getAllTimeZonesByCountry = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error fetching cities:', error);
+        console.log(error);
         next(error);
     }
 }
@@ -111,8 +111,8 @@ const getAllCitiesByCountryCode = async (req, res, next) => {
                 response: retrievedCities
             });
         }
-    } catch (error) {
-        console.error('Error fetching cities:', error);
+    }  catch (error) {
+        console.log(error);
         next(error);
     }
 }
