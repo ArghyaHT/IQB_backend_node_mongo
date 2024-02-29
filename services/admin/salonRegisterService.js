@@ -222,110 +222,92 @@ const updateSalonBySalonId = async (salonData) => {
     salonType,
     contactTel,
     webLink,
-    fblink,
+    fbLink,
     twitterLink,
     instraLink,
     tiktokLink,
     services,
-  } = salonData
+  } = salonData;
 
   try {
-    let updateFields = {
-      salonName,
-      salonLogo,
-      salonId,
-      adminEmail,
-      address,
-      salonType,
-      contactTel,
-      webLink,
-      fblink,
-      twitterLink,
-      instraLink,
-      tiktokLink,
-      services,
+    // Retrieve the salon with existing services
+    const salon = await Salon.findOne({ salonId, adminEmail });
+
+    // Check if salon exists
+    if (!salon) {
+      return {
+        status: 400,
+        message: "Salon not found",
+      };
     }
 
-    if (services && Array.isArray(services)) {
-      // If services are provided, update the services
-      const updatedServices = services.map((existingService) => {
-        const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
+    // Update basic salon information
+    salon.salonName = salonName;
+    salon.salonLogo = salonLogo;
+    salon.address = address;
+    salon.salonType = salonType;
+    salon.contactTel = contactTel;
+    salon.webLink = webLink;
+    salon.fbLink = fbLink;
+    salon.twitterLink = twitterLink;
+    salon.instraLink = instraLink;
+    salon.tiktokLink = tiktokLink;
 
+    // Extract existing services from the salon document
+    const existingServices = salon.services;
+
+    // If services are provided, update the existing services
+    if (services && Array.isArray(services)) {
+      const updatedServices = existingServices.map((existingService) => {
+        const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
         if (matchingService) {
           return {
-            ...existingService.toObject(),
+            ...existingService,
             serviceName: matchingService.serviceName,
             serviceIcon: {
               public_id: matchingService.serviceIcon.public_id,
               url: matchingService.serviceIcon.url,
             },
-            servicePrice: matchingService.servicePrice,
             serviceDesc: matchingService.serviceDesc,
-            serviceEWT: matchingService.serviceEWT,
+            servicePrice: matchingService.servicePrice,
+            serviceEWT: matchingService.serviceEWT
           };
         }
-        return existingService; // Keep the existing service unchanged
+        return existingService;
       });
 
-      const existingServiceCount = updatedServices.length;
-
-      // Calculate the next available serviceCounter based on existing services count
-      let serviceCounter = existingServiceCount + 1;
-
-      // Check for any new services that don't exist in the current services array
+      // Add new services that do not exist
       services.forEach((newService) => {
-        const existingService = updatedServices.find((s) => s.serviceId === newService.serviceId);
+        const existingService = existingServices.find((s) => s.serviceId === newService.serviceId);
         if (!existingService) {
-          // If the service doesn't exist, add it to the updatedServices array
           updatedServices.push({
-            serviceId: `${salonId}${serviceCounter}`,
-            serviceCode: `${newService.serviceName.slice(0, 2).toUpperCase()}${salonId}${serviceCounter}`,
-            serviceName: newService.serviceName,
-            serviceIcon: {
-              public_id: newService.serviceIcon.public_id,
-              url: newService.serviceIcon.url,
-            },
-            servicePrice: newService.servicePrice,
-            serviceDesc: newService.serviceDesc,
-            serviceEWT: newService.serviceEWT,
-            // Add any other necessary properties here
+            ...newService,
+            serviceId: `${salonId}${existingServices.length + 1}`,
+            serviceCode: `${newService.serviceName.slice(0, 2).toUpperCase()}${salonId}${existingServices.length + 1}`,
           });
-          serviceCounter++; // Increment serviceCounter for the next service
         }
       });
 
-      updateFields.services = updatedServices;
+      salon.services = updatedServices;
     }
 
+    // Save the updated salon document
+    const updatedSalon = await salon.save();
 
-
-    const updatedSalon = await Salon.findOneAndUpdate(
-      { salonId: salonId, adminEmail: adminEmail },
-      {
-        // Update only the provided fields
-        $set: updateFields,
-      },
-      {
-        new: true,
-      }
-    );
-
-    return ({
+    return {
       status: 200,
-      message: 'Salons found successfully.',
+      message: 'Salon updated successfully.',
       response: updatedSalon,
-    });
-  }
-  catch (error) {
+    };
+  } catch (error) {
     console.error(error);
-    return ({
+    return {
       status: 500,
-      message: 'Failed to search salons by The SalonId.',
-      error: error.message
-    });
+      message: 'Failed to update salon.',
+      error: error.message,
+    };
   }
-
-}
+};
 
 
 //Update Salon Service

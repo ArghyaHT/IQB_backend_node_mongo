@@ -849,7 +849,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     salonType,
     contactTel,
     webLink,
-    fblink,
+    fbLink,
     twitterLink,
     instraLink,
     tiktokLink,
@@ -857,7 +857,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
   } = req.body;
 
   // Check if required fields are missing or empty
-  if (!salonName || !salonId || !address || !contactTel || !services) {
+  if (!salonId || !services) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
@@ -872,7 +872,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     return res.status(400).json({ success: false, message: "Salon Not found" });
   }
   // Validate contactTel format (assuming it should be exactly 10 digits)
-  if (!/^\d{10}$/.test(contactTel)) {
+  if (contactTel && !/^\d{10}$/.test(contactTel)) {
     return res.status(400).json({ success: false, message: "Invalid format for contact. It should be a 10-digit number" });
   }
 
@@ -885,7 +885,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
     salonType,
     contactTel,
     webLink,
-    fblink,
+    fbLink,
     twitterLink,
     instraLink,
     tiktokLink,
