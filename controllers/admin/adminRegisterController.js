@@ -498,7 +498,7 @@ const isLogginMiddleware = async (req, res, next) => {
             });
         }
 
-        return res.status(400).json({
+        return res.status(201).json({
             success: true,
             message: "User already logged in",
             user: [loggedinUser]
