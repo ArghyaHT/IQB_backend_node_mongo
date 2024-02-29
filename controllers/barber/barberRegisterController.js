@@ -969,9 +969,9 @@ const updateBarberByAdmin = async (req, res, next) => {
     if (barberServices.length > 0) {
       // Validate barberServices format
       for (const service of barberServices) {
-        const { serviceId, serviceCode, servicePrice, serviceName, serviceEWT } = service;
+        const { serviceId, serviceCode, servicePrice, serviceName, barberServiceEWT } = service;
 
-        if (!serviceId || !serviceCode || !servicePrice || !serviceName || !serviceEWT) {
+        if (!serviceId || !serviceCode || !servicePrice || !serviceName || !barberServiceEWT) {
           return res.status(400).json({
             success: false,
             message: "Missing required fields in barber service object"

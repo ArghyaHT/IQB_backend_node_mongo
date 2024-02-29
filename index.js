@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser")
 const { rateLimit } = require('express-rate-limit')
 const admin = require('firebase-admin');
 
-const { startCronJob } = require("./triggers/cronJobs.js")
+const { startCronJob, recreateLoggerCronJob } = require("./triggers/cronJobs.js")
 
 const registerCustomer = require("./routes/customer/customerRegisterRoute.js")
 
@@ -238,6 +238,9 @@ app.use("/api/country", countries)
 app.use("/api/notifications", notifications)
 
 app.use(ErrorHandler)
+
+recreateLoggerCronJob();
+
 // async function main() {
 //   try {
 //       await storeCities();

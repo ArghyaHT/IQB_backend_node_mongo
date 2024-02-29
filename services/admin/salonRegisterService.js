@@ -33,7 +33,6 @@ const createSalon = async (salonData) => {
 
   try {
 
-
     const salonId = await Salon.countDocuments() + 1;
 
     const firstTwoLetters = salonName.slice(0, 2).toUpperCase();
@@ -56,21 +55,7 @@ const createSalon = async (salonData) => {
 
     }))
 
-      // Update: Convert 'country' to uppercase
-      const titleCaseCountry = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
-
-      // Find the country data from the Country model
-      const countryData = await Country.findOne({ name: titleCaseCountry });
-  
-      if (!countryData) {
-        // Handle case where country is not found
-        return {
-          success: false,
-          status: 201,
-          response: 'Country not found',
-        };
-      }
-  
+      
       // Retrieve currency from countryData
       const currency = countryData.currency;
 
@@ -248,7 +233,7 @@ const updateSalonBySalonId = async (salonData) => {
 
     if (services && Array.isArray(services)) {
       // If services are provided, update the services
-      const updatedServices = salon.services.map((existingService) => {
+      const updatedServices = services.map((existingService) => {
         const matchingService = services.find((s) => s.serviceId === existingService.serviceId);
 
         if (matchingService) {
