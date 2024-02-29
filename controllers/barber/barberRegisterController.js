@@ -673,8 +673,8 @@ const isBarberLogginMiddleware = async (req, res, next) => {
         user: [loggedinUser]
       });
     }
-    return res.status(200).json({
-      success: true,
+    return res.status(400).json({
+      success: false,
       message: "User already logged in",
       user: [loggedinUser]
     });
@@ -774,7 +774,7 @@ const handleBarberProtectedRoute = async (req, res, next) => {
     if (req.user && !req.user.admin) {
       next();
     } else {
-      return res.status(201).json({
+      return res.status(400).json({
         success: false,
         message: "You are not Authenticated Barber"
       })

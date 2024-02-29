@@ -498,7 +498,7 @@ const isLogginMiddleware = async (req, res, next) => {
             });
         }
 
-        return res.status(200).json({
+        return res.status(400).json({
             success: true,
             message: "User already logged in",
             user: [loggedinUser]
@@ -685,7 +685,7 @@ const handleAdminProtectedRoute = async (req, res, next) => {
         if (req.user && !req.user.barber) {
             next();
         } else {
-            return res.status(201).json({
+            return res.status(400).json({
                 success: false,
                 message: "You are not Authenticated Admin"
             })
@@ -705,7 +705,7 @@ const handleProtectedRoute = async (req, res, next) => {
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
-            return res.status(200).json({
+            return res.status(400).json({
                 success: false,
                 message: "Refresh Token not present.Please Login Again",
             });
@@ -715,7 +715,7 @@ const handleProtectedRoute = async (req, res, next) => {
         const decodeToken = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
 
         if (!decodeToken) {
-            return res.status(200).json({
+            return res.status(400).json({
                 success: false,
                 message: "Invalid Access Token. UnAuthorize User",
             });
