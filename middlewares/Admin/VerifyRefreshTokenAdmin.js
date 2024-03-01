@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-const JWT_ACCESS_SECRET = "accessToken"
+const JWT_ACCESS_SECRET = "accessTokenAdmin"
 // const JWT_REFRESH_SECRET = "refreshToken"
 
 const verifyRefreshTokenAdmin = (req, res, next) => {

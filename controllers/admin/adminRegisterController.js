@@ -11,7 +11,7 @@ const emailWithNodeMail = require('../../utils/nodeMailer.js');
 const crypto = require("crypto");
 const bcrypt = require("bcrypt")
 
-const JWT_ACCESS_SECRET = "accessToken"
+const JWT_ACCESS_SECRET = "accessTokenAdmin"
 const JWT_REFRESH_SECRET = "refreshToken"
 
 //Upload Profile Picture Config
@@ -262,8 +262,10 @@ const loginController = async (req, res, next) => {
 
         // Send accessToken containing username and roles 
         res.status(201).json({
+            success: true,
             message: "Admin Logged In Successfully",
-            accessToken
+            accessToken,
+            foundUser
         })
     }
     catch (error) {
@@ -274,13 +276,72 @@ const loginController = async (req, res, next) => {
 
 
 //GOOGLE SIGNIN ===================================
-const googleLoginController = async (req, res, next) => {
+
+const googleAdminSignup = async(req,res, next) => {
+    // try {
+    //     const { email, password } = req.body
+
+    //     // Validate email format
+    //     if (!email || !validateEmail(email)) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Invalid email format"
+    //         });
+    //     }
+
+    //     // Validate password length
+    //     if (!password || password.length < 8) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Password must be at least 8 characters long"
+    //         });
+    //     }
+
+    //     // Check if the email is already registered
+    //     const existingUser = await Admin.findOne({ email, role: 'Admin',AuthType:'google' }).exec()
+
+    //     if (existingUser) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Admin already exists"
+    //         });
+    //     }
+
+    //     // Hash the password
+    //     const hashedPassword = await bcrypt.hash(password, 10)
+
+    //     // Create a new user
+    //     const newUser = new Admin({
+    //         email,
+    //         password: hashedPassword,
+    //         role: "Admin",
+    //         AuthType:"google"
+    //     })
+
+    //     await newUser.save()
+
+    //     res.status(200).json({
+    //         success: true,
+    //         message: 'Admin registered successfully',
+    //         newUser
+    //     })
+    // } 
+    // catch (error) {
+    //     console.log(error);
+    //     next(error);
+    // }
+
     try {
-        const CLIENT_ID = process.env.CLIENT_ID;
-        const token = req.body.token;
+        const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
+
+        const token = req.query.token;
+
+        console.log(token)
 
         if (!token) {
-            res.json({ success: false, message: "UnAuthorized User or Invalid User" })
+            return res.status(404).json({ 
+                success: false,
+                message: "UnAuthorized Admin or Token not present" })
         }
 
         const client = new OAuth2Client(CLIENT_ID);
@@ -295,78 +356,259 @@ const googleLoginController = async (req, res, next) => {
         // Get the JSON with all the user info
         const payload = ticket.getPayload();
 
-        let user = await Admin.findOne({ email: payload.email, AuthType: "google" });
+        console.log("Google payload ", payload)
 
-        // If the user doesn't exist, create a new user
-        // add barber id by count docuents and isApproved as false 
-        if (!user) {
-            user = new Admin({
-                name: payload.name,
-                email: payload.email,
-                admin: true,
-                AuthType: "google"
-            });
-            await user.save()
+        // Check if the email is already registered
+        const existingUser = await Admin.findOne({ email: payload.email, role: 'Admin',AuthType:'google' }).exec()
 
-            // Generate tokens
-            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-            // Set cookies in the response
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000,  // 2 days
-                secure: true,
-                sameSite: "None"
-            });
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                maxAge: 1 * 60 * 1000, //1 mins
-                secure: true,
-                sameSite: "None"
-            });
-
-            res.status(200).json({
-                success: true,
-                message: "Admin registered successfully"
-            })
+        if (existingUser) {
+            return res.status(404).json({ success: false, message: 'Admin Email already exists' })
         }
 
-        else if (user) {
-            const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-            const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        // Create a new user
+        const newUser = new User({
+            email:payload.email,
+            role: "Admin",
+            AuthType:"google"
+        })
 
+        await newUser.save()
 
-            // Set cookies in the response
-            res.cookie('refreshToken',
-                refreshToken, {
-                httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000, // 2 days
-                secure: true,
-                sameSite: "None"
-            });
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                maxAge: 1 * 60 * 1000, //1 mins
-                secure: true,
-                sameSite: "None"
-            });
+        res.status(201).json({success: true, message: 'Admin registered successfully', newUser })
 
-
-            res.status(200).json({
-                success: true,
-                message: "Admin signed in successfully"
-            })
-        } else {
-            res.status(401).json({ success: false, message: "Invalid Credentials" })
-        }
-
-    } catch (error) {
+    }
+      catch (error) {
         console.log(error);
         next(error);
     }
-
 }
+
+
+
+const googleAdminLogin = async(req, res, next) => {
+    // try {
+    //     const { email, password } = req.body
+
+    //     if (!email || !validateEmail(email)) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Invalid email format"
+    //         });
+    //     }
+
+    //     // Validate password length
+    //     if (!password || password.length < 8) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Password must be at least 8 characters long"
+    //         });
+    //     }
+
+    //     const foundUser = await Admin.findOne({ email, role: 'Admin',AuthType:'google' }).exec()
+
+    //     if (!foundUser) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: 'Unauthorized Admin'
+    //         })
+    //     }
+
+    //     const match = await bcrypt.compare(password, foundUser.password)
+
+    //     if (!match) return res.status(400).json({
+    //         message: false,
+    //         message: 'Unauthorized Admin'
+    //     })
+
+    //     const accessToken = jwt.sign(
+    //         {
+    //             "email": foundUser.email,
+    //             "role": foundUser.role,
+    //             "AuthType":"google"
+    //         },
+    //         JWT_ACCESS_SECRET,
+    //         { expiresIn: '1d' }
+    //     )
+
+    //     // const refreshToken = jwt.sign(
+    //     //     { "email": foundUser.email, "role": foundUser.role },
+    //     //     REFRESH_TOKEN_SECRET,
+    //     //     { expiresIn: '1d' }
+    //     // )
+
+    //     // Create secure cookie with refresh token 
+    //     res.cookie('AdminToken', accessToken, {
+    //         httpOnly: true, //accessible only by web server 
+    //         secure: true, //https
+    //         sameSite: 'None', //cross-site cookie 
+    //         maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    //     })
+
+    //     // Send accessToken containing username and roles 
+    //     res.status(201).json({
+    //         message: "Admin Logged In Successfully",
+    //         accessToken,
+    //         foundUser
+    //     })
+    // } 
+    // catch (error) {
+    //     console.log(error);
+    //     next(error);
+    // }
+
+    try {
+        const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
+
+        const token = req.query.token;
+
+        if (!token) {
+            return res.status(404).json({success: false, message: "UnAuthorized Admin or Token not present" })
+        }
+
+        const client = new OAuth2Client(CLIENT_ID);
+
+        // Call the verifyIdToken to
+        // varify and decode it
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,
+        });
+
+        // Get the JSON with all the user info
+        const payload = ticket.getPayload();
+
+        console.log("Google Login payload ", payload)
+
+        const foundUser = await Admin.findOne({ email: payload.email, role: 'Admin',AuthType:'google' }).exec()
+
+        if (!foundUser) {
+            return res.status(401).json({ success: false, message: 'Unauthorized Admin' })
+        }
+
+        const accessToken = jwt.sign(
+            {
+        
+                    "email": foundUser.email,
+                    "role": foundUser.role,
+                    "AuthType":"google"
+            },
+           JWT_ACCESS_SECRET,
+            { expiresIn: '1d' }
+        )
+
+
+        // Create secure cookie with refresh token 
+        res.cookie('AdminToken', accessToken, {
+            httpOnly: true, //accessible only by web server 
+            // secure: true, //https
+            // sameSite: 'None', //cross-site cookie 
+            maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+        })
+        res.status(201).json({
+            success:true,
+            message: "Admin Logged In Successfully",
+            accessToken,
+            foundUser
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// const googleLoginController = async (req, res, next) => {
+//     try {
+//         const CLIENT_ID = process.env.CLIENT_ID;
+//         const token = req.body.token;
+
+//         if (!token) {
+//             res.json({ success: false, message: "UnAuthorized User or Invalid User" })
+//         }
+
+//         const client = new OAuth2Client(CLIENT_ID);
+
+//         // Call the verifyIdToken to
+//         // varify and decode it
+//         const ticket = await client.verifyIdToken({
+//             idToken: token,
+//             audience: CLIENT_ID,
+//         });
+
+//         // Get the JSON with all the user info
+//         const payload = ticket.getPayload();
+
+//         let user = await Admin.findOne({ email: payload.email, AuthType: "google" });
+
+//         // If the user doesn't exist, create a new user
+//         // add barber id by count docuents and isApproved as false 
+//         if (!user) {
+//             user = new Admin({
+//                 name: payload.name,
+//                 email: payload.email,
+//                 admin: true,
+//                 AuthType: "google"
+//             });
+//             await user.save()
+
+//             // Generate tokens
+//             const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+//             const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+//             // Set cookies in the response
+//             res.cookie('refreshToken', refreshToken, {
+//                 httpOnly: true,
+//                 maxAge: 24 * 60 * 60 * 1000,  // 2 days
+//                 secure: true,
+//                 sameSite: "None"
+//             });
+//             res.cookie('accessToken', accessToken, {
+//                 httpOnly: true,
+//                 maxAge: 1 * 60 * 1000, //1 mins
+//                 secure: true,
+//                 sameSite: "None"
+//             });
+
+//             res.status(200).json({
+//                 success: true,
+//                 message: "Admin registered successfully"
+//             })
+//         }
+
+//         else if (user) {
+//             const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+//             const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+
+//             // Set cookies in the response
+//             res.cookie('refreshToken',
+//                 refreshToken, {
+//                 httpOnly: true,
+//                 maxAge: 24 * 60 * 60 * 1000, // 2 days
+//                 secure: true,
+//                 sameSite: "None"
+//             });
+//             res.cookie('accessToken', accessToken, {
+//                 httpOnly: true,
+//                 maxAge: 1 * 60 * 1000, //1 mins
+//                 secure: true,
+//                 sameSite: "None"
+//             });
+
+
+//             res.status(200).json({
+//                 success: true,
+//                 message: "Admin signed in successfully"
+//             })
+//         } else {
+//             res.status(401).json({ success: false, message: "Invalid Credentials" })
+//         }
+
+//     } catch (error) {
+//         console.log(error);
+//         next(error);
+//     }
+
+// }
 
 //DESC:REFRESH TOKEN ==============================
 const refreshTokenController = async (req, res, next) => {
@@ -481,15 +723,25 @@ try{
         async(err, decoded) => {
             if (err) return res.status(403).json({ message: 'Forbidden Admin' })
 
-            // console.log(decoded)
+            console.log(decoded)
             const adminEmail = decoded.email
 
-            const LoggedinAdmin = await Admin.findOne({ email: adminEmail })
+            if(decoded?.AuthType === "google"){
+                const loggedinUser = await Admin.findOne({ email: adminEmail,AuthType:'google' })
 
-            res.status(201).json({
-                success: true,
-                LoggedinAdmin
-            })
+                res.status(201).json({
+                    success: true,
+                    user: [loggedinUser]
+                })
+            }else{
+                const loggedinUser = await Admin.findOne({ email: adminEmail })
+
+                res.status(201).json({
+                    success: true,
+                    user: [loggedinUser]
+                })
+            }
+            
         }
     )
 }
@@ -502,13 +754,6 @@ catch (error) {
 
 const updateAdmin = async (req, res) => {
     const { email, name, mobileNumber, gender, dateOfBirth } = req.body
-
-    if (!name || !mobileNumber || !gender || !email || !dateOfBirth) {
-        return res.status(400).json({
-            success: true,
-            message: 'All fields are required'
-        })
-    }
 
     // Check if the provided email and password match any existing admin
     const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
@@ -1538,7 +1783,6 @@ module.exports = {
     registerController,
     handleForgetPassword,
     handleResetPassword,
-    googleLoginController,
     approveBarber,
     uploadAdminprofilePic,
     updateAdminProfilePic,
@@ -1551,5 +1795,7 @@ module.exports = {
     handleProtectedRoute,
     AdminLoggedIn,
     updateAdmin,
-    demoController
+    demoController,
+    googleAdminSignup,
+    googleAdminLogin,
 }

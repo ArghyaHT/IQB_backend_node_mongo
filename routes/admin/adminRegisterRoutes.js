@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus, getDefaultSalonByAdmin, handleAdminProtectedRoute, AdminLoggedIn, demoController } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus, getDefaultSalonByAdmin, handleAdminProtectedRoute, AdminLoggedIn, demoController, googleAdminSignup, googleAdminLogin } = require("../../controllers/admin/adminRegisterController.js");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 
 const router = express.Router();
@@ -18,8 +18,12 @@ router.route("/demo").get(verifyRefreshTokenAdmin, demoController)
 router.route('/forget-password').post(handleForgetPassword)
 router.route('/reset-password/:token').post(handleResetPassword)
 
-//GOOGLE_LOGIN
-router.route("/google-login").post(googleLoginController)
+router.route("/googleAdminSignUp").post(googleAdminSignup)
+router.route("/googleAdminLogin").post(googleAdminLogin)
+
+
+// //GOOGLE_LOGIN
+// router.route("/google-login").post(googleLoginController)
 
 //FOR REFRESHING NEW ACCESS TOKEN
 router.route("/refresh-token").post(refreshTokenController)
