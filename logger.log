@@ -291,3 +291,6 @@
 {"level":"info","message":"Request Query Parameters:","timestamp":"2024-03-01T11:05:11.683Z"}
 {"level":"info","message":"Request Body:","timestamp":"2024-03-01T11:05:11.683Z"}
 {"level":"info","message":"Response Data:","success":true,"timestamp":"2024-03-01T11:05:11.942Z","user":[{"AuthType":"google","__v":0,"_id":"65e1b3800c0ff6c1738dba7c","admin":false,"createdAt":"2024-03-01T10:52:48.971Z","email":"poiu@yopmail.com","emailVerified":false,"isActive":false,"mobileVerified":false,"password":"$2b$10$/7RYO5KwwwAMs6QNuT5jHeRkvVGcUhUCa8e9gwpJltfoyfO01hwM.","profile":[],"registeredSalons":[],"role":"Admin","salonId":0,"updatedAt":"2024-03-01T10:52:48.971Z"}]}
+{"level":"info","message":"Request Query Parameters:","timestamp":"2024-03-01T11:35:47.701Z"}
+{"email":"poiu@yopmail.com","level":"info","message":"Request Body:","password":"12345678","timestamp":"2024-03-01T11:35:47.702Z"}
+{"level":"info","message":"Response Data: UnAuthorized Admin or Token not present","success":false,"timestamp":"2024-03-01T11:35:47.703Z"}

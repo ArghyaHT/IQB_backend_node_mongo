@@ -366,7 +366,7 @@ const googleAdminSignup = async(req,res, next) => {
         }
 
         // Create a new user
-        const newUser = new User({
+        const newUser = new Admin({
             email:payload.email,
             role: "Admin",
             AuthType:"google"
