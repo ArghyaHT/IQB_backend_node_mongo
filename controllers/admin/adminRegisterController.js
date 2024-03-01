@@ -118,7 +118,7 @@ const registerController = async (req, res, next) => {
         }
 
         // Check if the email is already registered
-        const existingUser = await Admin.findOne({ email, role: 'Admin' }).exec()
+        const existingUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local" }).exec()
 
         if (existingUser) {
             return res.status(400).json({
@@ -221,7 +221,7 @@ const loginController = async (req, res, next) => {
             });
         }
 
-        const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
+        const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local"  }).exec()
 
         if (!foundUser) {
             return res.status(400).json({
@@ -735,7 +735,7 @@ const AdminLoggedIn = async (req, res, next) => {
                         user: [loggedinUser]
                     })
                 } else {
-                    const loggedinUser = await Admin.findOne({ email: adminEmail })
+                    const loggedinUser = await Admin.findOne({ email: adminEmail, AuthType: "local"  })
 
                     res.status(201).json({
                         success: true,
@@ -809,7 +809,7 @@ const updateAdmin = async (req, res) => {
             })
         } else {
             // Check if the provided email and password match any existing admin
-            const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
+            const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local"  }).exec()
     
             if (!foundUser) {
                 return res.status(400).json({
