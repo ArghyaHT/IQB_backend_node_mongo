@@ -277,7 +277,7 @@ const loginController = async (req, res, next) => {
 
 //GOOGLE SIGNIN ===================================
 
-const googleAdminSignup = async(req,res, next) => {
+const googleAdminSignup = async (req, res, next) => {
     // try {
     //     const { email, password } = req.body
 
@@ -339,9 +339,10 @@ const googleAdminSignup = async(req,res, next) => {
         console.log(token)
 
         if (!token) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "UnAuthorized Admin or Token not present" })
+                message: "UnAuthorized Admin or Token not present"
+            })
         }
 
         const client = new OAuth2Client(CLIENT_ID);
@@ -359,7 +360,7 @@ const googleAdminSignup = async(req,res, next) => {
         console.log("Google payload ", payload)
 
         // Check if the email is already registered
-        const existingUser = await Admin.findOne({ email: payload.email, role: 'Admin',AuthType:'google' }).exec()
+        const existingUser = await Admin.findOne({ email: payload.email, role: 'Admin', AuthType: 'google' }).exec()
 
         if (existingUser) {
             return res.status(404).json({ success: false, message: 'Admin Email already exists' })
@@ -367,17 +368,17 @@ const googleAdminSignup = async(req,res, next) => {
 
         // Create a new user
         const newUser = new Admin({
-            email:payload.email,
+            email: payload.email,
             role: "Admin",
-            AuthType:"google"
+            AuthType: "google"
         })
 
         await newUser.save()
 
-        res.status(201).json({success: true, message: 'Admin registered successfully', newUser })
+        res.status(201).json({ success: true, message: 'Admin registered successfully', newUser })
 
     }
-      catch (error) {
+    catch (error) {
         console.log(error);
         next(error);
     }
@@ -385,7 +386,7 @@ const googleAdminSignup = async(req,res, next) => {
 
 
 
-const googleAdminLogin = async(req, res, next) => {
+const googleAdminLogin = async (req, res, next) => {
     // try {
     //     const { email, password } = req.body
 
@@ -462,7 +463,7 @@ const googleAdminLogin = async(req, res, next) => {
         const token = req.query.token;
 
         if (!token) {
-            return res.status(404).json({success: false, message: "UnAuthorized Admin or Token not present" })
+            return res.status(404).json({ success: false, message: "UnAuthorized Admin or Token not present" })
         }
 
         const client = new OAuth2Client(CLIENT_ID);
@@ -479,7 +480,7 @@ const googleAdminLogin = async(req, res, next) => {
 
         console.log("Google Login payload ", payload)
 
-        const foundUser = await Admin.findOne({ email: payload.email, role: 'Admin',AuthType:'google' }).exec()
+        const foundUser = await Admin.findOne({ email: payload.email, role: 'Admin', AuthType: 'google' }).exec()
 
         if (!foundUser) {
             return res.status(401).json({ success: false, message: 'Unauthorized Admin' })
@@ -487,12 +488,12 @@ const googleAdminLogin = async(req, res, next) => {
 
         const accessToken = jwt.sign(
             {
-        
-                    "email": foundUser.email,
-                    "role": foundUser.role,
-                    "AuthType":"google"
+
+                "email": foundUser.email,
+                "role": foundUser.role,
+                "AuthType": "google"
             },
-           JWT_ACCESS_SECRET,
+            JWT_ACCESS_SECRET,
             { expiresIn: '1d' }
         )
 
@@ -505,7 +506,7 @@ const googleAdminLogin = async(req, res, next) => {
             maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
         })
         res.status(201).json({
-            success:true,
+            success: true,
             message: "Admin Logged In Successfully",
             accessToken,
             foundUser
@@ -661,8 +662,8 @@ const handleLogout = async (req, res, next) => {
         }) //No content
         res.clearCookie('AdminToken', {
             httpOnly: true,
-            sameSite: 'None', 
-            secure: true 
+            sameSite: 'None',
+            secure: true
         })
         res.status(200).json({
             success: true,
@@ -674,7 +675,7 @@ const handleLogout = async (req, res, next) => {
     }
 }
 
-const AdminLoggedIn = async (req, res,next) => {
+const AdminLoggedIn = async (req, res, next) => {
     // const authHeader = req.headers.authorization || req.headers.Authorization
 
     // if (!authHeader?.startsWith('Bearer ')) {
@@ -705,104 +706,162 @@ const AdminLoggedIn = async (req, res,next) => {
     //         })
     //     }
     // )
-try{
-    const admincookie = req.cookies
+    try {
+        const admincookie = req.cookies
 
-    console.log(admincookie)
+        console.log(admincookie)
 
-    if(!admincookie?.AdminToken){
-        return res.status(401).json({
-            success:false,
-            message:"UnAuthorized Admin"
-        })
+        if (!admincookie?.AdminToken) {
+            return res.status(401).json({
+                success: false,
+                message: "UnAuthorized Admin"
+            })
+        }
+
+        jwt.verify(
+            admincookie?.AdminToken,
+            JWT_ACCESS_SECRET,
+            async (err, decoded) => {
+                if (err) return res.status(403).json({ success: false, message: 'Forbidden Admin' })
+
+                console.log(decoded)
+                const adminEmail = decoded.email
+
+                if (decoded?.AuthType === "google") {
+                    const loggedinUser = await Admin.findOne({ email: adminEmail, AuthType: 'google' })
+
+                    res.status(201).json({
+                        success: true,
+                        user: [loggedinUser]
+                    })
+                } else {
+                    const loggedinUser = await Admin.findOne({ email: adminEmail })
+
+                    res.status(201).json({
+                        success: true,
+                        user: [loggedinUser]
+                    })
+                }
+
+            }
+        )
+    }
+    catch (error) {
+        console.log(error);
+        next(error);
     }
 
-    jwt.verify(
-        admincookie?.AdminToken,
-        JWT_ACCESS_SECRET,
-        async(err, decoded) => {
-            if (err) return res.status(403).json({ message: 'Forbidden Admin' })
-
-            console.log(decoded)
-            const adminEmail = decoded.email
-
-            if(decoded?.AuthType === "google"){
-                const loggedinUser = await Admin.findOne({ email: adminEmail,AuthType:'google' })
-
-                res.status(201).json({
-                    success: true,
-                    user: [loggedinUser]
-                })
-            }else{
-                const loggedinUser = await Admin.findOne({ email: adminEmail })
-
-                res.status(201).json({
-                    success: true,
-                    user: [loggedinUser]
-                })
-            }
-            
-        }
-    )
-}
-catch (error) {
-    console.log(error);
-    next(error);
-}
-   
 }
 
 const updateAdmin = async (req, res) => {
-    const { email, name, mobileNumber, gender, dateOfBirth } = req.body
+    try{
+        const { email, name, mobileNumber, gender, dateOfBirth, AuthType } = req.body
 
-    // Check if the provided email and password match any existing admin
-    const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
-
-    if (!foundUser) {
-        return res.status(400).json({
-            success: false,
-            message: 'Unauthorized Admin'
-        })
+        if (AuthType === 'google') {
+            // Check if the provided email and password match any existing admin
+            const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "google" }).exec()
+    
+            if (!foundUser) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Unauthorized Admin'
+                })
+            }
+    
+    
+            // Update user information
+            foundUser.name = name
+            foundUser.mobileNumber = mobileNumber
+            foundUser.gender = gender
+            foundUser.dateOfBirth = dateOfBirth
+    
+            const updatedAdmin = await foundUser.save()
+    
+            const accessToken = jwt.sign(
+                {
+                    "email": email,
+                    "role": foundUser.role
+                },
+                JWT_ACCESS_SECRET,
+                { expiresIn: '1d' }
+            )
+    
+            // const refreshToken = jwt.sign(
+            //     { "email": email, "role": foundUser.role },
+            //     REFRESH_TOKEN_SECRET,
+            //     { expiresIn: '1d' }
+            // )
+    
+            // Create secure cookie with refresh token 
+            res.cookie('AdminToken', accessToken, {
+                httpOnly: true, //accessible only by web server 
+                secure: true, //https
+                sameSite: 'None', //cross-site cookie 
+                maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+            })
+    
+            // Send accessToken containing username and roles 
+            res.status(201).json({
+                success: true,
+                message: 'Admin information updated successfully',
+                accessToken,
+                updatedAdmin
+            })
+        } else {
+            // Check if the provided email and password match any existing admin
+            const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
+    
+            if (!foundUser) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Unauthorized Admin'
+                })
+            }
+    
+    
+            // Update user information
+            foundUser.name = name
+            foundUser.mobileNumber = mobileNumber
+            foundUser.gender = gender
+            foundUser.dateOfBirth = dateOfBirth
+    
+            const updatedAdmin = await foundUser.save()
+    
+            const accessToken = jwt.sign(
+                {
+                    "email": email,
+                    "role": foundUser.role
+                },
+                JWT_ACCESS_SECRET,
+                { expiresIn: '1d' }
+            )
+    
+            // const refreshToken = jwt.sign(
+            //     { "email": email, "role": foundUser.role },
+            //     REFRESH_TOKEN_SECRET,
+            //     { expiresIn: '1d' }
+            // )
+    
+            // Create secure cookie with refresh token 
+            res.cookie('AdminToken', accessToken, {
+                httpOnly: true, //accessible only by web server 
+                secure: true, //https
+                sameSite: 'None', //cross-site cookie 
+                maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+            })
+    
+            // Send accessToken containing username and roles 
+            res.status(201).json({
+                success: true,
+                message: 'Admin information updated successfully',
+                accessToken,
+                updatedAdmin
+            })
+        }
+    }   catch (error) {
+        console.log(error);
+        next(error);
     }
-
-
-    // Update user information
-    foundUser.name = name
-    foundUser.mobileNumber = mobileNumber
-    foundUser.gender = gender
-    foundUser.dateOfBirth = dateOfBirth
-
-    const updatedAdmin = await foundUser.save()
-
-    const accessToken = jwt.sign(
-        {
-            "email": email,
-            "role": foundUser.role
-        },
-        JWT_ACCESS_SECRET,
-        { expiresIn: '1d' }
-    )
-
-    // const refreshToken = jwt.sign(
-    //     { "email": email, "role": foundUser.role },
-    //     REFRESH_TOKEN_SECRET,
-    //     { expiresIn: '1d' }
-    // )
-
-    // Create secure cookie with refresh token 
-    res.cookie('AdminToken', accessToken, {
-        httpOnly: true, //accessible only by web server 
-        secure: true, //https
-        sameSite: 'None', //cross-site cookie 
-        maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-    })
-
-    // Send accessToken containing username and roles 
-    res.status(201).json({ 
-        success:true,
-        message: 'Admin information updated successfully', 
-        accessToken,
-        updatedAdmin })
 }
 
 
@@ -1766,7 +1825,7 @@ const changeEmailVerifiedStatus = async (req, res, next) => {
 const demoController = (req, res) => {
     const email = req.email
     const role = req.role
-    res.status(200).json({message:"Home Route",email,role})
+    res.status(200).json({ message: "Home Route", email, role })
 }
 
 
