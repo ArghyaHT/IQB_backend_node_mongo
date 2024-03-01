@@ -2,6 +2,7 @@ const express = require("express");
 const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 const {  handleProtectedRoute, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
+const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 
 
 const router = express.Router();
@@ -40,14 +41,14 @@ router.route("/barberLoggedinmiddleware").get(handleBarberProtectedRoute, isBarb
 
 
 //CREATE BARBER BY ADMIN
-router.route("/createBarberByAdmin").post(handleAdminProtectedRoute,createBarberByAdmin)
+router.route("/createBarberByAdmin").post(verifyRefreshTokenAdmin,createBarberByAdmin)
 
 //UPDATE BARBER BY ADMIN
-router.route("/updateBarberByAdmin").put(handleAdminProtectedRoute, updateBarberByAdmin)
+router.route("/updateBarberByAdmin").put(verifyRefreshTokenAdmin, updateBarberByAdmin)
 
-router.route("/getAllBarberBySalonId").post(handleAdminProtectedRoute, getAllBarberbySalonId) 
+router.route("/getAllBarberBySalonId").post(verifyRefreshTokenAdmin, getAllBarberbySalonId) 
 
-router.route("/getBarberServicesByBarberId").get(handleAdminProtectedRoute,getBarberServicesByBarberId)
+router.route("/getBarberServicesByBarberId").get(verifyRefreshTokenAdmin,getBarberServicesByBarberId)
 
 //---------==========================================================================------------//
 

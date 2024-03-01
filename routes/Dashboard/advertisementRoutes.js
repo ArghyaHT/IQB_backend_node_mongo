@@ -1,23 +1,24 @@
 const express = require("express");
 const { addAdvertisements, getDashboardAppointmentList, getAdvertisements, updateAdvertisements, deleteAdvertisements } = require("../../controllers/Dashboard/dashboardController");
 const { handleProtectedRoute, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
+const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 
 const router = express.Router();
 
 //Add Advertisements
-router.route("/addAdvertisements").post(handleAdminProtectedRoute, addAdvertisements)
+router.route("/addAdvertisements").post(verifyRefreshTokenAdmin, addAdvertisements)
 
 //Get Advertisements
-router.route("/getAdvertisements").post(handleAdminProtectedRoute,getAdvertisements)
+router.route("/getAdvertisements").post(verifyRefreshTokenAdmin,getAdvertisements)
 
 //Update Advertisements
-router.route("/updateAdvertisements").put(handleAdminProtectedRoute, updateAdvertisements)
+router.route("/updateAdvertisements").put(verifyRefreshTokenAdmin, updateAdvertisements)
 
 //Delete Advertisements
-router.route("/deleteAdvertisements").delete(handleAdminProtectedRoute, deleteAdvertisements)
+router.route("/deleteAdvertisements").delete(verifyRefreshTokenAdmin, deleteAdvertisements)
 
 //Get DashboardQlist
-router.route("/getDashboardAppointmentList").post(handleAdminProtectedRoute,getDashboardAppointmentList)
+router.route("/getDashboardAppointmentList").post(verifyRefreshTokenAdmin,getDashboardAppointmentList)
 
 
 module.exports = router; 

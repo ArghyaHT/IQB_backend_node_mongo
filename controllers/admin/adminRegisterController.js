@@ -32,9 +32,74 @@ cloudinary.config({
 //DESC:REGISTER A ADMIN 
 //====================
 const registerController = async (req, res, next) => {
+    // try {
+    //     const email = req.body.email;
+    //     const password = req.body.password;
+
+    //     // Validate email format
+    //     if (!email || !validateEmail(email)) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Invalid email format"
+    //         });
+    //     }
+
+    //     // Validate password length
+    //     if (!password || password.length < 8) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Password must be at least 8 characters long"
+    //         });
+    //     }
+
+    //     let user = await Admin.findOne({ email: email });
+
+    //     if (user) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Admin already exists"
+    //         });
+    //     }
+
+    //     // If the user doesn't exist, create a new user
+    //     if (!user) {
+    //         // Hash the password before saving it
+    //         const hashedPassword = await bcrypt.hash(password, 10);
+
+    //         user = new Admin({
+    //             email: email,
+    //             password: hashedPassword,
+    //             admin: true
+    //         });
+    //         await user.save();
+
+    //         // Generate tokens
+    //         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    //         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+    //         // Set cookies in the response
+    //         res.cookie('refreshToken', refreshToken, {
+    //             httpOnly: true,
+    //             maxAge: 24 * 60 * 60 * 1000, // 2 days
+    //             secure: true,
+    //             sameSite: "None"
+    //         });
+    //         res.cookie('accessToken', accessToken, {
+    //             httpOnly: true,
+    //             maxAge: 1 * 60 * 1000, //1 mins
+    //             secure: true,
+    //             sameSite: "None"
+    //         });
+
+    //         res.status(200).json({
+    //             success: true,
+    //             message: "Admin registered successfully",
+    //             user
+    //         });
+    //     }
+    // } 
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        const { email, password } = req.body
 
         // Validate email format
         if (!email || !validateEmail(email)) {
@@ -52,52 +117,35 @@ const registerController = async (req, res, next) => {
             });
         }
 
-        let user = await Admin.findOne({ email: email });
+        // Check if the email is already registered
+        const existingUser = await Admin.findOne({ email, role: 'Admin' }).exec()
 
-        if (user) {
+        if (existingUser) {
             return res.status(400).json({
                 success: false,
                 message: "Admin already exists"
             });
         }
 
-        // If the user doesn't exist, create a new user
-        if (!user) {
-            // Hash the password before saving it
-            const hashedPassword = await bcrypt.hash(password, 10);
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10)
 
-            user = new Admin({
-                email: email,
-                password: hashedPassword,
-                admin: true
-            });
-            await user.save();
+        // Create a new user
+        const newUser = new Admin({
+            email,
+            password: hashedPassword,
+            role: "Admin"
+        })
 
-            // Generate tokens
-            const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-            const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        await newUser.save()
 
-            // Set cookies in the response
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000, // 2 days
-                secure: true,
-                sameSite: "None"
-            });
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                maxAge: 1 * 60 * 1000, //1 mins
-                secure: true,
-                sameSite: "None"
-            });
-
-            res.status(200).json({
-                success: true,
-                message: "Admin registered successfully",
-                user
-            });
-        }
-    } catch (error) {
+        res.status(200).json({
+            success: true,
+            message: 'Admin registered successfully',
+            newUser
+        })
+    }
+    catch (error) {
         console.log(error);
         next(error);
     }
@@ -105,9 +153,58 @@ const registerController = async (req, res, next) => {
 
 //DESC:LOGIN A USER =========================
 const loginController = async (req, res, next) => {
+    // try {
+    //     const email = req.body.email;
+    //     const password = req.body.password;
+
+    //     if (!email || !validateEmail(email)) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Invalid email format"
+    //         });
+    //     }
+
+    //     // Validate password length
+    //     if (!password || password.length < 8) {
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: "Password must be at least 8 characters long"
+    //         });
+    //     }
+
+    //     // Find user by email in the MongoDB database
+    //     const user = await Admin.findOne({ email: email });
+
+    //     // If user not found or password is incorrect, return unauthorized
+    //     if (!user || !(await bcrypt.compare(password, user.password))) {
+    //         return res.status(401).json({ success: false, message: "Invalid Credentials" });
+    //     }
+
+    //     // Generate tokens
+    //     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+    //     const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+    //     // Set cookies in the response
+    //     res.cookie('refreshToken', refreshToken, {
+    //         httpOnly: true,
+    //         maxAge: 24 * 60 * 60 * 1000, // 2 days
+    //         secure: true,
+    //         sameSite: "None"
+    //     });
+    //     res.cookie('accessToken', accessToken, {
+    //         httpOnly: true,
+    //         maxAge: 1 * 60 * 1000, //1 mins
+    //         secure: true,
+    //         sameSite: "None"
+    //     });
+
+    //     res.status(200).json({
+    //         success: true,
+    //         message: "Admin signed in successfully",
+    //     });
+    // }
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        const { email, password } = req.body
 
         if (!email || !validateEmail(email)) {
             return res.status(400).json({
@@ -124,37 +221,52 @@ const loginController = async (req, res, next) => {
             });
         }
 
-        // Find user by email in the MongoDB database
-        const user = await Admin.findOne({ email: email });
+        const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
 
-        // If user not found or password is incorrect, return unauthorized
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ success: false, message: "Invalid Credentials" });
+        if (!foundUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'Unauthorized Admin'
+            })
         }
 
-        // Generate tokens
-        const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-        const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+        const match = await bcrypt.compare(password, foundUser.password)
 
-        // Set cookies in the response
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 2 days
-            secure: true,
-            sameSite: "None"
-        });
-        res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            maxAge: 1 * 60 * 1000, //1 mins
-            secure: true,
-            sameSite: "None"
-        });
+        if (!match) return res.status(400).json({
+            message: false,
+            message: 'Unauthorized Admin'
+        })
 
-        res.status(200).json({
-            success: true,
-            message: "Admin signed in successfully",
-        });
-    } catch (error) {
+        const accessToken = jwt.sign(
+            {
+                "email": foundUser.email,
+                "role": foundUser.role
+            },
+            JWT_ACCESS_SECRET,
+            { expiresIn: '1d' }
+        )
+
+        // const refreshToken = jwt.sign(
+        //     { "email": foundUser.email, "role": foundUser.role },
+        //     REFRESH_TOKEN_SECRET,
+        //     { expiresIn: '1d' }
+        // )
+
+        // Create secure cookie with refresh token 
+        res.cookie('AdminToken', accessToken, {
+            httpOnly: true, //accessible only by web server 
+            secure: true, //https
+            sameSite: 'None', //cross-site cookie 
+            maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+        })
+
+        // Send accessToken containing username and roles 
+        res.status(201).json({
+            message: "Admin Logged In Successfully",
+            accessToken
+        })
+    }
+    catch (error) {
         console.log(error);
         next(error);
     }
@@ -287,18 +399,168 @@ const refreshTokenController = async (req, res, next) => {
 //DESC:LOGOUT A USER ========================
 const handleLogout = async (req, res, next) => {
     try {
-        res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: "None" })
-        res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: "None" })
+        // res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: "None" })
+        // res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: "None" })
 
+        // res.status(200).json({
+        //     success: true,
+        //     message: "User logged out successfully"
+        // })
+
+        //cookie parse na use korle ata kaj korbe na
+        const cookies = req.cookies
+
+        // Ai line ta lagia ami logout error check korbo
+        // if(cookies) { return res.status(401).json({ message:"Unauthorize Admin" }) }
+
+        if (!cookies?.AdminToken) return res.status(404).json({
+            success: false,
+            message: "Unauthorize Admin"
+        }) //No content
+        res.clearCookie('AdminToken', {
+            httpOnly: true,
+            sameSite: 'None', 
+            secure: true 
+        })
         res.status(200).json({
             success: true,
-            message: "User logged out successfully"
+            message: 'Admin Cookie cleared'
         })
     } catch (error) {
         console.log(error);
         next(error);
     }
 }
+
+const AdminLoggedIn = async (req, res,next) => {
+    // const authHeader = req.headers.authorization || req.headers.Authorization
+
+    // if (!authHeader?.startsWith('Bearer ')) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         message: 'Unauthorized Admin'
+    //     })
+    // }
+
+    // const token = authHeader.split(' ')[1]
+
+    // jwt.verify(
+    //     token,
+    //     JWT_ACCESS_SECRET,
+    //     async (err, decoded) => {
+    //         if (err) return res.status(403).json({
+    //             success: false,
+    //             message: 'Forbidden Admin'
+    //         })
+
+    //         const adminEmail = decoded.UserInfo.email
+
+    //         const LoggedinAdmin = await Admin.findOne({ email: adminEmail })
+
+    //         res.status(200).json({
+    //             success: true,
+    //             LoggedinAdmin
+    //         })
+    //     }
+    // )
+try{
+    const admincookie = req.cookies
+
+    console.log(admincookie)
+
+    if(!admincookie?.AdminToken){
+        return res.status(401).json({
+            success:false,
+            message:"UnAuthorized Admin"
+        })
+    }
+
+    jwt.verify(
+        admincookie?.AdminToken,
+        JWT_ACCESS_SECRET,
+        async(err, decoded) => {
+            if (err) return res.status(403).json({ message: 'Forbidden Admin' })
+
+            // console.log(decoded)
+            const adminEmail = decoded.email
+
+            const LoggedinAdmin = await Admin.findOne({ email: adminEmail })
+
+            res.status(201).json({
+                success: true,
+                LoggedinAdmin
+            })
+        }
+    )
+}
+catch (error) {
+    console.log(error);
+    next(error);
+}
+   
+}
+
+const updateAdmin = async (req, res) => {
+    const { email, name, mobileNumber, gender, dateOfBirth } = req.body
+
+    if (!name || !mobileNumber || !gender || !email || !dateOfBirth) {
+        return res.status(400).json({
+            success: true,
+            message: 'All fields are required'
+        })
+    }
+
+    // Check if the provided email and password match any existing admin
+    const foundUser = await Admin.findOne({ email, role: 'Admin' }).exec()
+
+    if (!foundUser) {
+        return res.status(400).json({
+            success: false,
+            message: 'Unauthorized Admin'
+        })
+    }
+
+
+    // Update user information
+    foundUser.name = name
+    foundUser.mobileNumber = mobileNumber
+    foundUser.gender = gender
+    foundUser.dateOfBirth = dateOfBirth
+
+    const updatedAdmin = await foundUser.save()
+
+    const accessToken = jwt.sign(
+        {
+            "email": email,
+            "role": foundUser.role
+        },
+        JWT_ACCESS_SECRET,
+        { expiresIn: '1d' }
+    )
+
+    // const refreshToken = jwt.sign(
+    //     { "email": email, "role": foundUser.role },
+    //     REFRESH_TOKEN_SECRET,
+    //     { expiresIn: '1d' }
+    // )
+
+    // Create secure cookie with refresh token 
+    res.cookie('AdminToken', accessToken, {
+        httpOnly: true, //accessible only by web server 
+        secure: true, //https
+        sameSite: 'None', //cross-site cookie 
+        maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
+
+    // Send accessToken containing username and roles 
+    res.status(201).json({ 
+        success:true,
+        message: 'Admin information updated successfully', 
+        accessToken,
+        updatedAdmin })
+}
+
+
 
 //DESC:FORGOT PASSWORD SENDING EMAIL TO USER ===========
 const handleForgetPassword = async (req, res, next) => {
@@ -1088,7 +1350,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
         const admin = await Admin.findOne({ email: adminEmail })
         if (!admin) {
             res.status(201).json({
-                success:false,
+                success: false,
                 message: 'No admin found.',
             });
         }
@@ -1256,6 +1518,12 @@ const changeEmailVerifiedStatus = async (req, res, next) => {
     }
 }
 
+const demoController = (req, res) => {
+    const email = req.email
+    const role = req.role
+    res.status(200).json({message:"Home Route",email,role})
+}
+
 
 module.exports = {
     deleteSingleAdmin,
@@ -1280,5 +1548,8 @@ module.exports = {
     sendVerificationCodeForAdminEmail,
     changeEmailVerifiedStatus,
     getDefaultSalonByAdmin,
-    handleProtectedRoute
+    handleProtectedRoute,
+    AdminLoggedIn,
+    updateAdmin,
+    demoController
 }

@@ -2,20 +2,21 @@ const express =  require("express");
 const { createAppointment, getAllAppointmentsByBarberId, getEngageBarberTimeSlots, getAllAppointmentsBySalonId, getAllAppointmentsBySalonIdAndDate, getAllAppointmentsByBarberIdAndDate, editAppointment, deleteAppointment, barberServedAppointment } = require("../../controllers/Appointments/appointmentsController");
 const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
+const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 
 const router = express.Router();
 
 router.route("/createAppointment").post(createAppointment);
 
-router.route("/editAppointments").put(handleAdminProtectedRoute, editAppointment)
+router.route("/editAppointments").put(verifyRefreshTokenAdmin, editAppointment)
 
-router.route("/deleteAppointments").delete(handleAdminProtectedRoute, deleteAppointment)
+router.route("/deleteAppointments").delete(verifyRefreshTokenAdmin, deleteAppointment)
 
-router.route("/getEngageBarberTimeSlots").post(handleAdminProtectedRoute ,getEngageBarberTimeSlots)
+router.route("/getEngageBarberTimeSlots").post(verifyRefreshTokenAdmin ,getEngageBarberTimeSlots)
 
-router.route("/getAllAppointmentsBySalonId").post(handleAdminProtectedRoute ,getAllAppointmentsBySalonId)
+router.route("/getAllAppointmentsBySalonId").post(verifyRefreshTokenAdmin ,getAllAppointmentsBySalonId)
 
-router.route("/getAllAppointmentsBySalonIdAndDate").post(handleAdminProtectedRoute ,getAllAppointmentsBySalonIdAndDate)
+router.route("/getAllAppointmentsBySalonIdAndDate").post(verifyRefreshTokenAdmin ,getAllAppointmentsBySalonIdAndDate)
 
 
 

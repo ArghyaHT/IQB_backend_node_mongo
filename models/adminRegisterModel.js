@@ -33,6 +33,9 @@ const adminSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    role:{
+        type:String
+    },
     AuthType: {
         type: String,
         default: "local"
