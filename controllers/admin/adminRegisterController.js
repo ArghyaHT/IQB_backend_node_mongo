@@ -780,7 +780,8 @@ const updateAdmin = async (req, res) => {
             const accessToken = jwt.sign(
                 {
                     "email": email,
-                    "role": foundUser.role
+                    "role": foundUser.role,
+                    "AuthType":"google"
                 },
                 JWT_ACCESS_SECRET,
                 { expiresIn: '1d' }
