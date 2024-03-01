@@ -69,7 +69,7 @@ const deleteAdmin = async (email) => {
 
 //Update Admin Account Details
 const updateAdmin = async (adminData) => {
-  const { name, gender, email, mobileNumber, dateOfBirth, password } = adminData;
+  const { name, gender, email, mobileNumber, dateOfBirth, password, AuthType } = adminData;
 
   try {
     let updateFields = {
@@ -84,7 +84,7 @@ const updateAdmin = async (adminData) => {
       updateFields.password = hashedPassword;
     }
 
-    const admin = await Admin.findOneAndUpdate({ email }, updateFields, { new: true }).select("-password");
+    const admin = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, updateFields, { new: true }).select("-password");
 
     if (!admin) {
       console.log("Admin not found or no changes made.");
