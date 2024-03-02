@@ -245,7 +245,7 @@ const googleBarberSignup = async (req, res, next) => {
     const barberCode = firstTwoLetters + barberId;
 
       // Create a new user
-      const newUser = new Admin({
+      const newUser = new Barber({
           email: payload.email,
           role: "Barber",
           AuthType: "google",
@@ -325,7 +325,25 @@ const googleBarberLogin = async (req, res, next) => {
           JWT_ACCESS_SECRET_BARBER,
           { expiresIn: '1d' }
       )
+      let tokenType, tokenValue;
+      if (webFcmToken) {
+        tokenType = 'webFcmToken';
+        tokenValue = webFcmToken;
+      } else if (androidFcmToken) {
+        tokenType = 'androidFcmToken';
+        tokenValue = androidFcmToken;
+      } else if (iosFcmToken) {
+        tokenType = 'iosFcmToken';
+        tokenValue = iosFcmToken;
+      }
 
+      if (tokenType && tokenValue) {
+        await UserTokenTable.findOneAndUpdate(
+          { email: payload.email },
+          { [tokenType]: tokenValue, type: "barber" },
+          { upsert: true, new: true }
+        );
+      }
 
       // Create secure cookie with refresh token 
       res.cookie('BarberToken', accessToken, {
