@@ -37,11 +37,9 @@ const createSalonByAdmin = async (req, res, next) => {
       tiktokLink,
       services,
       appointmentSettings,
-      adminEmail, AuthType 
+      adminEmail 
     } = req.body;
-   
-    // console.log(AuthType)
-  
+     
     // Check if required fields are missing
     if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
@@ -85,7 +83,6 @@ const createSalonByAdmin = async (req, res, next) => {
     }
     const salonData = {
       adminEmail, 
-      AuthType,
       salonName,
       adminEmail,
       salonLogo,
@@ -920,7 +917,7 @@ const deleteServiceByServiceIdSalonId = async (req, res, next) => {
 const getAllSalonsByAdmin = async (req, res, next) => {
 
   try {
-    const { adminEmail, AuthType } = req.query;
+    const { adminEmail } = req.query;
     const email = adminEmail;
 
     // Validate email format
@@ -930,7 +927,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
         message: "Invalid email format"
       });
     }
-    const result = await salonService.getSalonsByAdminEmail(adminEmail, AuthType)
+    const result = await salonService.getSalonsByAdminEmail(adminEmail)
 
     res.status(result.status).json({
       success: true,
