@@ -11,7 +11,6 @@ const createSalon = async (salonData) => {
   const {
     salonName,
     adminEmail,
-    AuthType,
     salonIcon,
     salonLogo,
     salonType,
@@ -33,7 +32,6 @@ const createSalon = async (salonData) => {
   } = salonData
 
   // console.log(adminEmail)
-  // console.log(AuthType)
 
   try {
 
@@ -107,7 +105,7 @@ const createSalon = async (salonData) => {
 
     const savedSalon = await salon.save();
 
-    const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
+    const admin = await Admin.findOne({ email: adminEmail});
 
     console.log(admin)
 
@@ -378,10 +376,10 @@ const deleteSalonService = async (salonId, serviceId) => {
 }
 
 //Get Salons By Admin Email
-const getSalonsByAdminEmail = async (adminEmail, AuthType) => {
+const getSalonsByAdminEmail = async (adminEmail ) => {
 
   try {
-    // const email = await Admin.findOne({email: adminEmail, AuthType:AuthType});
+    // const email = await Admin.findOne({email: adminEmail});
 
     const salonListByAdminEmail = await Salon.find({ adminEmail, isDeleted: false });
 
