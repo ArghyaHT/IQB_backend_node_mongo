@@ -124,7 +124,7 @@ const registerController = async (req, res, next) => {
   //   })
   // } 
   try {
-    const { email, password } = req.body
+    const { email, password, webFcmToken, androidFcmToken, iosFcmToken  } = req.body
 
     // Validate email format
     if (!email || !validateEmail(email)) {
@@ -144,73 +144,29 @@ const registerController = async (req, res, next) => {
     
 
     // Check if the email is already registered
-    const existingUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local" }).exec()
+    const existingUser = await Barber.findOne({ email, role: 'Barber', AuthType: "local" }).exec()
 
     if (existingUser) {
         return res.status(400).json({
             success: false,
-            message: "Admin already exists"
+            message: "Barber already exists"
         });
     }
-
+  const barberId = await Barber.countDocuments() + 1;
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create a new user
-    const newUser = new Admin({
+    const newUser = new Barber({
         email,
         password: hashedPassword,
-        role: "Admin"
+        barberId: barberId,
+        role: "Barber"
     })
 
     await newUser.save()
 
-    res.status(200).json({
-        success: true,
-        message: 'Admin registered successfully',
-        newUser
-    })
-}
-
-  catch (error) {
-    console.log(error);
-    next(error);
-  }
-}
-
-//DESC:LOGIN A USER =========================
-const loginController = async (req, res, next) => {
-  try {
-    const email = req.body.email;
-    const password = req.body.password;
-    const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
-
-    // Validate email format
-    if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email format"
-      });
-    }
-
-    // Validate password length
-    if (!password || password.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 8 characters long"
-      });
-    }
-
-
-    // Find user by email in the MongoDB database
-    const user = await Barber.findOne({ email: email });
-
-    // If user not found or password is incorrect, return unauthorized
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ success: false, message: "Invalid Credentials" });
-    }
-
-    // // Save FCM Tokens based on the switch-case logic
+    // Save FCM Tokens based on the switch-case logic
     let tokenType, tokenValue;
     if (webFcmToken) {
       tokenType = 'webFcmToken';
@@ -231,29 +187,161 @@ const loginController = async (req, res, next) => {
       );
     }
 
-    // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-    // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 2 days
-      secure: true,
-      sameSite: "None"
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 1 * 60 * 1000, //1 mins
-      secure: true,
-      sameSite: "None"
-    });
 
     res.status(200).json({
-      success: true,
-      message: "Barber signed in successfully"
-    });
-  } catch (error) {
+        success: true,
+        message: 'Barber registered successfully',
+        newUser
+    })
+}
+  catch (error) {
+    console.log(error);
+    next(error);
+  }
+}
+
+//DESC:LOGIN A USER =========================
+const loginController = async (req, res, next) => {
+  // try {
+  //   const email = req.body.email;
+  //   const password = req.body.password;
+  //   const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
+  //   // Validate email format
+  //   if (!email || !validateEmail(email)) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Invalid email format"
+  //     });
+  //   }
+
+  //   // Validate password length
+  //   if (!password || password.length < 8) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Password must be at least 8 characters long"
+  //     });
+  //   }
+
+
+  //   // Find user by email in the MongoDB database
+  //   const user = await Barber.findOne({ email: email });
+
+  //   // If user not found or password is incorrect, return unauthorized
+  //   if (!user || !(await bcrypt.compare(password, user.password))) {
+  //     return res.status(401).json({ success: false, message: "Invalid Credentials" });
+  //   }
+
+  //   // // Save FCM Tokens based on the switch-case logic
+  //   let tokenType, tokenValue;
+  //   if (webFcmToken) {
+  //     tokenType = 'webFcmToken';
+  //     tokenValue = webFcmToken;
+  //   } else if (androidFcmToken) {
+  //     tokenType = 'androidFcmToken';
+  //     tokenValue = androidFcmToken;
+  //   } else if (iosFcmToken) {
+  //     tokenType = 'iosFcmToken';
+  //     tokenValue = iosFcmToken;
+  //   }
+
+  //   if (tokenType && tokenValue) {
+  //     await UserTokenTable.findOneAndUpdate(
+  //       { email: email },
+  //       { [tokenType]: tokenValue, type: "barber" },
+  //       { upsert: true, new: true }
+  //     );
+  //   }
+
+  //   // Generate tokens
+  //   const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+  //   const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+  //   // Set cookies in the response
+  //   res.cookie('refreshToken', refreshToken, {
+  //     httpOnly: true,
+  //     maxAge: 24 * 60 * 60 * 1000, // 2 days
+  //     secure: true,
+  //     sameSite: "None"
+  //   });
+  //   res.cookie('accessToken', accessToken, {
+  //     httpOnly: true,
+  //     maxAge: 1 * 60 * 1000, //1 mins
+  //     secure: true,
+  //     sameSite: "None"
+  //   });
+
+  //   res.status(200).json({
+  //     success: true,
+  //     message: "Barber signed in successfully"
+  //   });
+  // }
+  try {
+    const { email, password, webFcmToken, androidFcmToken, iosFcmToken } = req.body
+
+    if (!email || !validateEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
+    }
+
+    // Validate password length
+    if (!password || password.length < 8) {
+        return res.status(400).json({
+            success: false,
+            message: "Password must be at least 8 characters long"
+        });
+    }
+
+    const foundUser = await Barber.findOne({ email, role: 'Barber', AuthType: "local"  }).exec()
+
+    if (!foundUser) {
+        return res.status(400).json({
+            success: false,
+            message: 'Unauthorized Barber'
+        })
+    }
+
+    const match = await bcrypt.compare(password, foundUser.password)
+
+    if (!match) return res.status(400).json({
+        message: false,
+        message: 'Unauthorized Barber'
+    })
+
+    const accessToken = jwt.sign(
+        {
+            "email": foundUser.email,
+            "role": foundUser.role
+        },
+       JWT_ACCESS_SECRET_BARBER,
+        { expiresIn: '1d' }
+    )
+
+    // const refreshToken = jwt.sign(
+    //     { "email": foundUser.email, "role": foundUser.role },
+    //     REFRESH_TOKEN_SECRET,
+    //     { expiresIn: '1d' }
+    // )
+
+    // Create secure cookie with refresh token 
+    res.cookie('BarberToken', accessToken, {
+        httpOnly: true, //accessible only by web server 
+        secure: true, //https
+        sameSite: 'None', //cross-site cookie 
+        maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
+
+    // Send accessToken containing username and roles 
+    res.status(201).json({
+        success: true,
+        message: "Barber Logged In Successfully",
+        accessToken,
+        foundUser
+    })
+}
+   catch (error) {
     console.log(error);
     next(error);
   }

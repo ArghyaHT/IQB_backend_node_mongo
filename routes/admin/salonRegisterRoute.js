@@ -40,7 +40,7 @@ router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
 
 //GET ALL SALON SERVICES
-router.route("/allSalonServices").get(handleProtectedRoute, allSalonServices) //api working
+router.route("/allSalonServices").get(verifyRefreshTokenAdmin, allSalonServices) //need to do for barberAlso
 
 
 
