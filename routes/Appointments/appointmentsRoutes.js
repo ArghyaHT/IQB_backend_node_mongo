@@ -3,6 +3,7 @@ const { createAppointment, getAllAppointmentsByBarberId, getEngageBarberTimeSlot
 const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
+const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js");
 
 const router = express.Router();
 
@@ -21,9 +22,9 @@ router.route("/getAllAppointmentsBySalonIdAndDate").post(verifyRefreshTokenAdmin
 
 
 
-router.route("/getAllAppointmentsByBarberId").post(handleBarberProtectedRoute ,getAllAppointmentsByBarberId)
+router.route("/getAllAppointmentsByBarberId").post(verifyRefreshTokenBarber ,getAllAppointmentsByBarberId)
 
-router.route("/getAllAppointmentsByBarberIdAndDate").post(handleBarberProtectedRoute ,getAllAppointmentsByBarberIdAndDate)
+router.route("/getAllAppointmentsByBarberIdAndDate").post(verifyRefreshTokenBarber ,getAllAppointmentsByBarberIdAndDate)
 
 router.route("/barberServedAppointment").post(barberServedAppointment)
 

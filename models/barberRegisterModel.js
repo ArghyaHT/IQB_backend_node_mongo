@@ -10,20 +10,19 @@ const barberSchema = new mongoose.Schema({
     email: {
         type: String,
     },
-    emailVerified:{
+    emailVerified: {
         type: Boolean,
         default: false
     },
-    verificationCode:{
+    verificationCode: {
         type: String,
         // required:true
     },
     password: {
         type: String
     },
-    barber: {
-        type: Boolean,
-        default: false
+    role: {
+        type: String
     },
     AuthType: {
         type: String,
@@ -41,7 +40,7 @@ const barberSchema = new mongoose.Schema({
         type: Number,
         // required: true,
     },
-    mobileVerified:{
+    mobileVerified: {
         type: Boolean,
         default: false
     },
@@ -66,7 +65,7 @@ const barberSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    barberRatings:  [{
+    barberRatings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'BarberRating'
     }],
@@ -101,8 +100,8 @@ const barberSchema = new mongoose.Schema({
             url: {
                 type: String,
             }
-        }, 
-        servicePrice:{
+        },
+        servicePrice: {
             type: Number
         },
         barberServiceEWT: {

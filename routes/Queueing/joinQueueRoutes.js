@@ -3,6 +3,7 @@ const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barber
 const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController")
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js")
+const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js")
 
 const router = express.Router()
 
@@ -30,7 +31,7 @@ router.route("/getAvailableBarbersForQ").post(handleAdminProtectedRoute, getAvai
 router.route("/getBarberByMultipleServiceId").post(handleAdminProtectedRoute, getBarberByMultipleServiceId)
 
 //Get Q list by BarberId
-router.route("/getQlistByBarberId").post(handleBarberProtectedRoute, getQlistbyBarberId)
+router.route("/getQlistByBarberId").post(verifyRefreshTokenBarber, getQlistbyBarberId)
 
 //Cancel Q List
 router.route("/cancelQ").post(cancelQueue)

@@ -32,72 +32,6 @@ cloudinary.config({
 //DESC:REGISTER A ADMIN 
 //====================
 const registerController = async (req, res, next) => {
-    // try {
-    //     const email = req.body.email;
-    //     const password = req.body.password;
-
-    //     // Validate email format
-    //     if (!email || !validateEmail(email)) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Invalid email format"
-    //         });
-    //     }
-
-    //     // Validate password length
-    //     if (!password || password.length < 8) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Password must be at least 8 characters long"
-    //         });
-    //     }
-
-    //     let user = await Admin.findOne({ email: email });
-
-    //     if (user) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Admin already exists"
-    //         });
-    //     }
-
-    //     // If the user doesn't exist, create a new user
-    //     if (!user) {
-    //         // Hash the password before saving it
-    //         const hashedPassword = await bcrypt.hash(password, 10);
-
-    //         user = new Admin({
-    //             email: email,
-    //             password: hashedPassword,
-    //             admin: true
-    //         });
-    //         await user.save();
-
-    //         // Generate tokens
-    //         const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    //         const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-    //         // Set cookies in the response
-    //         res.cookie('refreshToken', refreshToken, {
-    //             httpOnly: true,
-    //             maxAge: 24 * 60 * 60 * 1000, // 2 days
-    //             secure: true,
-    //             sameSite: "None"
-    //         });
-    //         res.cookie('accessToken', accessToken, {
-    //             httpOnly: true,
-    //             maxAge: 1 * 60 * 1000, //1 mins
-    //             secure: true,
-    //             sameSite: "None"
-    //         });
-
-    //         res.status(200).json({
-    //             success: true,
-    //             message: "Admin registered successfully",
-    //             user
-    //         });
-    //     }
-    // } 
     try {
         const { email, password } = req.body
 
@@ -116,10 +50,10 @@ const registerController = async (req, res, next) => {
                 message: "Password must be at least 8 characters long"
             });
         }
-        
+
 
         // Check if the email is already registered
-        const existingUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local" }).exec()
+        const existingUser = await Admin.findOne({ email, role: 'Admin' }).exec()
 
         if (existingUser) {
             return res.status(400).json({
@@ -135,7 +69,7 @@ const registerController = async (req, res, next) => {
         const newUser = new Admin({
             email,
             password: hashedPassword,
-            role: "Admin"
+            role: "Admin",
         })
 
         await newUser.save()
@@ -154,56 +88,6 @@ const registerController = async (req, res, next) => {
 
 //DESC:LOGIN A USER =========================
 const loginController = async (req, res, next) => {
-    // try {
-    //     const email = req.body.email;
-    //     const password = req.body.password;
-
-    //     if (!email || !validateEmail(email)) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Invalid email format"
-    //         });
-    //     }
-
-    //     // Validate password length
-    //     if (!password || password.length < 8) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Password must be at least 8 characters long"
-    //         });
-    //     }
-
-    //     // Find user by email in the MongoDB database
-    //     const user = await Admin.findOne({ email: email });
-
-    //     // If user not found or password is incorrect, return unauthorized
-    //     if (!user || !(await bcrypt.compare(password, user.password))) {
-    //         return res.status(401).json({ success: false, message: "Invalid Credentials" });
-    //     }
-
-    //     // Generate tokens
-    //     const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    //     const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-    //     // Set cookies in the response
-    //     res.cookie('refreshToken', refreshToken, {
-    //         httpOnly: true,
-    //         maxAge: 24 * 60 * 60 * 1000, // 2 days
-    //         secure: true,
-    //         sameSite: "None"
-    //     });
-    //     res.cookie('accessToken', accessToken, {
-    //         httpOnly: true,
-    //         maxAge: 1 * 60 * 1000, //1 mins
-    //         secure: true,
-    //         sameSite: "None"
-    //     });
-
-    //     res.status(200).json({
-    //         success: true,
-    //         message: "Admin signed in successfully",
-    //     });
-    // }
     try {
         const { email, password } = req.body
 
@@ -222,7 +106,7 @@ const loginController = async (req, res, next) => {
             });
         }
 
-        const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local"  }).exec()
+        const foundUser = await Admin.findOne({ email, role: 'Admin'  }).exec()
 
         if (!foundUser) {
             return res.status(400).json({
@@ -277,61 +161,7 @@ const loginController = async (req, res, next) => {
 
 
 //GOOGLE SIGNIN ===================================
-
 const googleAdminSignup = async (req, res, next) => {
-    // try {
-    //     const { email, password } = req.body
-
-    //     // Validate email format
-    //     if (!email || !validateEmail(email)) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Invalid email format"
-    //         });
-    //     }
-
-    //     // Validate password length
-    //     if (!password || password.length < 8) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Password must be at least 8 characters long"
-    //         });
-    //     }
-
-    //     // Check if the email is already registered
-    //     const existingUser = await Admin.findOne({ email, role: 'Admin',AuthType:'google' }).exec()
-
-    //     if (existingUser) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Admin already exists"
-    //         });
-    //     }
-
-    //     // Hash the password
-    //     const hashedPassword = await bcrypt.hash(password, 10)
-
-    //     // Create a new user
-    //     const newUser = new Admin({
-    //         email,
-    //         password: hashedPassword,
-    //         role: "Admin",
-    //         AuthType:"google"
-    //     })
-
-    //     await newUser.save()
-
-    //     res.status(200).json({
-    //         success: true,
-    //         message: 'Admin registered successfully',
-    //         newUser
-    //     })
-    // } 
-    // catch (error) {
-    //     console.log(error);
-    //     next(error);
-    // }
-
     try {
         const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
 
@@ -361,7 +191,7 @@ const googleAdminSignup = async (req, res, next) => {
         console.log("Google payload ", payload)
 
         // Check if the email is already registered
-        const existingUser = await Admin.findOne({ email: payload.email, role: 'Admin', AuthType: 'google' }).exec()
+        const existingUser = await Admin.findOne({ email: payload.email, role: 'Admin' }).exec()
 
         if (existingUser) {
             return res.status(404).json({ success: false, message: 'Admin Email already exists' })
@@ -386,78 +216,7 @@ const googleAdminSignup = async (req, res, next) => {
 }
 
 
-
 const googleAdminLogin = async (req, res, next) => {
-    // try {
-    //     const { email, password } = req.body
-
-    //     if (!email || !validateEmail(email)) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Invalid email format"
-    //         });
-    //     }
-
-    //     // Validate password length
-    //     if (!password || password.length < 8) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Password must be at least 8 characters long"
-    //         });
-    //     }
-
-    //     const foundUser = await Admin.findOne({ email, role: 'Admin',AuthType:'google' }).exec()
-
-    //     if (!foundUser) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: 'Unauthorized Admin'
-    //         })
-    //     }
-
-    //     const match = await bcrypt.compare(password, foundUser.password)
-
-    //     if (!match) return res.status(400).json({
-    //         message: false,
-    //         message: 'Unauthorized Admin'
-    //     })
-
-    //     const accessToken = jwt.sign(
-    //         {
-    //             "email": foundUser.email,
-    //             "role": foundUser.role,
-    //             "AuthType":"google"
-    //         },
-    //         JWT_ACCESS_SECRET,
-    //         { expiresIn: '1d' }
-    //     )
-
-    //     // const refreshToken = jwt.sign(
-    //     //     { "email": foundUser.email, "role": foundUser.role },
-    //     //     REFRESH_TOKEN_SECRET,
-    //     //     { expiresIn: '1d' }
-    //     // )
-
-    //     // Create secure cookie with refresh token 
-    //     res.cookie('AdminToken', accessToken, {
-    //         httpOnly: true, //accessible only by web server 
-    //         secure: true, //https
-    //         sameSite: 'None', //cross-site cookie 
-    //         maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-    //     })
-
-    //     // Send accessToken containing username and roles 
-    //     res.status(201).json({
-    //         message: "Admin Logged In Successfully",
-    //         accessToken,
-    //         foundUser
-    //     })
-    // } 
-    // catch (error) {
-    //     console.log(error);
-    //     next(error);
-    // }
-
     try {
         const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
 
@@ -481,7 +240,7 @@ const googleAdminLogin = async (req, res, next) => {
 
         console.log("Google Login payload ", payload)
 
-        const foundUser = await Admin.findOne({ email: payload.email, role: 'Admin', AuthType: 'google' }).exec()
+        const foundUser = await Admin.findOne({ email: payload.email, role: 'Admin' }).exec()
 
         if (!foundUser) {
             return res.status(401).json({ success: false, message: 'Unauthorized Admin' })
@@ -492,7 +251,6 @@ const googleAdminLogin = async (req, res, next) => {
 
                 "email": foundUser.email,
                 "role": foundUser.role,
-                "AuthType": "google"
             },
             JWT_ACCESS_SECRET,
             { expiresIn: '1d' }
@@ -517,140 +275,37 @@ const googleAdminLogin = async (req, res, next) => {
     }
 }
 
+//DESC:REFRESH TOKEN ==============================
+// const refreshTokenController = async (req, res, next) => {
+//     const refreshToken = req.cookies.refreshToken;
 
-// const googleLoginController = async (req, res, next) => {
+//     if (!refreshToken) {
+//         return res.status(401).json({ success: false, message: "Refresh token not provided." });
+//     }
+
 //     try {
-//         const CLIENT_ID = process.env.CLIENT_ID;
-//         const token = req.body.token;
+//         const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
 
-//         if (!token) {
-//             res.json({ success: false, message: "UnAuthorized User or Invalid User" })
-//         }
+//         const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
 
-//         const client = new OAuth2Client(CLIENT_ID);
-
-//         // Call the verifyIdToken to
-//         // varify and decode it
-//         const ticket = await client.verifyIdToken({
-//             idToken: token,
-//             audience: CLIENT_ID,
+//         // Set the new access token as an HTTP-only cookie
+//         res.cookie('accessToken', newAccessToken, {
+//             httpOnly: true,
+//             expires: new Date(Date.now() + 20 * 1000),
+//             secure: true,
+//             sameSite: "None"
 //         });
 
-//         // Get the JSON with all the user info
-//         const payload = ticket.getPayload();
-
-//         let user = await Admin.findOne({ email: payload.email, AuthType: "google" });
-
-//         // If the user doesn't exist, create a new user
-//         // add barber id by count docuents and isApproved as false 
-//         if (!user) {
-//             user = new Admin({
-//                 name: payload.name,
-//                 email: payload.email,
-//                 admin: true,
-//                 AuthType: "google"
-//             });
-//             await user.save()
-
-//             // Generate tokens
-//             const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-//             const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-//             // Set cookies in the response
-//             res.cookie('refreshToken', refreshToken, {
-//                 httpOnly: true,
-//                 maxAge: 24 * 60 * 60 * 1000,  // 2 days
-//                 secure: true,
-//                 sameSite: "None"
-//             });
-//             res.cookie('accessToken', accessToken, {
-//                 httpOnly: true,
-//                 maxAge: 1 * 60 * 1000, //1 mins
-//                 secure: true,
-//                 sameSite: "None"
-//             });
-
-//             res.status(200).json({
-//                 success: true,
-//                 message: "Admin registered successfully"
-//             })
-//         }
-
-//         else if (user) {
-//             const accessToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-//             const refreshToken = jwt.sign({ user: { name: user.name, email: user.email, admin: user.admin } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-
-//             // Set cookies in the response
-//             res.cookie('refreshToken',
-//                 refreshToken, {
-//                 httpOnly: true,
-//                 maxAge: 24 * 60 * 60 * 1000, // 2 days
-//                 secure: true,
-//                 sameSite: "None"
-//             });
-//             res.cookie('accessToken', accessToken, {
-//                 httpOnly: true,
-//                 maxAge: 1 * 60 * 1000, //1 mins
-//                 secure: true,
-//                 sameSite: "None"
-//             });
-
-
-//             res.status(200).json({
-//                 success: true,
-//                 message: "Admin signed in successfully"
-//             })
-//         } else {
-//             res.status(401).json({ success: false, message: "Invalid Credentials" })
-//         }
-
+//         res.status(200).json({ success: true, message: "New accessToken generated" });
 //     } catch (error) {
 //         console.log(error);
 //         next(error);
 //     }
-
 // }
-
-//DESC:REFRESH TOKEN ==============================
-const refreshTokenController = async (req, res, next) => {
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) {
-        return res.status(401).json({ success: false, message: "Refresh token not provided." });
-    }
-
-    try {
-        const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-
-        const newAccessToken = jwt.sign({ user: decoded.user }, JWT_ACCESS_SECRET, { expiresIn: "20s" });
-
-        // Set the new access token as an HTTP-only cookie
-        res.cookie('accessToken', newAccessToken, {
-            httpOnly: true,
-            expires: new Date(Date.now() + 20 * 1000),
-            secure: true,
-            sameSite: "None"
-        });
-
-        res.status(200).json({ success: true, message: "New accessToken generated" });
-    } catch (error) {
-        console.log(error);
-        next(error);
-    }
-}
 
 //DESC:LOGOUT A USER ========================
 const handleLogout = async (req, res, next) => {
     try {
-        // res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: "None" })
-        // res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: "None" })
-
-        // res.status(200).json({
-        //     success: true,
-        //     message: "User logged out successfully"
-        // })
-
         //cookie parse na use korle ata kaj korbe na
         const cookies = req.cookies
 
@@ -677,36 +332,6 @@ const handleLogout = async (req, res, next) => {
 }
 
 const AdminLoggedIn = async (req, res, next) => {
-    // const authHeader = req.headers.authorization || req.headers.Authorization
-
-    // if (!authHeader?.startsWith('Bearer ')) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Unauthorized Admin'
-    //     })
-    // }
-
-    // const token = authHeader.split(' ')[1]
-
-    // jwt.verify(
-    //     token,
-    //     JWT_ACCESS_SECRET,
-    //     async (err, decoded) => {
-    //         if (err) return res.status(403).json({
-    //             success: false,
-    //             message: 'Forbidden Admin'
-    //         })
-
-    //         const adminEmail = decoded.UserInfo.email
-
-    //         const LoggedinAdmin = await Admin.findOne({ email: adminEmail })
-
-    //         res.status(200).json({
-    //             success: true,
-    //             LoggedinAdmin
-    //         })
-    //     }
-    // )
     try {
         const admincookie = req.cookies
 
@@ -728,21 +353,11 @@ const AdminLoggedIn = async (req, res, next) => {
                 console.log(decoded)
                 const adminEmail = decoded.email
 
-                if (decoded?.AuthType === "google") {
-                    const loggedinUser = await Admin.findOne({ email: adminEmail, AuthType: 'google' })
-
-                    res.status(201).json({
-                        success: true,
-                        user: [loggedinUser]
-                    })
-                } else {
-                    const loggedinUser = await Admin.findOne({ email: adminEmail, AuthType: "local"  })
-
-                    res.status(201).json({
-                        success: true,
-                        user: [loggedinUser]
-                    })
-                }
+                const loggedinUser = await Admin.findOne({email:adminEmail})
+                res.status(201).json({
+                    success: true,
+                    user: [loggedinUser]
+                })
 
             }
         )
@@ -756,110 +371,57 @@ const AdminLoggedIn = async (req, res, next) => {
 
 const updateAdmin = async (req, res) => {
     try{
-        const { email, name, mobileNumber, gender, dateOfBirth, AuthType } = req.body
+        const { email, name, mobileNumber, gender, dateOfBirth } = req.body
 
-        if (AuthType === 'google') {
-            // Check if the provided email and password match any existing admin
-            const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "google" }).exec()
+          // Check if the provided email and password match any existing admin
+          const foundUser = await Admin.findOne({ email, role: 'Admin'}).exec()
     
-            if (!foundUser) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Unauthorized Admin'
-                })
-            }
-    
-    
-            // Update user information
-            foundUser.name = name
-            foundUser.mobileNumber = mobileNumber
-            foundUser.gender = gender
-            foundUser.dateOfBirth = dateOfBirth
-    
-            const updatedAdmin = await foundUser.save()
-    
-            const accessToken = jwt.sign(
-                {
-                    "email": email,
-                    "role": foundUser.role,
-                    "AuthType":"google"
-                },
-                JWT_ACCESS_SECRET,
-                { expiresIn: '1d' }
-            )
-    
-            // const refreshToken = jwt.sign(
-            //     { "email": email, "role": foundUser.role },
-            //     REFRESH_TOKEN_SECRET,
-            //     { expiresIn: '1d' }
-            // )
-    
-            // Create secure cookie with refresh token 
-            res.cookie('AdminToken', accessToken, {
-                httpOnly: true, //accessible only by web server 
-                secure: true, //https
-                sameSite: 'None', //cross-site cookie 
-                maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-            })
-    
-            // Send accessToken containing username and roles 
-            res.status(201).json({
-                success: true,
-                message: 'Admin information updated successfully',
-                accessToken,
-                updatedAdmin
-            })
-        } else {
-            // Check if the provided email and password match any existing admin
-            const foundUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local"  }).exec()
-    
-            if (!foundUser) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Unauthorized Admin'
-                })
-            }
-    
-    
-            // Update user information
-            foundUser.name = name
-            foundUser.mobileNumber = mobileNumber
-            foundUser.gender = gender
-            foundUser.dateOfBirth = dateOfBirth
-    
-            const updatedAdmin = await foundUser.save()
-    
-            const accessToken = jwt.sign(
-                {
-                    "email": email,
-                    "role": foundUser.role
-                },
-                JWT_ACCESS_SECRET,
-                { expiresIn: '1d' }
-            )
-    
-            // const refreshToken = jwt.sign(
-            //     { "email": email, "role": foundUser.role },
-            //     REFRESH_TOKEN_SECRET,
-            //     { expiresIn: '1d' }
-            // )
-    
-            // Create secure cookie with refresh token 
-            res.cookie('AdminToken', accessToken, {
-                httpOnly: true, //accessible only by web server 
-                secure: true, //https
-                sameSite: 'None', //cross-site cookie 
-                maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-            })
-    
-            // Send accessToken containing username and roles 
-            res.status(201).json({
-                success: true,
-                message: 'Admin information updated successfully',
-                accessToken,
-                updatedAdmin
-            })
-        }
+          if (!foundUser) {
+              return res.status(400).json({
+                  success: false,
+                  message: 'Unauthorized Admin'
+              })
+          }
+  
+  
+          // Update user information
+          foundUser.name = name
+          foundUser.mobileNumber = mobileNumber
+          foundUser.gender = gender
+          foundUser.dateOfBirth = dateOfBirth
+  
+          const updatedAdmin = await foundUser.save()
+  
+          const accessToken = jwt.sign(
+              {
+                  "email": email,
+                  "role": foundUser.role,
+              },
+              JWT_ACCESS_SECRET,
+              { expiresIn: '1d' }
+          )
+  
+          // const refreshToken = jwt.sign(
+          //     { "email": email, "role": foundUser.role },
+          //     REFRESH_TOKEN_SECRET,
+          //     { expiresIn: '1d' }
+          // )
+  
+          // Create secure cookie with refresh token 
+          res.cookie('AdminToken', accessToken, {
+              httpOnly: true, //accessible only by web server 
+              secure: true, //https
+              sameSite: 'None', //cross-site cookie 
+              maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+          })
+  
+          // Send accessToken containing username and roles 
+          res.status(201).json({
+              success: true,
+              message: 'Admin information updated successfully',
+              accessToken,
+              updatedAdmin
+          })
     }   catch (error) {
         console.log(error);
         next(error);
@@ -1310,7 +872,7 @@ const handleProtectedRoute = async (req, res, next) => {
 // };
 
 const deleteSingleAdmin = async (req, res, next) => {
-    const { email, AuthType } = req.body;
+    const { email} = req.body;
     try {
 
         // Validate email format
@@ -1320,7 +882,7 @@ const deleteSingleAdmin = async (req, res, next) => {
                 message: "Invalid email format"
             });
         }
-        const result = await adminService.deleteAdmin(email, AuthType)
+        const result = await adminService.deleteAdmin(email)
         res.status(result.status).json({
             response: result.response,
         });
@@ -1334,7 +896,7 @@ const deleteSingleAdmin = async (req, res, next) => {
 
 //TO UPDATE ADMIN ACCOUNT DETAILS
 const updateAdminAccountDetails = async (req, res, next) => {
-    const { name, gender, email, mobileNumber, dateOfBirth, password, AuthType } = req.body;
+    const { name, gender, email, mobileNumber, dateOfBirth, password } = req.body;
 
     try {
 
@@ -1357,7 +919,7 @@ const updateAdminAccountDetails = async (req, res, next) => {
         }
 
 
-        const adminData = { name, gender, email, mobileNumber, dateOfBirth, password, AuthType };
+        const adminData = { name, gender, email, mobileNumber, dateOfBirth, password };
         const result = await adminService.updateAdmin(adminData);
         res.status(result.status).json({
             success: true,
@@ -1409,7 +971,6 @@ const uploadAdminprofilePic = async (req, res, next) => {
     try {
         let profiles = req.files.profile;
         const email = req.body.email;
-        const AuthType = req.body.AuthType;
 
         // Validate email format
         if (!email || !validateEmail(email)) {
@@ -1467,7 +1028,7 @@ const uploadAdminprofilePic = async (req, res, next) => {
             .then(async (profileimg) => {
                 console.log(profileimg);
 
-                const adminImage = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, { profile: profileimg }, { new: true });
+                const adminImage = await Admin.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
 
                 res.status(200).json({
                     success: true,
@@ -1604,7 +1165,7 @@ const deleteAdminProfilePicture = async (req, res, next) => {
 //Get Salons by Admin
 const getAllSalonsByAdmin = async (req, res, next) => {
     try {
-        const { adminEmail, AuthType } = req.body; // Assuming admin's email is provided in the request body
+        const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
 
         const email = adminEmail;
         // Validate email format
@@ -1615,7 +1176,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
             });
         }
         // Find the admin based on the email
-        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
+        const admin = await Admin.findOne({ email: adminEmail });
 
         if (!admin) {
             return res.status(201).json({
@@ -1643,7 +1204,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
 //Get Default Salon Details Of Admin
 const getDefaultSalonByAdmin = async (req, res, next) => {
     try {
-        const { adminEmail, AuthType } = req.body;
+        const { adminEmail } = req.body;
 
         const email = adminEmail;
         // Validate email format
@@ -1654,7 +1215,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
             });
         }
 
-        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType })
+        const admin = await Admin.findOne({ email: adminEmail })
         if (!admin) {
             res.status(201).json({
                 success: false,
@@ -1681,7 +1242,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
 //Change Salon Id of Admin
 const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
     try {
-        const { adminEmail, AuthType, salonId } = req.body;
+        const { adminEmail, salonId } = req.body;
         if (!salonId) {
             return res.status(400).json({ success: false, message: "Please provide salonId" });
         }
@@ -1696,7 +1257,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
             });
         }
         // Find the admin based on the provided email
-        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
+        const admin = await Admin.findOne({ email: adminEmail});
 
         if (!admin) {
             return res.status(201).json({
@@ -1736,7 +1297,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
 //Send Email Verification code
 const sendVerificationCodeForAdminEmail = async (req, res, next) => {
     try {
-        const { email, AuthType } = req.body;
+        const { email } = req.body;
 
         // Validate email format
         if (!email || !validateEmail(email)) {
@@ -1746,7 +1307,7 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
             });
         }
 
-        const user = await Admin.findOne({ email, AuthType: AuthType });
+        const user = await Admin.findOne({ email });
         if (!user) {
             return res.status(201).json({
                 success: false,
@@ -1788,7 +1349,7 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
 //Match Verification Code and change EmailVerified Status
 const changeEmailVerifiedStatus = async (req, res, next) => {
     try {
-        const { email, AuthType, verificationCode } = req.body;
+        const { email, verificationCode } = req.body;
         // Validate email format
         if (!email || !validateEmail(email)) {
             return res.status(400).json({
@@ -1799,7 +1360,7 @@ const changeEmailVerifiedStatus = async (req, res, next) => {
 
 
         // FIND THE CUSTOMER 
-        const admin = await Admin.findOne({ email, AuthType: AuthType });
+        const admin = await Admin.findOne({ email });
 
         if (admin && admin.verificationCode === verificationCode) {
             // If verification code matches, clear it from the database
@@ -1836,7 +1397,6 @@ module.exports = {
     deleteSingleAdmin,
     updateAdminAccountDetails,
     loginController,
-    refreshTokenController,
     handleAdminProtectedRoute,
     // profileController,
     handleLogout,

@@ -47,10 +47,10 @@ const enterAdminEmail = async (email) => {
 };
 
 
-const deleteAdmin = async (email, AuthType) => {
+const deleteAdmin = async (email) => {
 
   try {
-    const changeAdminStatus = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, { isActive: false }, { new: true })
+    const changeAdminStatus = await Admin.findOneAndUpdate({ email }, { isActive: false }, { new: true })
 
     return {
       status: 200,
@@ -69,7 +69,7 @@ const deleteAdmin = async (email, AuthType) => {
 
 //Update Admin Account Details
 const updateAdmin = async (adminData) => {
-  const { name, gender, email, mobileNumber, dateOfBirth, password, AuthType } = adminData;
+  const { name, gender, email, mobileNumber, dateOfBirth, password } = adminData;
 
   try {
     let updateFields = {
@@ -84,7 +84,7 @@ const updateAdmin = async (adminData) => {
       updateFields.password = hashedPassword;
     }
 
-    const admin = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, updateFields, { new: true }).select("-password");
+    const admin = await Admin.findOneAndUpdate({ email }, updateFields, { new: true }).select("-password");
 
     if (!admin) {
       console.log("Admin not found or no changes made.");

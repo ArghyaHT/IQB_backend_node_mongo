@@ -3,6 +3,7 @@ const { registerFcmToken, sendNotification, getAllNotifications, sendNotificatio
 const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
+const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js");
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.route("/send-multiple-notification").post(verifyRefreshTokenAdmin, multip
 router.route("/send-notification-android").post(sendNotificationToAndroid)
 
 //Get All Notifications
-router.route("/getAllNotifications").post(handleBarberProtectedRoute, getAllNotifications)
+router.route("/getAllNotifications").post(verifyRefreshTokenBarber, getAllNotifications)
 
 
 

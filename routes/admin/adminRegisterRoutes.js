@@ -25,8 +25,8 @@ router.route("/googleAdminLogin").post(googleAdminLogin)
 // //GOOGLE_LOGIN
 // router.route("/google-login").post(googleLoginController)
 
-//FOR REFRESHING NEW ACCESS TOKEN
-router.route("/refresh-token").post(refreshTokenController)
+// //FOR REFRESHING NEW ACCESS TOKEN
+// router.route("/refresh-token").post(refreshTokenController)
 
 // //ISLOGOUT MIDDLEWARE
 // router.route("/loggedoutmiddleware").get(verifyRefreshTokenAdmin,isLoggedOutMiddleware)
