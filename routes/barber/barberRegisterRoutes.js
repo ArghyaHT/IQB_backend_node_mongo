@@ -1,6 +1,6 @@
 const express = require("express");
 const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute, BarberLoggedIn, updateBarber, googleBarberSignup, googleBarberLogin } = require("../../controllers/barber/barberRegisterController");
-const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
+const { allSalonServices, getAllSalons } = require("../../controllers/admin/salonRegisterController");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js");
 const { barberServedQueue } = require("../../controllers/Queueing/joinQueueController");
@@ -98,6 +98,9 @@ router.route("/barberServedQueue").post(verifyRefreshTokenBarber, barberServedQu
 router.route("/getBarberDetailsByEmail").post(verifyRefreshTokenBarber,getBarberDetailsByEmail)
 
 router.route("/changeBarberOnlineStatus").post(verifyRefreshTokenBarber, isBarberOnline)
+
+//GetAll Salons
+router.route("/getAllSalons").get(verifyRefreshTokenBarber,getAllSalons)
 
 
 module.exports = router;
