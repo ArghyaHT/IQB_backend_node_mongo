@@ -1,6 +1,6 @@
 const express = require("express")
 const {  getSalonInfo, updateSalonBySalonIdAndAdminEmail, allSalonServices, updateSalonServiceByServiceId, deleteServiceByServiceIdSalonId, getSalonsByLocation, addServices, getAllSalonsByAdmin, searchSalonsByNameAndCity, deleteSalon, createSalonByAdmin, updateSalonImages, deleteSalonImages, getAllSalons, changeSalonOnlineStatus, uploadSalonLogo, getSalonLogo, deleteSalonLogo, uploadSalonGallery, uploadMoreSalonGalleryImages, getSalonImages, updateSalonLogo,  } = require("../../controllers/admin/salonRegisterController")
-const { handleProtectedRoute, changeDefaultSalonIdOfAdmin, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController")
+const { changeDefaultSalonIdOfAdmin, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController")
 const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController")
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin")
 
@@ -37,13 +37,6 @@ router.route("/getSalonsByLocation").get(getSalonsByLocation) //api working
 
 router.route("/getSalonInfoBySalonId").get(getSalonInfo) // api working
 
-
-
-//GET ALL SALON SERVICES
-router.route("/allSalonServices").get(verifyRefreshTokenAdmin, allSalonServices) //need to do for barberAlso
-
-
-
 router.route("/updateSalonServiceByServiceId").put(verifyRefreshTokenAdmin,updateSalonServiceByServiceId) //api working perfectly
 
 router.route("/deleteServiceByServiceIdSalonId").post(deleteServiceByServiceIdSalonId)
@@ -68,6 +61,5 @@ router.route("/getSalonLogo").post(getSalonLogo)
 
 //Delete Salon Logo
 router.route("/deleteSalonLogo").delete(deleteSalonLogo)
-
 
 module.exports = router 

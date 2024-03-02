@@ -1,7 +1,5 @@
 const express = require("express")
 const { singleJoinQueue, groupJoinQueue, getQueueListBySalonId, autoJoin, barberServedQueue, getAvailableBarbersForQ, getBarberByMultipleServiceId, getQlistbyBarberId, cancelQueue, sendQSms, getQhistoryByCustomerEmail } = require("../../controllers/Queueing/joinQueueController")
-const { handleProtectedRoute, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController")
-const { handleBarberProtectedRoute } = require("../../controllers/barber/barberRegisterController")
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js")
 const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js")
 
@@ -20,15 +18,12 @@ router.route("/getQListBySalonId").get(verifyRefreshTokenAdmin,getQueueListBySal
 router.route("/autoJoin").post(verifyRefreshTokenAdmin,autoJoin),
 
 //==============================================//
-//BarberServed Api
-router.route("/barberServedQueue").post(handleProtectedRoute,barberServedQueue)
-//==============================================//
 
 //Get Available Barbers for Queue
-router.route("/getAvailableBarbersForQ").post(handleAdminProtectedRoute, getAvailableBarbersForQ)
+router.route("/getAvailableBarbersForQ").post(verifyRefreshTokenAdmin, getAvailableBarbersForQ)
 
 //Get Barber By Multiple ServiceId
-router.route("/getBarberByMultipleServiceId").post(handleAdminProtectedRoute, getBarberByMultipleServiceId)
+router.route("/getBarberByMultipleServiceId").post(verifyRefreshTokenAdmin, getBarberByMultipleServiceId)
 
 //Get Q list by BarberId
 router.route("/getQlistByBarberId").post(verifyRefreshTokenBarber, getQlistbyBarberId)

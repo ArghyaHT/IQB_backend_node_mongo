@@ -359,8 +359,9 @@ const googleBarberLogin = async (req, res, next) => {
           foundUser
       })
   } catch (error) {
-      console.log(error)
-  }
+    console.log(error);
+    next(error);
+}
 }
 
 //DESC:REFRESH TOKEN ==============================

@@ -1,9 +1,9 @@
 const express = require("express");
 const { getAllBarberbySalonId, deleteBarber, addServicesTobarbers, barberLogin, chnageBarberWorkingStatus,  isBarberOnline, getAllBarbersByServiceId, getBarberServicesByBarberId, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, profileController, insertDetailsByBarber, connectBarbertoSalon, createBarberByAdmin, updateBarberByAdmin, updateBarberAccountDetails, getBarberDetailsByEmail, uploadBarberprofilePic, updateBarberProfilePic, deleteBarberProfilePicture, isBarberLoggedOutMiddleware, isBarberLogginMiddleware, sendVerificationCodeForBarberEmail, changeBarberEmailVerifiedStatus, handleBarberProtectedRoute, BarberLoggedIn, updateBarber, googleBarberSignup, googleBarberLogin } = require("../../controllers/barber/barberRegisterController");
-const {  handleProtectedRoute, isLogginMiddleware, handleAdminProtectedRoute } = require("../../controllers/admin/adminRegisterController");
 const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
 const verifyRefreshTokenBarber = require("../../middlewares/Barber/VerifyRefreshTokenBarber.js");
+const { barberServedQueue } = require("../../controllers/Queueing/joinQueueController");
 
 
 const router = express.Router();
@@ -39,11 +39,6 @@ router.route('/reset-password/:token').post(handleResetPassword)
 // //ISLOGIN MIDDLEWARE
 // router.route("/barberLoggedinmiddleware").get(handleBarberProtectedRoute, isBarberLogginMiddleware)
 
-//ALL PROTECTED ROUTES
-// router.route("/profile").get(handleProtectedRoute,profileController)
-
-
-
 
 //CREATE BARBER BY ADMIN
 router.route("/createBarberByAdmin").post(verifyRefreshTokenAdmin,createBarberByAdmin)
@@ -62,12 +57,6 @@ router.route("/barberAllSalonServices").get(verifyRefreshTokenBarber, allSalonSe
 //CONNECT BARBER TO SALON
 router.route("/connectBarberToSalon").post(verifyRefreshTokenBarber,connectBarbertoSalon)
 
-
-//==============================================//
-//GET BARBER DETAILS BY EMAIL
-router.route("/getBarberDetailsByEmail").post(handleProtectedRoute,getBarberDetailsByEmail)
-
-router.route("/changeBarberOnlineStatus").post(handleProtectedRoute, isBarberOnline)
 //==============================================//
 
 //Update Barber Account Details
@@ -96,5 +85,19 @@ router.route("/sendVerificationCodeForBarberEmail").post(verifyRefreshTokenBarbe
 
 //Send EmailVerifiedStatus
 router.route("/changeBarberEmailVerifiedStatus").post(verifyRefreshTokenBarber, changeBarberEmailVerifiedStatus )
+
+
+//============================Common Routes for Admin And Barber=======================//
+//GET ALL SALON SERVICES
+router.route("/allSalonServices").get(verifyRefreshTokenBarber, allSalonServices) //need to do for barberAlso
+
+//BarberServed Api
+router.route("/barberServedQueue").post(verifyRefreshTokenBarber, barberServedQueue)
+
+//GET BARBER DETAILS BY EMAIL
+router.route("/getBarberDetailsByEmail").post(verifyRefreshTokenBarber,getBarberDetailsByEmail)
+
+router.route("/changeBarberOnlineStatus").post(verifyRefreshTokenBarber, isBarberOnline)
+
 
 module.exports = router;

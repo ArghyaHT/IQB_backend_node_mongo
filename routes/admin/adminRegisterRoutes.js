@@ -1,7 +1,10 @@
 const express = require("express");
 const { validateSignUp, validate } = require("../../middlewares/registerValidator");
-const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, googleLoginController, refreshTokenController, handleProtectedRoute, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus, getDefaultSalonByAdmin, handleAdminProtectedRoute, AdminLoggedIn, demoController, googleAdminSignup, googleAdminLogin } = require("../../controllers/admin/adminRegisterController.js");
+const { adminSignUp, allAdmins, deleteSingleAdmin, updateAdmin, forgetAdminPassword, resetAdminpassword, adminLogin, registerController, loginController, handleLogout, handleForgetPassword, handleResetPassword, approveBarber, updateAdminAccountDetails, uploadAdminprofilePic, updateAdminProfilePic, deleteAdminProfilePicture, isLoggedOutMiddleware, isLogginMiddleware, getAllSalonsByAdmin, changeDefaultSalonIdOfAdmin, sendVerificationCodeForAdminEmail, changeEmailVerifiedStatus, getDefaultSalonByAdmin, handleAdminProtectedRoute, AdminLoggedIn, demoController, googleAdminSignup, googleAdminLogin } = require("../../controllers/admin/adminRegisterController.js");
 const verifyRefreshTokenAdmin = require("../../middlewares/Admin/VerifyRefreshTokenAdmin.js");
+const { allSalonServices } = require("../../controllers/admin/salonRegisterController");
+const { barberServedQueue } = require("../../controllers/Queueing/joinQueueController");
+const { getBarberDetailsByEmail, isBarberOnline } = require("../../controllers/barber/barberRegisterController");
 
 const router = express.Router();
 
@@ -69,6 +72,20 @@ router.route("/changeEmailVerifiedStatus").post(verifyRefreshTokenAdmin, changeE
 
 //Get Default Salon Of Admin
 router.route("/getDefaultSalonByAdmin").post(verifyRefreshTokenAdmin, getDefaultSalonByAdmin)
+
+
+//============================Common Routes for Admin And Barber=======================//
+//GET ALL SALON SERVICES
+router.route("/allSalonServices").get(verifyRefreshTokenAdmin, allSalonServices) //need to do for barberAlso
+
+//BarberServed Api
+router.route("/barberServedQueue").post(verifyRefreshTokenAdmin,barberServedQueue)
+
+//GET BARBER DETAILS BY EMAIL
+router.route("/getBarberDetailsByEmail").post(verifyRefreshTokenAdmin ,getBarberDetailsByEmail)
+
+router.route("/changeBarberOnlineStatus").post(verifyRefreshTokenAdmin, isBarberOnline)
+
 
 
 module.exports = router
