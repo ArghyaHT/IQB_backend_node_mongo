@@ -47,10 +47,10 @@ const enterAdminEmail = async (email) => {
 };
 
 
-const deleteAdmin = async (email) => {
+const deleteAdmin = async (email, AuthType) => {
 
   try {
-    const changeAdminStatus = await Admin.findOneAndUpdate({ email }, { isActive: false }, { new: true })
+    const changeAdminStatus = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, { isActive: false }, { new: true })
 
     return {
       status: 200,

@@ -1309,7 +1309,7 @@ const handleProtectedRoute = async (req, res, next) => {
 // };
 
 const deleteSingleAdmin = async (req, res, next) => {
-    const { email } = req.body;
+    const { email, AuthType } = req.body;
     try {
 
         // Validate email format
@@ -1319,7 +1319,7 @@ const deleteSingleAdmin = async (req, res, next) => {
                 message: "Invalid email format"
             });
         }
-        const result = await adminService.deleteAdmin(email)
+        const result = await adminService.deleteAdmin(email, AuthType)
         res.status(result.status).json({
             response: result.response,
         });
@@ -1408,6 +1408,7 @@ const uploadAdminprofilePic = async (req, res, next) => {
     try {
         let profiles = req.files.profile;
         const email = req.body.email;
+        const AuthType = req.body.AuthType;
 
         // Validate email format
         if (!email || !validateEmail(email)) {
@@ -1465,7 +1466,7 @@ const uploadAdminprofilePic = async (req, res, next) => {
             .then(async (profileimg) => {
                 console.log(profileimg);
 
-                const adminImage = await Admin.findOneAndUpdate({ email }, { profile: profileimg }, { new: true });
+                const adminImage = await Admin.findOneAndUpdate({ email, AuthType: AuthType }, { profile: profileimg }, { new: true });
 
                 res.status(200).json({
                     success: true,
@@ -1602,7 +1603,7 @@ const deleteAdminProfilePicture = async (req, res, next) => {
 //Get Salons by Admin
 const getAllSalonsByAdmin = async (req, res, next) => {
     try {
-        const { adminEmail } = req.body; // Assuming admin's email is provided in the request body
+        const { adminEmail, AuthType } = req.body; // Assuming admin's email is provided in the request body
 
         const email = adminEmail;
         // Validate email format
@@ -1613,7 +1614,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
             });
         }
         // Find the admin based on the email
-        const admin = await Admin.findOne({ email: adminEmail });
+        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
 
         if (!admin) {
             return res.status(201).json({
@@ -1641,7 +1642,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
 //Get Default Salon Details Of Admin
 const getDefaultSalonByAdmin = async (req, res, next) => {
     try {
-        const { adminEmail } = req.body;
+        const { adminEmail, AuthType } = req.body;
 
         const email = adminEmail;
         // Validate email format
@@ -1652,7 +1653,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
             });
         }
 
-        const admin = await Admin.findOne({ email: adminEmail })
+        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType })
         if (!admin) {
             res.status(201).json({
                 success: false,
@@ -1679,7 +1680,7 @@ const getDefaultSalonByAdmin = async (req, res, next) => {
 //Change Salon Id of Admin
 const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
     try {
-        const { adminEmail, salonId } = req.body;
+        const { adminEmail, AuthType, salonId } = req.body;
         if (!salonId) {
             return res.status(400).json({ success: false, message: "Please provide salonId" });
         }
@@ -1694,7 +1695,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
             });
         }
         // Find the admin based on the provided email
-        const admin = await Admin.findOne({ email: adminEmail });
+        const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
 
         if (!admin) {
             return res.status(201).json({
@@ -1734,7 +1735,7 @@ const changeDefaultSalonIdOfAdmin = async (req, res, next) => {
 //Send Email Verification code
 const sendVerificationCodeForAdminEmail = async (req, res, next) => {
     try {
-        const { email } = req.body;
+        const { email, AuthType } = req.body;
 
         // Validate email format
         if (!email || !validateEmail(email)) {
@@ -1744,7 +1745,7 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
             });
         }
 
-        const user = await Admin.findOne({ email });
+        const user = await Admin.findOne({ email, AuthType: AuthType });
         if (!user) {
             return res.status(201).json({
                 success: false,
@@ -1786,7 +1787,7 @@ const sendVerificationCodeForAdminEmail = async (req, res, next) => {
 //Match Verification Code and change EmailVerified Status
 const changeEmailVerifiedStatus = async (req, res, next) => {
     try {
-        const { email, verificationCode } = req.body;
+        const { email, AuthType, verificationCode } = req.body;
         // Validate email format
         if (!email || !validateEmail(email)) {
             return res.status(400).json({
@@ -1797,7 +1798,7 @@ const changeEmailVerifiedStatus = async (req, res, next) => {
 
 
         // FIND THE CUSTOMER 
-        const admin = await Admin.findOne({ email });
+        const admin = await Admin.findOne({ email, AuthType: AuthType });
 
         if (admin && admin.verificationCode === verificationCode) {
             // If verification code matches, clear it from the database

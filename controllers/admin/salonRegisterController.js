@@ -38,7 +38,7 @@ const createSalonByAdmin = async (req, res, next) => {
       services,
       appointmentSettings
     } = req.body;
-    const { adminEmail } = req.body
+    const { adminEmail, AuthType } = req.body
 
     //sagnik createsalondata
 
@@ -184,7 +184,7 @@ const createSalonByAdmin = async (req, res, next) => {
       services,
       appointmentSettings
     }
-    const result = await salonService.createSalon(salonData, adminEmail);
+    const result = await salonService.createSalon(salonData, adminEmail, AuthType);
 
     res.status(result.status).json({
       success: result.success,
@@ -998,7 +998,7 @@ const deleteServiceByServiceIdSalonId = async (req, res, next) => {
 const getAllSalonsByAdmin = async (req, res, next) => {
 
   try {
-    const { adminEmail } = req.query;
+    const { adminEmail, AuthType } = req.query;
     const email = adminEmail;
 
     // Validate email format
@@ -1008,7 +1008,7 @@ const getAllSalonsByAdmin = async (req, res, next) => {
         message: "Invalid email format"
       });
     }
-    const result = await salonService.getSalonsByAdminEmail(adminEmail)
+    const result = await salonService.getSalonsByAdminEmail(adminEmail, AuthType)
 
     res.status(result.status).json({
       success: true,
