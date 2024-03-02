@@ -36,92 +36,12 @@ const createSalonByAdmin = async (req, res, next) => {
       instraLink,
       tiktokLink,
       services,
-      appointmentSettings
+      appointmentSettings,
+      adminEmail, AuthType 
     } = req.body;
-    const { adminEmail, AuthType } = req.body
-
-    //sagnik createsalondata
-
-    //     const salonData = {
-    //       //Ai admin emailer value loggin theke asbe
-    //       adminEmail: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].email
-    //       , salonEmail, salonName, address, city, location: {
-    //           type: "Point",
-    //           coordinates: {
-    //               longitude: Number(longitude),
-    //               latitude: Number(latitude)
-    //           }
-    //       }, country, postCode, contactTel, salonType, webLink, services, image, 
-    //       appointmentSettings: { startTime, endTime, intervalInMinutes: Number(chooseIntervalTime) }
-    //   }
-
-    //   //createbarber route="/barber/createbarber"
-    //   const barberdata = {
-    //     name, email, nickName, mobileNumber, dateOfBirth, 
-    //     salonId:Number(LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId), 
-    //     barberServices: selectedService
-    // }
-
-    // //appointment/createappointment
-
-    // const createAppointmentData = {
-    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware?.user[0].salonId,
-    //   barberId: selectedbarberId,
-    //   serviceId: selectedService.map((s) => s.serviceId),
-    //   appointmentDate: date,
-    //   appointmentNotes: appointmentNotes,
-    //   startTime: timeSlotStartTime,
-    //   // customerEmail: "arg@gmail.com",
-    //   customerName: name,
-    //   customerType: "Walk-In",
-    //   methodUsed: "App"
-    // }
-
-    // //single join queue
-    // const queuedata = {
-    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-    //   name,
-    //   customerEmail,
-    //   mobileNumber,
-    //   joinedQType: "Single-Join",
-    //   methodUsed: "Walk-In",
-    //   barberName: selectedbarberName || currentbarberName,
-    //   barberId: selectedbarberId,
-    //   services: selectedService 
-    // }
-
-    // //auto join queueu
-    // const joindata = {
-    //   name,
-    //   customerEmail,
-    //   customerMobile,
-    //   joinedQType: "Auto-Join",
-    //   methodUsed: "Walk-In",
-    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-    //   services: selectedService,
-    //   isOnline: true
-    // }
-
-    // //group join 
-
-    // const customerdata = {
-    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-    //   name,
-    //   customerEmail,
-    //   customerMobile,
-    //   joinedQType: "Group-Join",
-    //   methodUsed: "Walk-In",
-    //   barberName: selectedbarberName,
-    //   barberId: selectedbarberId,
-    //   services: selectedService
-    // }
-
-    // const queuedata = {
-    //   salonId: LoggedInMiddleware?.user && LoggedInMiddleware.user[0].salonId,
-    //   groupInfo: selectedCustomer
-    // }
-
-
+   
+    // console.log(AuthType)
+  
     // Check if required fields are missing
     if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !location || !appointmentSettings) {
       return res.status(400).json({
@@ -164,6 +84,8 @@ const createSalonByAdmin = async (req, res, next) => {
       });
     }
     const salonData = {
+      adminEmail, 
+      AuthType,
       salonName,
       adminEmail,
       salonLogo,
@@ -184,7 +106,7 @@ const createSalonByAdmin = async (req, res, next) => {
       services,
       appointmentSettings
     }
-    const result = await salonService.createSalon(salonData, adminEmail, AuthType);
+    const result = await salonService.createSalon(salonData);
 
     res.status(result.status).json({
       success: result.success,

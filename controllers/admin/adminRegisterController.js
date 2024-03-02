@@ -116,6 +116,7 @@ const registerController = async (req, res, next) => {
                 message: "Password must be at least 8 characters long"
             });
         }
+        
 
         // Check if the email is already registered
         const existingUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local" }).exec()

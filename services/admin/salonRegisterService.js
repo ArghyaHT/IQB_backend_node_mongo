@@ -32,6 +32,9 @@ const createSalon = async (salonData) => {
     appointmentSettings
   } = salonData
 
+  // console.log(adminEmail)
+  // console.log(AuthType)
+
   try {
 
 
@@ -105,6 +108,8 @@ const createSalon = async (salonData) => {
     const savedSalon = await salon.save();
 
     const admin = await Admin.findOne({ email: adminEmail, AuthType: AuthType });
+
+    console.log(admin)
 
     if (admin) {
       admin.registeredSalons.push(savedSalon.salonId); // Assuming salonId is the unique identifier for salons

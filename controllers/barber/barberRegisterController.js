@@ -9,8 +9,8 @@ const bcrypt = require("bcrypt")
 const Barber = require("../../models/barberRegisterModel.js")
 
 
-const JWT_ACCESS_SECRET = "accessToken"
-const JWT_REFRESH_SECRET = "refreshToken"
+const JWT_ACCESS_SECRET_BARBER = "accessTokenBarber"
+const JWT_REFRESH_SECRET_BARBER = "refreshTokenBarber"
 
 //Upload Profile Picture Config
 const path = require("path");
@@ -31,98 +31,148 @@ cloudinary.config({
 //DESC:REGISTER A Barber 
 //====================
 const registerController = async (req, res, next) => {
+  // try {
+  //   const email = req.body.email
+  //   const password = req.body.password
+  //   const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+
+  //   // Validate email format
+  //   if (!email || !validateEmail(email)) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Invalid email format"
+  //     });
+  //   }
+
+  //   // Validate password length
+  //   if (!password || password.length < 8) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Password must be at least 8 characters long"
+  //     });
+  //   }
+
+
+
+  //   let user = await Barber.findOne({ email: email });
+  //   if (user) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Barber already exists"
+  //     })
+  //   }
+
+  //   const barberId = await Barber.countDocuments() + 1;
+  //   // If the user doesn't exist, create a new Barber
+  //   if (!user) {
+  //     // Hash the password before saving it
+  //     const hashedPassword = await bcrypt.hash(password, 10);
+
+  //     user = new Barber({
+  //       email: email,
+  //       password: hashedPassword,
+  //       barberId: barberId,
+  //       barber: true
+  //     });
+  //     await user.save();
+  //   }
+
+  //   // // Save FCM Tokens based on the switch-case logic
+  //   let tokenType, tokenValue;
+  //   if (webFcmToken) {
+  //     tokenType = 'webFcmToken';
+  //     tokenValue = webFcmToken;
+  //   } else if (androidFcmToken) {
+  //     tokenType = 'androidFcmToken';
+  //     tokenValue = androidFcmToken;
+  //   } else if (iosFcmToken) {
+  //     tokenType = 'iosFcmToken';
+  //     tokenValue = iosFcmToken;
+  //   }
+
+  //   if (tokenType && tokenValue) {
+  //     await UserTokenTable.findOneAndUpdate(
+  //       { email: email },
+  //       { [tokenType]: tokenValue, type: "barber" },
+  //       { upsert: true, new: true }
+  //     );
+  //   }
+
+
+  //   // Generate tokens
+  //   const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
+  //   const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
+
+  //   // Set cookies in the response
+  //   res.cookie('refreshToken', refreshToken, {
+  //     httpOnly: true,
+  //     maxAge: 24 * 60 * 60 * 1000, // 2 days
+  //     secure: true,
+  //     sameSite: "None"
+  //   });
+  //   res.cookie('accessToken', accessToken, {
+  //     httpOnly: true,
+  //     maxAge: 1 * 60 * 1000, //1 mins
+  //     secure: true,
+  //     sameSite: "None"
+  //   });
+
+  //   res.status(200).json({
+  //     success: true,
+  //     message: "Barber registered successfully",
+  //     user
+  //   })
+  // } 
   try {
-    const email = req.body.email
-    const password = req.body.password
-    const { webFcmToken, androidFcmToken, iosFcmToken } = req.body;
+    const { email, password } = req.body
 
     // Validate email format
     if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email format"
-      });
+        return res.status(400).json({
+            success: false,
+            message: "Invalid email format"
+        });
     }
 
     // Validate password length
     if (!password || password.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 8 characters long"
-      });
+        return res.status(400).json({
+            success: false,
+            message: "Password must be at least 8 characters long"
+        });
+    }
+    
+
+    // Check if the email is already registered
+    const existingUser = await Admin.findOne({ email, role: 'Admin', AuthType: "local" }).exec()
+
+    if (existingUser) {
+        return res.status(400).json({
+            success: false,
+            message: "Admin already exists"
+        });
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-
-    let user = await Barber.findOne({ email: email });
-    if (user) {
-      return res.status(400).json({
-        success: false,
-        message: "Barber already exists"
-      })
-    }
-
-    const barberId = await Barber.countDocuments() + 1;
-    // If the user doesn't exist, create a new Barber
-    if (!user) {
-      // Hash the password before saving it
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      user = new Barber({
-        email: email,
+    // Create a new user
+    const newUser = new Admin({
+        email,
         password: hashedPassword,
-        barberId: barberId,
-        barber: true
-      });
-      await user.save();
-    }
+        role: "Admin"
+    })
 
-    // // Save FCM Tokens based on the switch-case logic
-    let tokenType, tokenValue;
-    if (webFcmToken) {
-      tokenType = 'webFcmToken';
-      tokenValue = webFcmToken;
-    } else if (androidFcmToken) {
-      tokenType = 'androidFcmToken';
-      tokenValue = androidFcmToken;
-    } else if (iosFcmToken) {
-      tokenType = 'iosFcmToken';
-      tokenValue = iosFcmToken;
-    }
-
-    if (tokenType && tokenValue) {
-      await UserTokenTable.findOneAndUpdate(
-        { email: email },
-        { [tokenType]: tokenValue, type: "barber" },
-        { upsert: true, new: true }
-      );
-    }
-
-
-    // Generate tokens
-    const accessToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_ACCESS_SECRET, { expiresIn: "1m" });
-    const refreshToken = jwt.sign({ user: { _id: user._id, email: user.email, barber: user.barber } }, JWT_REFRESH_SECRET, { expiresIn: "2d" });
-
-    // Set cookies in the response
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 2 days
-      secure: true,
-      sameSite: "None"
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      maxAge: 1 * 60 * 1000, //1 mins
-      secure: true,
-      sameSite: "None"
-    });
+    await newUser.save()
 
     res.status(200).json({
-      success: true,
-      message: "Barber registered successfully",
-      user
+        success: true,
+        message: 'Admin registered successfully',
+        newUser
     })
-  } catch (error) {
+}
+
+  catch (error) {
     console.log(error);
     next(error);
   }
