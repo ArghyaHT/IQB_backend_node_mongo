@@ -881,6 +881,7 @@ const createBarberByAdmin = async (req, res, next) => {
       nickName,
       salonId,
       mobileNumber,
+      role: "Barber",
       dateOfBirth,
       barber: true,
       isApproved: true,
