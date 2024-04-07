@@ -32,44 +32,44 @@ cloudinary.config({
 //====================
 const registerController = async (req, res, next) => {
   try {
-    const { email, password, webFcmToken, androidFcmToken, iosFcmToken  } = req.body
+    const { email, password, webFcmToken, androidFcmToken, iosFcmToken } = req.body
 
     // Validate email format
     if (!email || !validateEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid email format"
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
     }
 
     // Validate password length
     if (!password || password.length < 8) {
-        return res.status(400).json({
-            success: false,
-            message: "Password must be at least 8 characters long"
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
     }
-    
+
 
     // Check if the email is already registered
     const existingUser = await Barber.findOne({ email, role: 'Barber' }).exec()
 
     if (existingUser) {
-        return res.status(400).json({
-            success: false,
-            message: "Barber already exists"
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Barber already exists"
+      });
     }
-  const barberId = await Barber.countDocuments() + 1;
+    const barberId = await Barber.countDocuments() + 1;
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create a new user
     const newUser = new Barber({
-        email,
-        password: hashedPassword,
-        barberId: barberId,
-        role: "Barber"
+      email,
+      password: hashedPassword,
+      barberId: barberId,
+      role: "Barber"
     })
 
     await newUser.save()
@@ -97,11 +97,11 @@ const registerController = async (req, res, next) => {
 
 
     res.status(200).json({
-        success: true,
-        message: 'Barber registered successfully',
-        newUser
+      success: true,
+      message: 'Barber registered successfully',
+      newUser
     })
-}
+  }
   catch (error) {
     console.log(error);
     next(error);
@@ -114,36 +114,36 @@ const loginController = async (req, res, next) => {
     const { email, password, webFcmToken, androidFcmToken, iosFcmToken } = req.body
 
     if (!email || !validateEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid email format"
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
     }
 
     // Validate password length
     if (!password || password.length < 8) {
-        return res.status(400).json({
-            success: false,
-            message: "Password must be at least 8 characters long"
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long"
+      });
     }
 
     const foundUser = await Barber.findOne({ email, role: 'Barber' }).exec()
 
     if (!foundUser) {
-        return res.status(400).json({
-            success: false,
-            message: 'Unauthorized Barber'
-        })
+      return res.status(400).json({
+        success: false,
+        message: 'Unauthorized Barber'
+      })
     }
 
     const match = await bcrypt.compare(password, foundUser.password)
 
     if (!match) return res.status(400).json({
-        message: false,
-        message: 'Unauthorized Barber'
+      message: false,
+      message: 'Unauthorized Barber'
     })
-  // // Save FCM Tokens based on the switch-case logic
+    // // Save FCM Tokens based on the switch-case logic
     let tokenType, tokenValue;
     if (webFcmToken) {
       tokenType = 'webFcmToken';
@@ -164,12 +164,12 @@ const loginController = async (req, res, next) => {
       );
     }
     const accessToken = jwt.sign(
-        {
-            "email": foundUser.email,
-            "role": foundUser.role
-        },
-       JWT_ACCESS_SECRET_BARBER,
-        { expiresIn: '1d' }
+      {
+        "email": foundUser.email,
+        "role": foundUser.role
+      },
+      JWT_ACCESS_SECRET_BARBER,
+      { expiresIn: '1d' }
     )
 
     // const refreshToken = jwt.sign(
@@ -180,21 +180,21 @@ const loginController = async (req, res, next) => {
 
     // Create secure cookie with refresh token 
     res.cookie('BarberToken', accessToken, {
-        httpOnly: true, //accessible only by web server 
-        secure: true, //https
-        sameSite: 'None', //cross-site cookie 
-        maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+      httpOnly: true, //accessible only by web server 
+      secure: true, //https
+      sameSite: 'None', //cross-site cookie 
+      maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
     })
 
     // Send accessToken containing username and roles 
     res.status(201).json({
-        success: true,
-        message: "Barber Logged In Successfully",
-        accessToken,
-        foundUser
+      success: true,
+      message: "Barber Logged In Successfully",
+      accessToken,
+      foundUser
     })
-}
-   catch (error) {
+  }
+  catch (error) {
     console.log(error);
     next(error);
   }
@@ -204,164 +204,164 @@ const loginController = async (req, res, next) => {
 //GOOGLE SIGNIN ===================================
 const googleBarberSignup = async (req, res, next) => {
   try {
-      const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
+    const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
 
-      const token = req.query.token;
-      const { webFcmToken, androidFcmToken, iosFcmToken } = req.query;
+    const token = req.query.token;
+    const { webFcmToken, androidFcmToken, iosFcmToken } = req.query;
 
-      console.log(token)
+    console.log(token)
 
-      if (!token) {
-          return res.status(404).json({
-              success: false,
-              message: "UnAuthorized Admin or Token not present"
-          })
-      }
+    if (!token) {
+      return res.status(404).json({
+        success: false,
+        message: "UnAuthorized Admin or Token not present"
+      })
+    }
 
-      const client = new OAuth2Client(CLIENT_ID);
+    const client = new OAuth2Client(CLIENT_ID);
 
-      // Call the verifyIdToken to
-      // varify and decode it
-      const ticket = await client.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,
-      });
+    // Call the verifyIdToken to
+    // varify and decode it
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,
+    });
 
-      // Get the JSON with all the user info
-      const payload = ticket.getPayload();
+    // Get the JSON with all the user info
+    const payload = ticket.getPayload();
 
-      // console.log("Google payload ", payload)
+    // console.log("Google payload ", payload)
 
-      // Check if the email is already registered
-      const existingUser = await Barber.findOne({ email: payload.email, role: 'Barber' }).exec()
+    // Check if the email is already registered
+    const existingUser = await Barber.findOne({ email: payload.email, role: 'Barber' }).exec()
 
-      if (existingUser) {
-          return res.status(404).json({ success: false, message: 'Barber Email already exists' })
-      }
+    if (existingUser) {
+      return res.status(404).json({ success: false, message: 'Barber Email already exists' })
+    }
 
 
     const barberId = await Barber.countDocuments() + 1;
     const firstTwoLetters = payload.name.slice(0, 2).toUpperCase();
     const barberCode = firstTwoLetters + barberId;
 
-      // Create a new user
-      const newUser = new Barber({
-          email: payload.email,
-          role: "Barber",
-          AuthType: "google",
-          barberId: barberId,
-          barberCode: barberCode
-      })
+    // Create a new user
+    const newUser = new Barber({
+      email: payload.email,
+      role: "Barber",
+      AuthType: "google",
+      barberId: barberId,
+      barberCode: barberCode
+    })
 
-      await newUser.save()
+    await newUser.save()
 
-      let tokenType, tokenValue;
-      if (webFcmToken) {
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-      } else if (androidFcmToken) {
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-      } else if (iosFcmToken) {
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-      }
+    let tokenType, tokenValue;
+    if (webFcmToken) {
+      tokenType = 'webFcmToken';
+      tokenValue = webFcmToken;
+    } else if (androidFcmToken) {
+      tokenType = 'androidFcmToken';
+      tokenValue = androidFcmToken;
+    } else if (iosFcmToken) {
+      tokenType = 'iosFcmToken';
+      tokenValue = iosFcmToken;
+    }
 
-      if (tokenType && tokenValue) {
-        await UserTokenTable.findOneAndUpdate(
-          { email: payload.email },
-          { [tokenType]: tokenValue, type: "barber" },
-          { upsert: true, new: true }
-        );
-      }
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: payload.email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
 
 
-      res.status(201).json({ success: true, message: 'Barber registered successfully', newUser })
+    res.status(201).json({ success: true, message: 'Barber registered successfully', newUser })
   }
   catch (error) {
-      console.log(error);
-      next(error);
+    console.log(error);
+    next(error);
   }
 }
 
 
 const googleBarberLogin = async (req, res, next) => {
   try {
-      const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
+    const CLIENT_ID = '508224318018-quta6u0n38vml0up7snscdrtl64555l1.apps.googleusercontent.com'
 
-      const token = req.query.token;
-      const { webFcmToken, androidFcmToken, iosFcmToken } = req.query;
+    const token = req.query.token;
+    const { webFcmToken, androidFcmToken, iosFcmToken } = req.query;
 
-      if (!token) {
-          return res.status(404).json({ success: false, message: "UnAuthorized Barber or Token not present" })
-      }
+    if (!token) {
+      return res.status(404).json({ success: false, message: "UnAuthorized Barber or Token not present" })
+    }
 
-      const client = new OAuth2Client(CLIENT_ID);
+    const client = new OAuth2Client(CLIENT_ID);
 
-      // Call the verifyIdToken to
-      // varify and decode it
-      const ticket = await client.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,
-      });
+    // Call the verifyIdToken to
+    // varify and decode it
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,
+    });
 
-      // Get the JSON with all the user info
-      const payload = ticket.getPayload();
+    // Get the JSON with all the user info
+    const payload = ticket.getPayload();
 
-      console.log("Google Login payload ", payload)
+    console.log("Google Login payload ", payload)
 
-      const foundUser = await Barber.findOne({ email: payload.email, role: 'Barber' }).exec()
+    const foundUser = await Barber.findOne({ email: payload.email, role: 'Barber' }).exec()
 
-      if (!foundUser) {
-          return res.status(401).json({ success: false, message: 'Unauthorized Barber' })
-      }
+    if (!foundUser) {
+      return res.status(401).json({ success: false, message: 'Unauthorized Barber' })
+    }
 
-      const accessToken = jwt.sign(
-          {
+    const accessToken = jwt.sign(
+      {
 
-              "email": foundUser.email,
-              "role": foundUser.role,
-          },
-          JWT_ACCESS_SECRET_BARBER,
-          { expiresIn: '1d' }
-      )
-      let tokenType, tokenValue;
-      if (webFcmToken) {
-        tokenType = 'webFcmToken';
-        tokenValue = webFcmToken;
-      } else if (androidFcmToken) {
-        tokenType = 'androidFcmToken';
-        tokenValue = androidFcmToken;
-      } else if (iosFcmToken) {
-        tokenType = 'iosFcmToken';
-        tokenValue = iosFcmToken;
-      }
+        "email": foundUser.email,
+        "role": foundUser.role,
+      },
+      JWT_ACCESS_SECRET_BARBER,
+      { expiresIn: '1d' }
+    )
+    let tokenType, tokenValue;
+    if (webFcmToken) {
+      tokenType = 'webFcmToken';
+      tokenValue = webFcmToken;
+    } else if (androidFcmToken) {
+      tokenType = 'androidFcmToken';
+      tokenValue = androidFcmToken;
+    } else if (iosFcmToken) {
+      tokenType = 'iosFcmToken';
+      tokenValue = iosFcmToken;
+    }
 
-      if (tokenType && tokenValue) {
-        await UserTokenTable.findOneAndUpdate(
-          { email: payload.email },
-          { [tokenType]: tokenValue, type: "barber" },
-          { upsert: true, new: true }
-        );
-      }
+    if (tokenType && tokenValue) {
+      await UserTokenTable.findOneAndUpdate(
+        { email: payload.email },
+        { [tokenType]: tokenValue, type: "barber" },
+        { upsert: true, new: true }
+      );
+    }
 
-      // Create secure cookie with refresh token 
-      res.cookie('BarberToken', accessToken, {
-          httpOnly: true, //accessible only by web server 
-          secure: true, //https
-          sameSite: 'None', //cross-site cookie 
-          maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-      })
-      res.status(201).json({
-          success: true,
-          message: "Barber Logged In Successfully",
-          accessToken,
-          foundUser
-      })
+    // Create secure cookie with refresh token 
+    res.cookie('BarberToken', accessToken, {
+      httpOnly: true, //accessible only by web server 
+      secure: true, //https
+      sameSite: 'None', //cross-site cookie 
+      maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
+    res.status(201).json({
+      success: true,
+      message: "Barber Logged In Successfully",
+      accessToken,
+      foundUser
+    })
   } catch (error) {
     console.log(error);
     next(error);
-}
+  }
 }
 
 //DESC:REFRESH TOKEN ==============================
@@ -403,118 +403,118 @@ const handleLogout = async (req, res, next) => {
     // if(cookies) { return res.status(401).json({ message:"Unauthorize Barber" }) }
 
     if (!cookies?.BarberToken) return res.status(404).json({
-        success: false,
-        message: "Unauthorize Barber"
+      success: false,
+      message: "Unauthorize Barber"
     }) //No content
     res.clearCookie('BarberToken', {
-        httpOnly: true,
-        sameSite: 'None',
-        secure: true
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true
     })
     res.status(200).json({
-        success: true,
-        message: 'Barber Cookie cleared'
+      success: true,
+      message: 'Barber Cookie cleared'
     })
-} catch (error) {
+  } catch (error) {
     console.log(error);
     next(error);
-}
+  }
 }
 
 const BarberLoggedIn = async (req, res, next) => {
   try {
-      const barberCookie = req.cookies
+    const barberCookie = req.cookies
 
-      console.log(barberCookie)
+    console.log(barberCookie)
 
-      if (!barberCookie?.BarberToken) {
-          return res.status(401).json({
-              success: false,
-              message: "UnAuthorized Barber"
-          })
+    if (!barberCookie?.BarberToken) {
+      return res.status(401).json({
+        success: false,
+        message: "UnAuthorized Barber"
+      })
+    }
+
+    jwt.verify(
+      barberCookie?.BarberToken,
+      JWT_ACCESS_SECRET_BARBER,
+      async (err, decoded) => {
+        if (err) return res.status(403).json({ success: false, message: 'Forbidden Barber' })
+
+        console.log(decoded)
+        const barberEmail = decoded.email
+
+        const loggedinUser = await Barber.findOne({ email: barberEmail })
+        res.status(201).json({
+          success: true,
+          user: [loggedinUser]
+        })
+
       }
-
-      jwt.verify(
-          barberCookie?.BarberToken,
-          JWT_ACCESS_SECRET_BARBER,
-          async (err, decoded) => {
-              if (err) return res.status(403).json({ success: false, message: 'Forbidden Barber' })
-
-              console.log(decoded)
-              const barberEmail = decoded.email
-
-              const loggedinUser = await Barber.findOne({email:barberEmail})
-              res.status(201).json({
-                  success: true,
-                  user: [loggedinUser]
-              })
-
-          }
-      )
+    )
   }
   catch (error) {
-      console.log(error);
-      next(error);
+    console.log(error);
+    next(error);
   }
 
 }
 
 const updateBarber = async (req, res) => {
-  try{
-      const { email, name, mobileNumber, gender, dateOfBirth } = req.body
+  try {
+    const { email, name, mobileNumber, gender, dateOfBirth } = req.body
 
-        // Check if the provided email and password match any existing admin
-        const foundUser = await Barber.findOne({ email, role: 'Barber'}).exec()
-  
-        if (!foundUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'Unauthorized Barber'
-            })
-        }
+    // Check if the provided email and password match any existing admin
+    const foundUser = await Barber.findOne({ email, role: 'Barber' }).exec()
+
+    if (!foundUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unauthorized Barber'
+      })
+    }
 
 
-        // Update user information
-        foundUser.name = name
-        foundUser.mobileNumber = mobileNumber
-        foundUser.gender = gender
-        foundUser.dateOfBirth = dateOfBirth
+    // Update user information
+    foundUser.name = name
+    foundUser.mobileNumber = mobileNumber
+    foundUser.gender = gender
+    foundUser.dateOfBirth = dateOfBirth
 
-        const updatedBarber = await foundUser.save()
+    const updatedBarber = await foundUser.save()
 
-        const accessToken = jwt.sign(
-            {
-                "email": email,
-                "role": foundUser.role,
-            },
-            JWT_ACCESS_SECRET_BARBER,
-            { expiresIn: '1d' }
-        )
+    const accessToken = jwt.sign(
+      {
+        "email": email,
+        "role": foundUser.role,
+      },
+      JWT_ACCESS_SECRET_BARBER,
+      { expiresIn: '1d' }
+    )
 
-        // const refreshToken = jwt.sign(
-        //     { "email": email, "role": foundUser.role },
-        //     REFRESH_TOKEN_SECRET,
-        //     { expiresIn: '1d' }
-        // )
+    // const refreshToken = jwt.sign(
+    //     { "email": email, "role": foundUser.role },
+    //     REFRESH_TOKEN_SECRET,
+    //     { expiresIn: '1d' }
+    // )
 
-        // Create secure cookie with refresh token 
-        res.cookie('BarberToken', accessToken, {
-            httpOnly: true, //accessible only by web server 
-            secure: true, //https
-            sameSite: 'None', //cross-site cookie 
-            maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-        })
+    // Create secure cookie with refresh token 
+    res.cookie('BarberToken', accessToken, {
+      httpOnly: true, //accessible only by web server 
+      secure: true, //https
+      sameSite: 'None', //cross-site cookie 
+      maxAge: 1 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
 
-        // Send accessToken containing username and roles 
-        res.status(201).json({
-            success: true,
-            message: 'Barber information updated successfully',
-            accessToken,
-            updatedBarber
-        })
-  }   catch (error) {
-      console.log(error);
-      next(error);
+    // Send accessToken containing username and roles 
+    res.status(201).json({
+      success: true,
+      message: 'Barber information updated successfully',
+      accessToken,
+      updatedBarber
+    })
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 }
 
@@ -861,8 +861,8 @@ const createBarberByAdmin = async (req, res, next) => {
       });
     }
 
-    //Creating the random Password of ^ digit
-    const randomPassword = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+    // Creating the random Password of 8 digits
+    const randomPassword = Math.floor(Math.random() * (99999999 - 10000000 + 1)) + 10000000;
     const randomString = randomPassword.toString();
 
     // Hashing the password
@@ -945,10 +945,10 @@ const updateBarberByAdmin = async (req, res, next) => {
 
     if (!barberServices || barberServices.length === 0) {
       return res.status(400).json({
-          success: false,
-          message: "Barber services array cannot be empty"
+        success: false,
+        message: "Barber services array cannot be empty"
       });
-  }
+    }
 
     if (barberServices.length > 0) {
       // Validate barberServices format
@@ -1674,7 +1674,7 @@ module.exports = {
   handleBarberProtectedRoute,
   BarberLoggedIn,
   updateBarber,
-  googleBarberSignup, 
+  googleBarberSignup,
   googleBarberLogin
 }
 
