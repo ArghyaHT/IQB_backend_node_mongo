@@ -55,7 +55,7 @@ const createSalon = async (salonData) => {
       serviceDesc: s.serviceDesc,
       servicePrice: s.servicePrice,
       serviceEWT: s.serviceEWT,
-      vipService: s.vipService
+      vipService: s.vipService === "Vip"? true : false,
 
     }))
 
