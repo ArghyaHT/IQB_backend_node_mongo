@@ -841,9 +841,9 @@ const createBarberByAdmin = async (req, res, next) => {
     }
     // Validate barberServices format
     for (const service of barberServices) {
-      const { serviceId, serviceCode, servicePrice, serviceName, serviceEWT } = service;
+      const { serviceId, serviceCode, servicePrice, serviceName, barberServiceEWT } = service;
 
-      if (!serviceId || !serviceCode || !servicePrice || !serviceName || !serviceEWT) {
+      if (!serviceId || !serviceCode || !servicePrice || !serviceName || !barberServiceEWT) {
         return res.status(400).json({
           success: false,
           message: "Missing required fields in barber service object"
@@ -969,7 +969,7 @@ const updateBarberByAdmin = async (req, res, next) => {
     if (barberServices && barberServices.length > 0) {
       //Update the services accordingly
       for (const service of barberServices) {
-        const { serviceId, serviceName, serviceCode, barberServiceEWT } = service;
+        const { serviceId, serviceName, serviceCode, vipService,  barberServiceEWT } = service;
 
         const updateService = await Barber.findOneAndUpdate(
           { email, salonId, 'barberServices.serviceId': serviceId },
@@ -978,6 +978,7 @@ const updateBarberByAdmin = async (req, res, next) => {
               'barberServices.$.serviceName': serviceName,
               'barberServices.$.serviceCode': serviceCode,
               'barberServices.$.barberServiceEWT': barberServiceEWT, // Update other fields if needed
+              'barberServices.$.vipService': vipService
             }
           },
           { new: true }
@@ -989,6 +990,7 @@ const updateBarberByAdmin = async (req, res, next) => {
             serviceId,
             serviceName,
             serviceCode,
+            vipService,
             barberServiceEWT
           };
           await Barber.findOneAndUpdate(

@@ -137,6 +137,10 @@ const salonsSchema = new mongoose.Schema({
         serviceEWT: {
             type: Number
         },
+        vipService:{
+            type:Boolean,
+            default: false
+        }
     }],
 
     isLicensed: {

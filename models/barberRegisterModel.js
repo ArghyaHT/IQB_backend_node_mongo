@@ -104,6 +104,10 @@ const barberSchema = new mongoose.Schema({
         servicePrice: {
             type: Number
         },
+        vipService:{
+            type: Boolean,
+            default: false
+        },
         barberServiceEWT: {
             type: Number
         }
