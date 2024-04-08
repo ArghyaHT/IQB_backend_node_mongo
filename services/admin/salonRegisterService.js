@@ -275,7 +275,8 @@ const updateSalonBySalonId = async (salonData) => {
             },
             serviceDesc: matchingService.serviceDesc,
             servicePrice: matchingService.servicePrice,
-            serviceEWT: matchingService.serviceEWT
+            serviceEWT: matchingService.serviceEWT,
+            vipService: matchingService.vipService
           };
         }
         return existingService;
