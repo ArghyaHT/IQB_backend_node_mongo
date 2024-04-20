@@ -26,17 +26,17 @@ const salonsSchema = new mongoose.Schema({
     salonCode: {
         type: String,
     },
-    salonLogo:
-        [
-            {
-                public_id: {
-                    type: String
-                },
-                url: {
-                    type: String,
-                }
-            }
-        ],
+    salonLogo: {
+        type: [{
+          public_id: {
+            type: String
+          },
+          url: {
+            type: String,
+          }
+        }],
+        default: []
+      },
     salonType: {
         type: String
     },
