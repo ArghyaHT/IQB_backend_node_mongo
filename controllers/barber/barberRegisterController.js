@@ -1312,7 +1312,7 @@ const updateBarberAccountDetails = async (req, res, next) => {
 }
 
 const deleteBarber = async (req, res, next) => {
-  const { salonId } = req.query;
+  const { salonId } = req.body;
   const { email } = req.body
   try {
     // Validate salonId from query parameters
