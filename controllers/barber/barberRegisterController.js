@@ -61,6 +61,7 @@ const registerController = async (req, res, next) => {
       });
     }
     const barberId = await Barber.countDocuments() + 1;
+   
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -1220,7 +1221,8 @@ const deleteBarberProfilePicture = async (req, res, next) => {
 //Get all barber By SalonId
 const getAllBarberbySalonId = async (req, res, next) => {
   try {
-    const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
+    // const { salonId, name, email, page = 1, limit = 10, sortField, sortOrder } = req.query;
+    const { salonId, name, email, page = 1, sortField, sortOrder } = req.query;
     let query = {}; // Filter for isDeleted set to false
 
 
@@ -1244,9 +1246,11 @@ const getAllBarberbySalonId = async (req, res, next) => {
       sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
     }
 
-    const skip = Number(page - 1) * Number(limit);
+    // const skip = Number(page - 1) * Number(limit);
 
-    const getAllBarbers = await Barber.find({ salonId, isDeleted: false }).sort(sortOptions).skip(skip).limit(Number(limit));
+    // const getAllBarbers = await Barber.find({ salonId, isDeleted: false }).sort(sortOptions).skip(skip).limit(Number(limit));
+    
+    const getAllBarbers = await Barber.find({ salonId, isDeleted: false }).sort(sortOptions);
 
     const totalBarbers = await Barber.countDocuments(query);
 
@@ -1254,8 +1258,8 @@ const getAllBarberbySalonId = async (req, res, next) => {
       success: true,
       message: "All barbers fetched successfully",
       getAllBarbers,
-      totalPages: Math.ceil(totalBarbers / Number(limit)),
-      currentPage: Number(page),
+      // totalPages: Math.ceil(totalBarbers / Number(limit)),
+      // currentPage: Number(page),
       totalBarbers,
     });
   } catch (error) {

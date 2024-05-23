@@ -23,7 +23,8 @@ router.route("/updateSalonImages").put(verifyRefreshTokenAdmin,updateSalonImages
 
 //DELETE SALON IMAGES
 router.route("/deleteSalonImages").delete(verifyRefreshTokenAdmin, deleteSalonImages)
-//DELETE SALON IMAGES
+
+//GET SALON IMAGES
 router.route("/getSalonImages").post(getSalonImages)
 
 //UPDATE SALON BY ADMIN EMAIL AND SALON ID
