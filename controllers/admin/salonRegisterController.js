@@ -40,13 +40,13 @@ const createSalonByAdmin = async (req, res, next) => {
       adminEmail 
     } = req.body;
      
-    // Check if required fields are missing
-    if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !timeZone || !location || !appointmentSettings) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please fill all the fields',
-      });
-    }
+    // // Check if required fields are missing
+    // if (!salonName || !salonEmail || !city || !country || !salonType || !contactTel || !services || !timeZone || !location || !appointmentSettings) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'Please fill all the fields',
+    //   });
+    // }
 
     //Find the Salon If exits 
     const existingSalon = await Salon.findOne({ $or: [{ salonEmail }, { salonName }] });
@@ -777,7 +777,7 @@ const updateSalonBySalonIdAndAdminEmail = async (req, res, next) => {
 
   // Check if required fields are missing or empty
   if (!salonId || !services) {
-    return res.status(400).json({ success: false, message: "Missing required fields" });
+    return res.status(400).json({ success: false, message: "Missing salonId or services" });
   }
 
 
