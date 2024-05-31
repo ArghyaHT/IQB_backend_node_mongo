@@ -16,13 +16,12 @@ const salonQueueListSchema = new mongoose.Schema({
         },
         customerName: {
             type: String,
-            // required: true
         },
         customerEmail: {
             type: String
         },
         mobileNumber:{
-            type: Number
+            type: String
         },
         joinedQ: {
             type: Boolean
@@ -72,14 +71,26 @@ const salonQueueListSchema = new mongoose.Schema({
         barberId: {
             type: Number
         },
-        serviceId: {
-            type: String
-        },
-        serviceName: {
-            type: String
-        },
+        services: [{
+            serviceId: {
+                type: Number
+            },
+            serviceName: {
+                type: String
+            },
+            servicePrice:{
+                type: Number
+            },
+            vipService: {
+                type: Boolean
+            }
+        }],
         serviceEWT: {
             type: Number
+        },
+        serviceType:{
+            type: String,
+            default: "Regular"
         },
         customerEWT: {
             type: Number
